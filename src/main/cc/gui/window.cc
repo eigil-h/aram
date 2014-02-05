@@ -31,8 +31,13 @@ void warsaw::GtkmmApplication::run() throw (std::exception) {
 }
 
 warsaw::gui::ProjectContainer::ProjectContainer()
-: playButton("Play")
-, tmp("Project view") {
+: tmp("Project view") {
+
+	Gtk::Image* image = Gtk::manage(new Gtk::Image(Gtk::Stock::MEDIA_PLAY,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	image->show();
+	playButton.set_image(*image);
+
 	playButton.set_size_request(200, -1);
 	playButton.set_border_width(BUTTON_BORDER_WIDTH);
 
@@ -43,9 +48,19 @@ warsaw::gui::ProjectContainer::ProjectContainer()
 }
 
 warsaw::gui::AudioclipContainer::AudioclipContainer()
-: recordButton("Record")
-, markButton("Mark")
-, tmp("Audioclip view") {
+: tmp("Audioclip view") {
+
+	Gtk::Image* recordImage = Gtk::manage(new Gtk::Image(Gtk::Stock::MEDIA_RECORD,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	recordImage->show();
+	recordButton.set_image(*recordImage);
+
+	Gtk::Image* markImage = Gtk::manage(new Gtk::Image(Gtk::Stock::SELECT_ALL,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	markImage->show();
+	markButton.set_image(*markImage);
+
+
 	recordButton.set_size_request(-1, 325 / 2);
 	recordButton.set_border_width(BUTTON_BORDER_WIDTH);
 	markButton.set_size_request(-1, 325 / 2);

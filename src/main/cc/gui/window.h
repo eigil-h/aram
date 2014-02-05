@@ -22,7 +22,7 @@ namespace warsaw {
 
 		class AudioclipContainer : public Gtk::HBox {
 			Gtk::VBox buttonContainer;
-			Gtk::Button recordButton;
+			Gtk::ToggleButton recordButton;
 			Gtk::Button markButton;
 			Gtk::Label tmp;
 		public:
