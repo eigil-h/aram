@@ -6,8 +6,8 @@
  */
 #include <exception>
 
-#ifndef APPLICATION_H
-#define	APPLICATION_H
+#ifndef WARZAW_APPLICATION_H
+#define WARZAW_APPLICATION_H
 
 namespace warsaw {
 
@@ -16,5 +16,4 @@ namespace warsaw {
 		virtual void run() throw (std::exception) = 0;
 	};
 }
-#endif	/* APPLICATION_H */
-
+#endif

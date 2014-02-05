@@ -7,13 +7,33 @@
 #include <gtkmm.h>
 #include "../application.h"
 
-#ifndef WINDOW_H
-#define	WINDOW_H
+#ifndef WARZAW_WINDOW_H
+#define WARZAW_WINDOW_H
 
 namespace warsaw {
 	namespace gui {
 
+		class ProjectContainer : public Gtk::HBox {
+			Gtk::Button playButton;
+			Gtk::Label tmp;
+		public:
+			ProjectContainer();
+		};
+
+		class AudioclipContainer : public Gtk::HBox {
+			Gtk::VBox buttonContainer;
+			Gtk::Button recordButton;
+			Gtk::Button markButton;
+			Gtk::Label tmp;
+		public:
+			AudioclipContainer();
+		};
+
 		class Window : public Gtk::Window {
+			Gtk::VBox mainContainer;
+			ProjectContainer projectContainer;
+			AudioclipContainer audioclipContainer;
+
 		public:
 
 			Window();
@@ -30,5 +50,4 @@ namespace warsaw {
 	};
 }
 
-#endif	/* WINDOW_H */
-
+#endif
