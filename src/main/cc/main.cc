@@ -1,26 +1,20 @@
 #include <iostream>
-#include <gtkmm.h>
+#include <exception>
+
+#include "gui/window.h"
 
 using namespace std;
-
-namespace warsaw {
-class Window : public Gtk::Window {
-public:
-
-	Window() {
-		set_default_size(400, 200);
-		set_title("Warsaw");
-		set_position(Gtk::WindowPosition::WIN_POS_CENTER);
-		show_all_children();
-	}
-};
-}
+using namespace warsaw;
 
 int main(int argc, char** argv) {
-	Glib::RefPtr<Gtk::Application> application = Gtk::Application::create(argc, argv, "warsaw.app");
-	warsaw::Window window;
-	int result = application->run(window);
+	GtkmmApplication app(argc, argv);
 
-	cout << "see you later, amiga!" << endl;
-	return result;
+	try {
+		app.run();
+		cout << "see you later, amiga!" << endl;
+		return 0;
+	} catch (std::exception e) {
+		cout << e.what() << endl;
+		return -1;
+	}
 }

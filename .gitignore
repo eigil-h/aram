@@ -26,7 +26,8 @@ configure
 depcomp
 install-sh
 missing
-src/main/cc/.deps/
-src/main/cc/.dirstamp
+**/.deps/
+**/.dirstamp
 stamp-h1
 warsaw
+nbproject/
