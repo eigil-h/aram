@@ -1,20 +1,33 @@
 #include "window.h"
-
-#define BUTTON_BORDER_WIDTH 10
+#include <iostream>
 
 warsaw::gui::Window::Window() {
-	set_default_size(1200, 750);
-	set_title("Warsaw");
-	set_position(Gtk::WindowPosition::WIN_POS_CENTER);
+	Glib::RefPtr<Gtk::CssProvider> cssProvider = Gtk::CssProvider::create();
+	Glib::RefPtr<Gtk::StyleContext> refStyleContext = get_style_context();
+	Glib::RefPtr< Gdk::Screen > defaultScreen = Gdk::Screen::get_default();
+	refStyleContext->add_provider_for_screen(defaultScreen, cssProvider,
+					GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-	projectContainer.set_size_request(-1, 325);
-	audioclipContainer.set_size_request(-1, 325);
+	try {
+		cssProvider->load_from_path("style.css");
 
-	mainContainer.pack_start(projectContainer);
-	mainContainer.pack_start(audioclipContainer);
-	add(mainContainer);
+		set_default_size(1200, 750);
+		set_title("Warsaw");
+		set_position(Gtk::WindowPosition::WIN_POS_CENTER);
 
-	show_all_children();
+		projectContainer.set_size_request(-1, 325);
+		audioclipContainer.set_size_request(-1, 325);
+
+		mainContainer.pack_start(projectContainer);
+		mainContainer.pack_start(audioclipContainer);
+		add(mainContainer);
+
+		show_all_children();
+
+	} catch (const Glib::Error& e) {
+		std::cerr << e.what() << std::endl;
+		throw std::exception();
+	}
 }
 
 warsaw::GtkmmApplication::GtkmmApplication(int argc, char** argv) {
@@ -37,9 +50,7 @@ warsaw::gui::ProjectContainer::ProjectContainer()
 					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
 	image->show();
 	playButton.set_image(*image);
-
 	playButton.set_size_request(200, -1);
-	playButton.set_border_width(BUTTON_BORDER_WIDTH);
 
 	tmp.set_size_request(1000, -1);
 
@@ -53,18 +64,16 @@ warsaw::gui::AudioclipContainer::AudioclipContainer()
 	Gtk::Image* recordImage = Gtk::manage(new Gtk::Image(Gtk::Stock::MEDIA_RECORD,
 					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
 	recordImage->show();
+
 	recordButton.set_image(*recordImage);
+	recordButton.set_size_request(-1, 325 / 2);
 
 	Gtk::Image* markImage = Gtk::manage(new Gtk::Image(Gtk::Stock::SELECT_ALL,
 					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
 	markImage->show();
 	markButton.set_image(*markImage);
-
-
-	recordButton.set_size_request(-1, 325 / 2);
-	recordButton.set_border_width(BUTTON_BORDER_WIDTH);
 	markButton.set_size_request(-1, 325 / 2);
-	markButton.set_border_width(BUTTON_BORDER_WIDTH);
+
 	buttonContainer.set_size_request(200, -1);
 	tmp.set_size_request(1000, -1);
 
