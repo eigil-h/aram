@@ -16,21 +16,15 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <memory>
+/*
+ * Couple Application with some engine using #ifdef and such - maybe...?
+ * Right now there's only Gtkmm, so nothing like that is required.
+ */
 
-#ifndef WARZAW_APPLICATION_H
-#define WARZAW_APPLICATION_H
+#include "application.h"
+#include "gui/window.h"
 
-namespace warsaw {
-
-	class Application {
-	public:
-		virtual void run() throw (std::exception) = 0;
-	};
-
-	class ApplicationFactory {
-	public:
-		std::unique_ptr<Application> assemble(int argc, char** argv);
-	};
+std::unique_ptr<warsaw::Application> warsaw::ApplicationFactory::assemble(int argc, char** argv) {
+	std::unique_ptr<Application> app(new GtkmmApplication(argc, argv));
+	return app;
 }
-#endif

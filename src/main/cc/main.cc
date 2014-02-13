@@ -19,37 +19,41 @@
 #include <iostream>
 #include <exception>
 
-#include "gui/window.h"
+#include "application.h"
 
 using namespace std;
 using namespace warsaw;
 
 static void displayGPL3() {
-	cout << "  Warsaw, the audio recorder and music composer" << endl;
-	cout << "  Copyright(C) 2014 Eigil Hysvær" << endl;
-	cout << endl;
-	cout << "  This program is free software: you can redistribute it and/or modify" << endl;
-	cout << "  it under the terms of the GNU General Public License as published by" << endl;
-	cout << "  the Free Software Foundation, either version 3 of the License, or" << endl;
-	cout << "  (at your option) any later version." << endl;
-	cout << endl;
-	cout << "  This program is distributed in the hope that it will be useful," << endl;
-	cout << "  but WITHOUT ANY WARRANTY; without even the implied warranty of" << endl;
-	cout << "  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the" << endl;
-	cout << "  GNU General Public License for more details." << endl;
-	cout << endl;
-	cout << "  You should have received a copy of the GNU General Public License" << endl;
-	cout << "  along with this program. If not, see <http://www.gnu.org/licenses/>." << endl;
-	cout << endl;
+	cout << "  Warsaw, the audio recorder and music composer" << endl <<
+					"  Copyright(C) 2014 Eigil Hysvær" << endl <<
+					endl <<
+					"  This program is free software: you can redistribute it and/or modify" << endl <<
+					"  it under the terms of the GNU General Public License as published by" << endl <<
+					"  the Free Software Foundation, either version 3 of the License, or" << endl <<
+					"  (at your option) any later version." << endl <<
+					endl <<
+					"  This program is distributed in the hope that it will be useful," << endl <<
+					"  but WITHOUT ANY WARRANTY; without even the implied warranty of" << endl <<
+					"  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the" << endl <<
+					"  GNU General Public License for more details." << endl <<
+					endl <<
+					"  You should have received a copy of the GNU General Public License" << endl <<
+					"  along with this program. If not, see <http://www.gnu.org/licenses/>." << endl << endl;
+}
+
+static unique_ptr<Application> assembleApplication(int argc, char** argv) {
+	ApplicationFactory fac;
+	return fac.assemble(argc, argv);
 }
 
 int main(int argc, char** argv) {
 	displayGPL3();
 
-	GtkmmApplication app(argc, argv);
+	unique_ptr<Application> app = assembleApplication(argc, argv);
 
 	try {
-		app.run();
+		app->run();
 		cout << "see you later, amiga!" << endl;
 		return 0;
 	} catch (std::exception e) {
