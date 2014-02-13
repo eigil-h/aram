@@ -42,18 +42,11 @@ static void displayGPL3() {
 					"  along with this program. If not, see <http://www.gnu.org/licenses/>." << endl << endl;
 }
 
-static unique_ptr<Application> assembleApplication(int argc, char** argv) {
-	ApplicationFactory fac;
-	return fac.assemble(argc, argv);
-}
-
 int main(int argc, char** argv) {
 	displayGPL3();
 
-	unique_ptr<Application> app = assembleApplication(argc, argv);
-
 	try {
-		app->run();
+		ApplicationFactory::assemble(argc, argv)->run();
 		cout << "see you later, amiga!" << endl;
 		return 0;
 	} catch (std::exception e) {

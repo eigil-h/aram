@@ -30,7 +30,7 @@ namespace warsaw {
 
 	class ApplicationFactory {
 	public:
-		std::unique_ptr<Application> assemble(int argc, char** argv);
+		static std::unique_ptr<Application> assemble(int argc, char** argv);
 	};
 }
 #endif
