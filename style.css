@@ -8,28 +8,39 @@ and open the template in the editor.
     Author     : eigil
 */
 
+
 * {
-	border-style: hidden;
+	border-image: none;
+	border-radius: 0;
+	border-width: 1px;
 	background-image: none;
-	background-color: darkseagreen;
+	background-color: white;
+	transition: 200ms ease-in-out;
 }
 
 .button {
-	border-style: hidden;
-	background-image: none;
-	transition: 300ms ease-in-out;
+	background-image: -gtk-gradient(linear, left top, left bottom,
+		from (shade(shade(@button_bg_color, 1.02), 1.05)),
+		to (shade(shade(@button_bg_color, 1.02), 0.97)));
+	border-color: shade(shade(@button_bg_color, 1.02), 0.8);
+	border-radius: 2px;
+	border-style: solid;
+	margin: 2px;
+}
+
+.button:active,
+.button:active:hover {
+	background-image: -gtk-gradient(linear, left top, left bottom,
+		from (shade(shade(@button_bg_color, 0.85), 1.05)),
+		to (shade(shade(@button_bg_color, 0.85), 0.97)));
+	border-color: shade(shade(@button_bg_color, 0.85), 0.8);
 }
 
 .button:hover {
-	border-style: hidden;
-	background-image: none;
-	transition: 300ms ease-in-out;
-	background-color: seagreen;
+	background-image: -gtk-gradient(linear, left top, left bottom,
+		from (shade(shade(@button_bg_color, 1.07), 1.05)),
+		to (shade(shade(@button_bg_color, 1.07), 0.97)));
+	border-color: shade(shade(@button_bg_color, 1.07), 0.8);
 }
 
-.button:active {
-	border-style: hidden;
-	background-image: none;
-	transition: 300ms ease-in-out;
-	background-color: green;
-}
+@define-color button_bg_color #c0faf0;
