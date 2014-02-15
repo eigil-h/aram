@@ -15,11 +15,10 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#include <memory>
-
 #ifndef WARZAW_APPLICATION_H
 #define WARZAW_APPLICATION_H
+
+#include <memory>
 
 namespace warsaw {
 
