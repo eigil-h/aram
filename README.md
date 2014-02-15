@@ -7,7 +7,7 @@ Audio recorder and music composer
 ======
 Build instruction
 
-$ autoreconf -i
-$ ./configure
-$ make
+$ autoreconf -i <br/>
+$ ./configure <br/>
+$ make <br/>
 
