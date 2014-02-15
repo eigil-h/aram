@@ -6,6 +6,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
 
 PKG_CHECK_MODULES([gtkmm], [gtkmm-3.0 >= 3.0.0])
+PKG_CHECK_MODULES([jack2], [jack >= 1.9.8])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

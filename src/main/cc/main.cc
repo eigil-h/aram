@@ -20,6 +20,7 @@
 #include <exception>
 
 #include "application.h"
+#include "audio/jackclient.h"
 
 using namespace std;
 using namespace warsaw;
@@ -44,6 +45,8 @@ static void displayGPL3() {
 
 int main(int argc, char** argv) {
 	displayGPL3();
+
+	warsaw::audio::JackClient jackClient;
 
 	try {
 		ApplicationFactory::assemble(argc, argv)->run();
