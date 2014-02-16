@@ -20,10 +20,11 @@
 #include <exception>
 
 #include "application.h"
-#include "audio/jackclient.h"
+#include "audio/audiosystem.h"
 
 using namespace std;
 using namespace warsaw;
+using namespace warsaw::audio;
 
 static void displayGPL3() {
 	cout << "  Warsaw, the audio recorder and music composer" << endl <<
@@ -47,8 +48,7 @@ int main(int argc, char** argv) {
 	displayGPL3();
 
 	try {
-		warsaw::audio::JackClient jackClient;
-
+		std::unique_ptr<AudioSystem> audioSystemPtr = AudioSystemFactory::assemble(argc, argv);
 		ApplicationFactory::assemble(argc, argv)->run();
 		cout << "see you later, amiga!" << endl;
 		return 0;

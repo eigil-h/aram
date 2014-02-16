@@ -16,16 +16,34 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * Couple Application with some engine using #ifdef and such - maybe...?
- * Right now there's only Gtkmm, so nothing like that is required.
+
+/* Audio system abstraction
+ *
+ * Implementation of Silence
  */
 
-#include "application.h"
-#include "gui/window.h"
+#ifndef WARSAW_AUDIOSYSTEM_H
+#define WARSAW_AUDIOSYSTEM_H
 
-std::unique_ptr<warsaw::Application> warsaw::ApplicationFactory::assemble(int argc, char** argv) {
-	//To prevent gtk to freak out when program is given eg -silence argument, argc is set to 1
-	std::unique_ptr<Application> app(new GtkmmApplication(1, argv));
-	return app;
+#include <memory>
+
+namespace warsaw {
+	namespace audio {
+
+		class AudioSystem {
+		public:
+			virtual ~AudioSystem() = 0;
+		};
+
+		class AudioSystemFactory {
+		public:
+			static std::unique_ptr<AudioSystem> assemble(int argc, char** argv);
+		};
+
+		class Silence : public AudioSystem {
+		};
+	}
 }
+
+
+#endif

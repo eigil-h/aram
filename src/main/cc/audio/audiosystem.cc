@@ -16,16 +16,30 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * Couple Application with some engine using #ifdef and such - maybe...?
- * Right now there's only Gtkmm, so nothing like that is required.
- */
+#include "audiosystem.h"
+#include <cstring>
+#include "jackclient.h"
 
-#include "application.h"
-#include "gui/window.h"
+static bool isSilence(int argc, char** argv) {
+	for (int i = 0; i < argc; i++) {
+		if (strcmp(argv[i], "-silence") == 0) {
+			return true;
+		}
+	}
+	return false;
+}
 
-std::unique_ptr<warsaw::Application> warsaw::ApplicationFactory::assemble(int argc, char** argv) {
-	//To prevent gtk to freak out when program is given eg -silence argument, argc is set to 1
-	std::unique_ptr<Application> app(new GtkmmApplication(1, argv));
-	return app;
+std::unique_ptr<warsaw::audio::AudioSystem> warsaw::audio::AudioSystemFactory::assemble(int argc, char** argv) {
+	AudioSystem* as;
+	if (isSilence(argc, argv)) {
+		as = new Silence();
+	} else {
+		as = new JackClient();
+	}
+	std::unique_ptr<AudioSystem> asp(as);
+	return asp;
+}
+
+warsaw::audio::AudioSystem::~AudioSystem() {
+
 }

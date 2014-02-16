@@ -22,6 +22,7 @@
 #include <jack/jack.h>
 #include <exception>
 
+#include "audiosystem.h"
 #include "types.h"
 
 using namespace std;
@@ -44,7 +45,7 @@ namespace warsaw {
 		/**
 		 * Wrapper for jack_client_t
 		 */
-		class JackClient {
+		class JackClient : public AudioSystem {
 			jack_client_t* jackClient;
 
 		public:
