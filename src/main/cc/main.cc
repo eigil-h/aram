@@ -46,9 +46,9 @@ static void displayGPL3() {
 int main(int argc, char** argv) {
 	displayGPL3();
 
-	warsaw::audio::JackClient jackClient;
-
 	try {
+		warsaw::audio::JackClient jackClient;
+
 		ApplicationFactory::assemble(argc, argv)->run();
 		cout << "see you later, amiga!" << endl;
 		return 0;
