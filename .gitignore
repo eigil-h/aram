@@ -32,5 +32,8 @@ stamp-h1
 warsaw
 nbproject/
 
+#odb generated source files
+*-odb.?xx
+
 #Other
 *~
