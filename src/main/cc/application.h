@@ -19,6 +19,10 @@
 #define WARZAW_APPLICATION_H
 
 #include <memory>
+#include <cstdlib>
+#include <string>
+
+using namespace std;
 
 namespace warsaw {
 
@@ -29,7 +33,15 @@ namespace warsaw {
 
 	class ApplicationFactory {
 	public:
-		static std::unique_ptr<Application> assemble(int argc, char** argv);
+		static unique_ptr<Application> assemble(int argc, char** argv);
+	};
+
+	class Util {
+	public:
+
+		static const string getHomePath() {
+			return ::getenv("HOME");
+		}
 	};
 }
 #endif
