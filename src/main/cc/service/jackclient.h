@@ -23,7 +23,7 @@
 #include <exception>
 
 #include "audiosystem.h"
-#include "types.h"
+#include "../model/types.h"
 
 using namespace std;
 
