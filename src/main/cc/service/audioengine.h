@@ -30,17 +30,17 @@
 namespace warsaw {
 	namespace service {
 
-		class AudioSystem {
+		class AudioEngine {
 		public:
-			virtual ~AudioSystem() = 0;
+			virtual ~AudioEngine() = 0;
 		};
 
-		class AudioSystemFactory {
+		class AudioEngineFactory {
 		public:
-			static std::unique_ptr<AudioSystem> assemble(int argc, char** argv);
+			static std::unique_ptr<AudioEngine> assemble(int argc, char** argv);
 		};
 
-		class Silence : public AudioSystem {
+		class Silence : public AudioEngine {
 		};
 	}
 }

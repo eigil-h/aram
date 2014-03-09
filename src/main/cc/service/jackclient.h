@@ -46,7 +46,7 @@ namespace warsaw {
 		/**
 		 * Wrapper for jack_client_t
 		 */
-		class JackClient : public AudioSystem {
+		class JackClient : public AudioEngine {
 			jack_client_t* jackClient;
 
 		public:

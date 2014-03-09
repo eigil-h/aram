@@ -29,17 +29,17 @@ static bool isSilence(int argc, char** argv) {
 	return false;
 }
 
-std::unique_ptr<warsaw::service::AudioSystem> warsaw::service::AudioSystemFactory::assemble(int argc, char** argv) {
-	AudioSystem* as;
+std::unique_ptr<warsaw::service::AudioEngine> warsaw::service::AudioEngineFactory::assemble(int argc, char** argv) {
+	AudioEngine* as;
 	if (isSilence(argc, argv)) {
 		as = new Silence();
 	} else {
 		as = new JackClient();
 	}
-	std::unique_ptr<AudioSystem> asp(as);
+	std::unique_ptr<AudioEngine> asp(as);
 	return asp;
 }
 
-warsaw::service::AudioSystem::~AudioSystem() {
+warsaw::service::AudioEngine::~AudioEngine() {
 
 }

@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
 	displayGPL3();
 
 	try {
-		std::unique_ptr<AudioSystem> audioSystemPtr = AudioSystemFactory::assemble(argc, argv);
+		std::unique_ptr<AudioEngine> audioSystemPtr = AudioEngineFactory::assemble(argc, argv);
 		ApplicationFactory::assemble(argc, argv)->run();
 		cout << "see you later, amiga!" << endl;
 		return 0;
