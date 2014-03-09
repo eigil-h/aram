@@ -20,7 +20,7 @@
 #include <exception>
 
 #include "application.h"
-#include "audio/audiosystem.h"
+#include "service/audiosystem.h"
 
 using namespace std;
 using namespace warsaw;
