@@ -26,7 +26,7 @@ using namespace std;
 using namespace warsaw;
 using namespace warsaw::service;
 
-static void displayGPL3() {
+static void printGPL3() {
 	cout << "  Warsaw, the audio recorder and music composer" << endl <<
 					"  Copyright(C) 2014 Eigil Hysvær" << endl <<
 					endl <<
@@ -45,7 +45,7 @@ static void displayGPL3() {
 }
 
 int main(int argc, char** argv) {
-	displayGPL3();
+	printGPL3();
 
 	try {
 		std::unique_ptr<AudioEngine> audioSystemPtr = AudioEngineFactory::assemble(argc, argv);
