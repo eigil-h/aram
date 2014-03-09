@@ -22,7 +22,7 @@
 #include <jack/jack.h>
 #include <exception>
 
-#include "audiosystem.h"
+#include "audioengine.h"
 #include "../model/types.h"
 
 using namespace std;

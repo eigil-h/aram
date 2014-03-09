@@ -22,8 +22,8 @@
  * Implementation of Silence
  */
 
-#ifndef WARSAW_AUDIOSYSTEM_H
-#define WARSAW_AUDIOSYSTEM_H
+#ifndef WARSAW_AUDIOENGINE_H
+#define WARSAW_AUDIOENGINE_H
 
 #include <memory>
 

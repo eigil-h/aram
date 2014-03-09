@@ -16,7 +16,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "audiosystem.h"
+#include "audioengine.h"
 #include <cstring>
 #include "jackclient.h"
 
