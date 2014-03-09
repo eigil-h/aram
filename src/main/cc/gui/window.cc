@@ -48,11 +48,17 @@ warsaw::gui::Window::Window() {
 	}
 }
 
-warsaw::GtkmmApplication::GtkmmApplication(int argc, char** argv) {
+std::unique_ptr<warsaw::gui::WindowManager> warsaw::gui::WindowManagerFactory::assemble(int argc, char** argv) {
+	//To prevent gtk to freak out when program is given eg -silence argument, argc is set to 1
+	std::unique_ptr<WindowManager> app(new GtkmmApplication(1, argv));
+	return app;
+}
+
+warsaw::gui::GtkmmApplication::GtkmmApplication(int argc, char** argv) {
 	app = Gtk::Application::create(argc, argv, "warsaw.app");
 }
 
-void warsaw::GtkmmApplication::run() throw (std::exception) {
+void warsaw::gui::GtkmmApplication::run() throw (std::exception) {
 	gui::Window window;
 	int result = app->run(window);
 

@@ -19,11 +19,11 @@
 #include <iostream>
 #include <exception>
 
-#include "application.h"
+#include "gui/window.h"
 #include "service/audioengine.h"
 
 using namespace std;
-using namespace warsaw;
+using namespace warsaw::gui;
 using namespace warsaw::service;
 
 static void printGPL3() {
@@ -48,8 +48,8 @@ int main(int argc, char** argv) {
 	printGPL3();
 
 	try {
-		std::unique_ptr<AudioEngine> audioSystemPtr = AudioEngineFactory::assemble(argc, argv);
-		ApplicationFactory::assemble(argc, argv)->run();
+		std::unique_ptr<AudioEngine> audioEnginePtr = AudioEngineFactory::assemble(argc, argv);
+		WindowManagerFactory::assemble(argc, argv)->run();
 		cout << "see you later, amiga!" << endl;
 		return 0;
 	} catch (std::exception e) {

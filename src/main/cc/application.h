@@ -26,16 +26,6 @@ using namespace std;
 
 namespace warsaw {
 
-	class Application {
-	public:
-		virtual void run() throw (std::exception) = 0;
-	};
-
-	class ApplicationFactory {
-	public:
-		static unique_ptr<Application> assemble(int argc, char** argv);
-	};
-
 	class Util {
 	public:
 

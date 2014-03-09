@@ -23,9 +23,3 @@
 
 #include "application.h"
 #include "gui/window.h"
-
-std::unique_ptr<warsaw::Application> warsaw::ApplicationFactory::assemble(int argc, char** argv) {
-	//To prevent gtk to freak out when program is given eg -silence argument, argc is set to 1
-	std::unique_ptr<Application> app(new GtkmmApplication(1, argv));
-	return app;
-}

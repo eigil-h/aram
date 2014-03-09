@@ -16,11 +16,14 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef WARZAW_WINDOW_H
+#define WARZAW_WINDOW_H
+
+#include <memory>
 #include <gtkmm.h>
 #include "../application.h"
 
-#ifndef WARZAW_WINDOW_H
-#define WARZAW_WINDOW_H
+using namespace std;
 
 namespace warsaw {
 	namespace gui {
@@ -50,16 +53,26 @@ namespace warsaw {
 
 			Window();
 		};
+
+		class WindowManager {
+		public:
+			virtual void run() throw (std::exception) = 0;
+		};
+
+		class WindowManagerFactory {
+		public:
+			static unique_ptr<WindowManager> assemble(int argc, char** argv);
+		};
+
+		class GtkmmApplication : public WindowManager {
+			Glib::RefPtr<Gtk::Application> app;
+
+		public:
+			GtkmmApplication(int argc, char** argv);
+
+			virtual void run() throw (std::exception);
+		};
 	}
-
-	class GtkmmApplication : public Application {
-		Glib::RefPtr<Gtk::Application> app;
-
-	public:
-		GtkmmApplication(int argc, char** argv);
-
-		virtual void run() throw (std::exception);
-	};
 }
 
 #endif
