@@ -20,18 +20,18 @@
 #include <iostream>
 
 static int jack_callback_process(jack_nframes_t nFrames, void* arg) {
-	warsaw::audio::JackClient* jackClient = static_cast<warsaw::audio::JackClient*> (arg);
-	warsaw::audio::Samples leftIn = reinterpret_cast<warsaw::audio::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(warsaw::audio::CHANNEL_LEFT, warsaw::audio::DIRECTION_IN),
+	warsaw::service::JackClient* jackClient = static_cast<warsaw::service::JackClient*> (arg);
+	warsaw::model::Samples leftIn = reinterpret_cast<warsaw::model::Samples> (jack_port_get_buffer(
+					jackClient->getJackPort(warsaw::model::CHANNEL_LEFT, warsaw::model::DIRECTION_IN),
 					nFrames));
-	warsaw::audio::Samples rightIn = reinterpret_cast<warsaw::audio::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(warsaw::audio::CHANNEL_RIGHT, warsaw::audio::DIRECTION_IN),
+	warsaw::model::Samples rightIn = reinterpret_cast<warsaw::model::Samples> (jack_port_get_buffer(
+					jackClient->getJackPort(warsaw::model::CHANNEL_RIGHT, warsaw::model::DIRECTION_IN),
 					nFrames));
-	warsaw::audio::Samples leftOut = reinterpret_cast<warsaw::audio::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(warsaw::audio::CHANNEL_LEFT, warsaw::audio::DIRECTION_OUT),
+	warsaw::model::Samples leftOut = reinterpret_cast<warsaw::model::Samples> (jack_port_get_buffer(
+					jackClient->getJackPort(warsaw::model::CHANNEL_LEFT, warsaw::model::DIRECTION_OUT),
 					nFrames));
-	warsaw::audio::Samples rightOut = reinterpret_cast<warsaw::audio::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(warsaw::audio::CHANNEL_RIGHT, warsaw::audio::DIRECTION_OUT),
+	warsaw::model::Samples rightOut = reinterpret_cast<warsaw::model::Samples> (jack_port_get_buffer(
+					jackClient->getJackPort(warsaw::model::CHANNEL_RIGHT, warsaw::model::DIRECTION_OUT),
 					nFrames));
 
 	for (jack_nframes_t i; i < nFrames; i++) {
@@ -42,7 +42,7 @@ static int jack_callback_process(jack_nframes_t nFrames, void* arg) {
 }
 
 static int jack_callback_xrun(void* arg) {
-	warsaw::audio::JackClient* jackClient = static_cast<warsaw::audio::JackClient*> (arg);
+	warsaw::service::JackClient* jackClient = static_cast<warsaw::service::JackClient*> (arg);
 	std::cout << "Xrun, oh no" << std::endl;
 }
 
@@ -66,7 +66,7 @@ static void jack_callback_shutdown(void* arg) {
  * JackClient
  */
 
-warsaw::audio::JackClient::JackClient() throw (exception) {
+warsaw::service::JackClient::JackClient() throw (exception) {
 	jack_set_error_function(jack_callback_error);
 
 	jack_status_t status;
@@ -93,15 +93,15 @@ warsaw::audio::JackClient::JackClient() throw (exception) {
 	stereoPort[DIRECTION_OUT].connect(jackClient, DIRECTION_OUT);
 }
 
-warsaw::audio::JackClient::~JackClient() {
+warsaw::service::JackClient::~JackClient() {
 	jack_client_close(jackClient);
 }
 
-unsigned warsaw::audio::JackClient::getSampleRate() {
+unsigned warsaw::service::JackClient::getSampleRate() {
 	return sampleRate;
 }
 
-jack_port_t* warsaw::audio::JackClient::getJackPort(StereoChannel channel, Direction d) {
+jack_port_t* warsaw::service::JackClient::getJackPort(StereoChannel channel, Direction d) {
 	return stereoPort[d].getJackPort(channel);
 }
 
@@ -109,7 +109,7 @@ jack_port_t* warsaw::audio::JackClient::getJackPort(StereoChannel channel, Direc
  * JackStereoPort
  */
 
-void warsaw::audio::JackStereoPort::registerPort(jack_client_t* jackClient, Direction direction) throw (exception) {
+void warsaw::service::JackStereoPort::registerPort(jack_client_t* jackClient, Direction direction) throw (exception) {
 	ports[CHANNEL_LEFT] = jack_port_register(jackClient,
 					(std::string("warsaw") + (direction == DIRECTION_IN ? "-in" : "-out") + "-left").c_str(),
 					JACK_DEFAULT_AUDIO_TYPE, direction == DIRECTION_IN ? JackPortIsInput : JackPortIsOutput, 0L);
@@ -122,7 +122,7 @@ void warsaw::audio::JackStereoPort::registerPort(jack_client_t* jackClient, Dire
 	}
 }
 
-void warsaw::audio::JackStereoPort::connect(jack_client_t* jack_client, Direction direction) throw (exception) {
+void warsaw::service::JackStereoPort::connect(jack_client_t* jack_client, Direction direction) throw (exception) {
 	JackGetPorts jackGetPorts(jack_client, JackPortIsPhysical | (direction == DIRECTION_IN ? JackPortIsOutput : JackPortIsInput));
 	if (jackGetPorts.isPortSize(2)) {
 		for (int i = 0; i < 2; i++) {
@@ -140,7 +140,7 @@ void warsaw::audio::JackStereoPort::connect(jack_client_t* jack_client, Directio
 	}
 }
 
-jack_port_t* warsaw::audio::JackStereoPort::getJackPort(StereoChannel channel) {
+jack_port_t* warsaw::service::JackStereoPort::getJackPort(StereoChannel channel) {
 	return ports[channel];
 }
 
@@ -148,7 +148,7 @@ jack_port_t* warsaw::audio::JackStereoPort::getJackPort(StereoChannel channel) {
  * JackGetPorts
  */
 
-warsaw::audio::JackGetPorts::JackGetPorts(jack_client_t* jackClient, unsigned long flags) : portsSize(0) {
+warsaw::service::JackGetPorts::JackGetPorts(jack_client_t* jackClient, unsigned long flags) : portsSize(0) {
 	ports = ::jack_get_ports(jackClient, nullptr, nullptr, flags);
 	if (ports == nullptr) {
 		cout << "Can't connect to physical ports" << endl;
@@ -159,15 +159,15 @@ warsaw::audio::JackGetPorts::JackGetPorts(jack_client_t* jackClient, unsigned lo
 	}
 }
 
-warsaw::audio::JackGetPorts::~JackGetPorts() {
+warsaw::service::JackGetPorts::~JackGetPorts() {
 	jack_free(ports);
 }
 
-bool warsaw::audio::JackGetPorts::isPortSize(unsigned int size) {
+bool warsaw::service::JackGetPorts::isPortSize(unsigned int size) {
 	return portsSize == size;
 }
 
-const char* warsaw::audio::JackGetPorts::getPort(unsigned int portNumber) {
+const char* warsaw::service::JackGetPorts::getPort(unsigned int portNumber) {
 	if (portNumber >= portsSize) {
 		cout << portNumber << "-> No such port! Number of ports are " << portsSize << endl;
 		throw std::exception();

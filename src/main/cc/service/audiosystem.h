@@ -28,7 +28,7 @@
 #include <memory>
 
 namespace warsaw {
-	namespace audio {
+	namespace service {
 
 		class AudioSystem {
 		public:

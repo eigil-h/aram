@@ -20,7 +20,7 @@
 #define WARSAW_TYPES_H
 
 namespace warsaw {
-	namespace audio {
+	namespace model {
 
 		enum Direction {
 			DIRECTION_IN, DIRECTION_OUT, DIRECTION_sizeof

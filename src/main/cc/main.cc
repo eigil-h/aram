@@ -24,7 +24,7 @@
 
 using namespace std;
 using namespace warsaw;
-using namespace warsaw::audio;
+using namespace warsaw::service;
 
 static void displayGPL3() {
 	cout << "  Warsaw, the audio recorder and music composer" << endl <<

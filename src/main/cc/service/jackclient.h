@@ -26,9 +26,10 @@
 #include "../model/types.h"
 
 using namespace std;
+using namespace warsaw::model;
 
 namespace warsaw {
-	namespace audio {
+	namespace service {
 
 		/**
 		 * Wrapper for two jack_port_t

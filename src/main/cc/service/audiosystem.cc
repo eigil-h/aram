@@ -29,7 +29,7 @@ static bool isSilence(int argc, char** argv) {
 	return false;
 }
 
-std::unique_ptr<warsaw::audio::AudioSystem> warsaw::audio::AudioSystemFactory::assemble(int argc, char** argv) {
+std::unique_ptr<warsaw::service::AudioSystem> warsaw::service::AudioSystemFactory::assemble(int argc, char** argv) {
 	AudioSystem* as;
 	if (isSilence(argc, argv)) {
 		as = new Silence();
@@ -40,6 +40,6 @@ std::unique_ptr<warsaw::audio::AudioSystem> warsaw::audio::AudioSystemFactory::a
 	return asp;
 }
 
-warsaw::audio::AudioSystem::~AudioSystem() {
+warsaw::service::AudioSystem::~AudioSystem() {
 
 }
