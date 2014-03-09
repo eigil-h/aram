@@ -21,7 +21,6 @@
 
 #include <memory>
 #include <gtkmm.h>
-#include "../application.h"
 
 using namespace std;
 
