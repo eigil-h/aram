@@ -55,8 +55,9 @@ namespace warsaw {
 			JackClient() throw (exception);
 			virtual ~JackClient();
 
-			unsigned getSampleRate();
 			jack_port_t* getJackPort(StereoChannel channel, Direction d);
+
+			unsigned sampleRate();
 		};
 
 		/**

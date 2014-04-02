@@ -46,11 +46,11 @@ static int jack_callback_xrun(void* arg) {
 	std::cout << "Xrun, oh no" << std::endl;
 }
 
-static uint32_t sampleRate = 0;
+static uint32_t sampleRate_ = 0;
 
 static int jack_callback_srate(jack_nframes_t nFrames, void* arg) {
 	std::cout << "WARZAW@JACK - the sample rate is now " << nFrames << " per second" << std::endl;
-	sampleRate = nFrames;
+	sampleRate_ = nFrames;
 	return 0;
 }
 
@@ -97,8 +97,8 @@ warsaw::service::JackClient::~JackClient() {
 	jack_client_close(jackClient);
 }
 
-unsigned warsaw::service::JackClient::getSampleRate() {
-	return sampleRate;
+unsigned warsaw::service::JackClient::sampleRate() {
+	return sampleRate_;
 }
 
 jack_port_t* warsaw::service::JackClient::getJackPort(StereoChannel channel, Direction d) {

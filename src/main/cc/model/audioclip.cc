@@ -17,16 +17,25 @@
  */
 
 #include "audioclip.h"
+#include "../service/database.h"
 
 warsaw::model::AudioClip::AudioClip() {
 }
 
-warsaw::model::AudioClip::AudioClip(const string& n) : _name(n) {
+warsaw::model::AudioClip::AudioClip(const string& n) : id_(warsaw::service::Database::generateId()), name_(n) {
 }
 
 warsaw::model::AudioClip::~AudioClip() {
 }
 
+const string& warsaw::model::AudioClip::id() const {
+	return id_;
+}
+
 const string& warsaw::model::AudioClip::name() const {
-	return _name;
+	return name_;
+}
+
+void warsaw::model::AudioClip::name(const string& name) {
+	name_ = name;
 }

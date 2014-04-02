@@ -16,37 +16,44 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WARSAW_AUDIOCLIP_H
-#define WARSAW_AUDIOCLIP_H
+#ifndef WARSAW_DATABASE_H
+#define WARSAW_DATABASE_H
 
+#include <memory>
 #include <string>
-#include <odb/core.hxx>
+#include <odb/sqlite/database.hxx>
 
 using namespace std;
+using namespace odb::sqlite;
 
 namespace warsaw {
-	namespace model {
+	namespace service {
 
-		#pragma db object pointer(std::shared_ptr)
-		class AudioClip {
-			AudioClip();
+		/* Singleton class.
+		 * Because there's only one database and it needs to be accessible from several places.
+		 * Looks like it's the best way to go.
+		 */
+		class Database {
+			unique_ptr<database> db_;
 
-			friend class odb::access;
+			Database();
+			Database(Database const&);
+			void operator=(Database const&);
 
-			#pragma db id
-			string id_;
-			string name_;
+			void createSchemaNoDrop();
+			void initApplication();
+			void createApplication();
 
 		public:
-			AudioClip(const string& name);
-			~AudioClip();
+			static Database& getInstance();
 
-			const string& id() const;
-			const string& name() const;
-			void name(const string& name);
+			/* In order to use warsaw:::Database just as if it was an odb:::database.
+			 */
+			unique_ptr<database> const& operator->();
+			
+			static string generateId();
 		};
 	}
 }
 
 #endif
-

@@ -28,6 +28,7 @@ namespace warsaw {
 	public:
 		static const string getHomePath();
 	};
+
 }
 
 

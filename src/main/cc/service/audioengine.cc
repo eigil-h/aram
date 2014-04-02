@@ -16,10 +16,16 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "audioengine.h"
+#include <iostream>
 #include <cstring>
+#include <chrono>
+#include "audioengine.h"
 #include "jackclient.h"
+#include "database.h"
 
+/*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
+ * AudioEngineFactory
+ */
 static bool isSilence(int argc, char** argv) {
 	for (int i = 0; i < argc; i++) {
 		if (strcmp(argv[i], "-silence") == 0) {
@@ -29,17 +35,48 @@ static bool isSilence(int argc, char** argv) {
 	return false;
 }
 
-std::unique_ptr<warsaw::service::AudioEngine> warsaw::service::AudioEngineFactory::assemble(int argc, char** argv) {
+unique_ptr<warsaw::service::AudioEngine>
+warsaw::service::AudioEngineFactory::assemble(int argc, char** argv) {
 	AudioEngine* as;
 	if (isSilence(argc, argv)) {
 		as = new Silence();
 	} else {
 		as = new JackClient();
 	}
-	std::unique_ptr<AudioEngine> asp(as);
+	unique_ptr<AudioEngine> asp(as);
 	return asp;
 }
 
-warsaw::service::AudioEngine::~AudioEngine() {
+/*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
+ * AudioEngine
+ */
 
+warsaw::service::AudioEngine::~AudioEngine() {
+}
+
+/*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
+ * Silence
+ */
+void warsaw::service::Silence::mainTurbo() {
+	while (running) {
+		this_thread::sleep_for(chrono::milliseconds(50));
+		project->audioEngineProcessedFrames(1024);
+	}
+	cout << "total frames were " << project->frames() << endl;
+}
+
+warsaw::service::Silence::Silence() : mainTurboThread(&Silence::mainTurbo, this), running(true) {
+	sampleRate = 100;
+	//Load from database the current project
+	Application app;
+	app.load();
+	project = app.project();
+	cout << "Silence audio engine has started." << endl;
+}
+
+warsaw::service::Silence::~Silence() {
+	running = false;
+	mainTurboThread.join();
+
+	cout << "Silence audio engine has been shut down." << endl;
 }

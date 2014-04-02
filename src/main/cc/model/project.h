@@ -20,27 +20,75 @@
 #define WARSAW_PROJECT_H
 
 #include <string>
+#include <memory>
+#include <set>
 #include <odb/core.hxx>
+#include "audioclip.h"
 
 using namespace std;
 
 namespace warsaw {
 	namespace model {
 
+		#pragma db object pointer(std::shared_ptr)
 		class Project {
-			Project();
-
 			friend class odb::access;
 
-			string _name;
+			#pragma db id
+			string id_;
+			string name_;
+			#pragma db value_not_null
+			set<shared_ptr<AudioClip>> audioClips_;
+			#pragma db not_null
+			shared_ptr<AudioClip> armed_;
+			unsigned frames_;
+
 		public:
-			Project(const string& name);
+			Project();
+			Project(const string& name, const shared_ptr<AudioClip>& ac);
 			~Project();
 
 			const string& name() const;
+			const unsigned& frames() const;
+
+			/* "(For PCM, A-law and μ-law data,) a frame is all data that belongs to one sampling interval.
+			 * This means that the frame rate is the same as the sample rate."
+			 * http://www.jsresources.org/faq_audio.html#frame_rate
+			 *
+			 * The audio engine calls this method after processing nFrames number of frames.
+			 * This way the project can update its counter on playback.
+			 */
+			void audioEngineProcessedFrames(unsigned nFrames);
 		};
-#pragma db object(Project)
-#pragma db member(Project::_name) id
+
+		/**
+		 * Application configuration. Most importantly it holds the current active project.
+		 */
+		#pragma db object
+		class Application {
+
+			friend class odb::access;
+
+			#pragma db id
+			string name_;
+
+			#pragma db not_null
+			shared_ptr<Project> project_;
+
+		public:
+			Application();
+			Application(const string& name, const shared_ptr<Project>& project);
+			const string& name() const;
+			const shared_ptr<Project>& project() const;
+			void load();
+		};
+
+		#pragma db view object(Application)
+
+		struct ApplicationStats {
+			#pragma db column("count(" + Application::name_ + ")")
+			std::size_t count;
+		};
 	}
 }
 

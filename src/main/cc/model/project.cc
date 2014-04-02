@@ -17,16 +17,68 @@
  */
 
 #include "project.h"
+#include "project-odb.hxx"
+#include "../service/database.h"
+#include <iostream>
+
+using namespace warsaw::service;
+
+/*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
+ * Project
+ */
 
 warsaw::model::Project::Project() {
 }
 
-warsaw::model::Project::Project(const string& n) : _name(n) {
+warsaw::model::Project::Project(const string& n, const shared_ptr<AudioClip>& ac) : 
+		id_(warsaw::service::Database::generateId()), name_(n), frames_(0), armed_(ac) {
+	audioClips_.insert(ac);
 }
 
 warsaw::model::Project::~Project() {
 }
 
 const string& warsaw::model::Project::name() const {
-	return _name;
+	return name_;
+}
+
+const unsigned& warsaw::model::Project::frames() const {
+	return frames_;
+}
+
+void warsaw::model::Project::audioEngineProcessedFrames(unsigned nFrames) {
+	frames_ += nFrames;
+}
+
+/*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
+ * Application
+ */
+warsaw::model::Application::Application() {
+}
+
+warsaw::model::Application::Application(const string& name, const shared_ptr<Project>& project) :
+name_(name), project_(project) {
+	cout << name << " created" << endl;
+}
+
+const string& warsaw::model::Application::name() const {
+	return name_;
+}
+
+const shared_ptr<warsaw::model::Project>& warsaw::model::Application::project() const {
+	return project_;
+}
+
+void warsaw::model::Application::load() {
+	Database& db = Database::getInstance();
+
+	transaction t(db->begin());
+
+	try {
+		db->load("aracomposer.application", *this);
+
+		t.commit();
+	} catch (odb::object_not_persistent e) {
+		cout << e.what() << endl;
+	}
 }

@@ -26,21 +26,36 @@
 #define WARSAW_AUDIOENGINE_H
 
 #include <memory>
+#include <thread>
+#include "../model/project.h"
+#include "../model/project-odb.hxx"
+
+using namespace std;
 
 namespace warsaw {
+	using namespace model;
 	namespace service {
 
 		class AudioEngine {
+		protected:
+			shared_ptr<Project> project;
+			unsigned sampleRate;
 		public:
-			virtual ~AudioEngine() = 0;
+			virtual ~AudioEngine();
 		};
 
 		class AudioEngineFactory {
 		public:
-			static std::unique_ptr<AudioEngine> assemble(int argc, char** argv);
+			static unique_ptr<AudioEngine> assemble(int argc, char** argv);
 		};
 
 		class Silence : public AudioEngine {
+			thread mainTurboThread;
+			bool running;
+			void mainTurbo();
+		public:
+			Silence();
+			virtual ~Silence();
 		};
 	}
 }

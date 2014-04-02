@@ -21,6 +21,7 @@
 
 #include "gui/window.h"
 #include "service/audioengine.h"
+#include "service/database.h"
 
 using namespace std;
 using namespace warsaw::gui;
@@ -48,11 +49,11 @@ int main(int argc, char** argv) {
 	printGPL3();
 
 	try {
-		std::unique_ptr<AudioEngine> audioEnginePtr = AudioEngineFactory::assemble(argc, argv);
+		unique_ptr<AudioEngine> audioEnginePtr = AudioEngineFactory::assemble(argc, argv);
 		WindowManagerFactory::assemble(argc, argv)->run();
 		cout << "see you later, amiga!" << endl;
 		return 0;
-	} catch (std::exception e) {
+	} catch (std::exception& e) {
 		cout << e.what() << endl;
 		return -1;
 	}
