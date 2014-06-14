@@ -102,7 +102,7 @@ void warsaw::service::Database::createApplication() {
 	try {
 		transaction t(db_->begin());
 
-		shared_ptr<AudioClip> ac(new AudioClip("<new audioclip>"));
+		shared_ptr<Audioclip> ac(new Audioclip("<new audioclip>"));
 		db_->persist(ac);
 
 		shared_ptr<Project> p(new Project("<new project>", ac));

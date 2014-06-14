@@ -38,18 +38,30 @@ namespace warsaw {
 			string id_;
 			string name_;
 			#pragma db value_not_null
-			set<shared_ptr<AudioClip>> audioClips_;
+			set<shared_ptr<Audioclip>, Audioclip::Less> audioclips_;
 			#pragma db not_null
-			shared_ptr<AudioClip> armed_;
+			shared_ptr<Audioclip> armed_;
 			unsigned frames_;
+			unsigned sampleRate_;
 
 		public:
 			Project();
-			Project(const string& name, const shared_ptr<AudioClip>& ac);
+			Project(const string& name, const shared_ptr<Audioclip>& ac);
 			~Project();
 
+			bool operator==(const Project& other) const;
+			bool operator<(const Project& other) const;
+
+			const string& id() const;
 			const string& name() const;
+			const set<shared_ptr<Audioclip>, Audioclip::Less>& audioclips() const;
+			const Audioclip& armed() const;
+			shared_ptr<Audioclip> findAudioclip(const string& id) const;
 			const unsigned& frames() const;
+			unsigned length() const;
+			const unsigned& sampleRate() const;
+			void addAudioclip(shared_ptr<Audioclip> ac);
+			void arm(const shared_ptr<Audioclip>& ac);
 
 			/* "(For PCM, A-law and μ-law data,) a frame is all data that belongs to one sampling interval.
 			 * This means that the frame rate is the same as the sample rate."
@@ -59,6 +71,13 @@ namespace warsaw {
 			 * This way the project can update its counter on playback.
 			 */
 			void audioEngineProcessedFrames(unsigned nFrames);
+
+			void rename(const string& newName);
+
+			static set<Project> findAll();
+			static void createNew();
+			static shared_ptr<Project> retrieveCurrent();
+			static shared_ptr<Project> retrieveById(const string& id);
 		};
 
 		/**
@@ -81,6 +100,7 @@ namespace warsaw {
 			const string& name() const;
 			const shared_ptr<Project>& project() const;
 			void load();
+			void selectProject(const string& id);
 		};
 
 		#pragma db view object(Application)

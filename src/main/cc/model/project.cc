@@ -20,6 +20,8 @@
 #include "project-odb.hxx"
 #include "../service/database.h"
 #include <iostream>
+#include <algorithm>
+
 
 using namespace warsaw::service;
 
@@ -30,24 +32,157 @@ using namespace warsaw::service;
 warsaw::model::Project::Project() {
 }
 
-warsaw::model::Project::Project(const string& n, const shared_ptr<AudioClip>& ac) : 
-		id_(warsaw::service::Database::generateId()), name_(n), frames_(0), armed_(ac) {
-	audioClips_.insert(ac);
+warsaw::model::Project::Project(const string& n, const shared_ptr<Audioclip>& ac) :
+id_(warsaw::service::Database::generateId()), name_(n), frames_(0), armed_(ac), sampleRate_(22049) {
+	audioclips_.insert(ac);
 }
 
 warsaw::model::Project::~Project() {
+}
+
+bool warsaw::model::Project::operator==(const Project& other) const {
+	return id() == other.id();
+}
+
+bool warsaw::model::Project::operator<(const Project& other) const {
+	return name() < other.name();
+}
+
+const string& warsaw::model::Project::id() const {
+	return id_;
 }
 
 const string& warsaw::model::Project::name() const {
 	return name_;
 }
 
+const set<shared_ptr<warsaw::model::Audioclip>, warsaw::model::Audioclip::Less>& 
+				warsaw::model::Project::audioclips() const {
+	return audioclips_;
+}
+
+const warsaw::model::Audioclip& warsaw::model::Project::armed() const {
+	return *armed_;
+}
+
+shared_ptr<warsaw::model::Audioclip> warsaw::model::Project::findAudioclip(const string& id) const {
+	for(shared_ptr<Audioclip> ac : audioclips_) {
+		if(ac->id() == id) {
+			return ac;
+		}
+	}
+	return nullptr;
+}
+
 const unsigned& warsaw::model::Project::frames() const {
 	return frames_;
 }
 
+unsigned warsaw::model::Project::length() const {
+	return 123;
+}
+
+const unsigned& warsaw::model::Project::sampleRate() const {
+	return sampleRate_;
+}
+
+void warsaw::model::Project::addAudioclip(shared_ptr<Audioclip> ac) {
+	audioclips_.insert(ac);
+}
+
 void warsaw::model::Project::audioEngineProcessedFrames(unsigned nFrames) {
 	frames_ += nFrames;
+}
+
+void warsaw::model::Project::arm(const shared_ptr<Audioclip>& ac) {
+	armed_ = ac; //optimize? - check if this is a change.
+
+	try {
+		Database& db = Database::getInstance();
+		transaction t(db->begin());
+
+		db->update(*this);
+
+		t.commit();
+	} catch (const odb::exception& e) {
+		throw runtime_error(e.what());
+	}
+}
+
+void warsaw::model::Project::rename(const string& newName) {
+	name_ = newName;
+
+	try {
+		Database& db = Database::getInstance();
+		transaction t(db->begin());
+
+		db->update(*this);
+
+		t.commit();
+	} catch (const odb::exception& e) {
+		throw runtime_error(e.what());
+	}
+}
+
+set<warsaw::model::Project> warsaw::model::Project::findAll() {
+	try {
+		Database& db = Database::getInstance();
+		transaction t(db->begin());
+		odb::result<Project> r(db->query<Project>());
+		set<Project> projects;
+		for (odb::result<Project>::iterator i(r.begin()); i != r.end(); i++) {
+			projects.insert(*i); //TODO sort by last accessed desc
+		}
+		t.commit();
+		return projects;
+	} catch (const odb::exception& e) {
+		throw runtime_error(e.what());
+	}
+}
+
+void warsaw::model::Project::createNew() {
+	try {
+		Database& db = Database::getInstance();
+		transaction t(db->begin());
+
+		//todo, test with unique_ptr
+		shared_ptr<Audioclip> ac(new Audioclip("<new audioclip>"));
+		db->persist(ac);
+
+		shared_ptr<Project> p(new Project("<new project>", ac));
+		db->persist(p);
+
+		t.commit();
+	} catch (const odb::exception& e) {
+		throw runtime_error(e.what());
+	}
+}
+
+shared_ptr<warsaw::model::Project> warsaw::model::Project::retrieveCurrent() {
+	Application app;
+	app.load();
+	return app.project();
+}
+
+shared_ptr<warsaw::model::Project> warsaw::model::Project::retrieveById(const string& projectId) {
+	try {
+		Database& db = Database::getInstance();
+		transaction t(db->begin());
+		typedef odb::query<Project> ProjectQ;
+		odb::result<Project> resultSet(db->query<Project>(ProjectQ::id == projectId));
+		list<Project> projects;
+		for (odb::result<Project>::iterator i(resultSet.begin()); i != resultSet.end(); i++) {
+			projects.push_back(*i);
+		}
+		t.commit();
+		if (projects.size() != 1) {
+			throw runtime_error("Couldn't find one and only one Project for id=" + projectId);
+		}
+		shared_ptr<Project> p(new Project(projects.front()));
+		return p;
+	} catch (const odb::exception& e) {
+		throw runtime_error(e.what());
+	}
 }
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
@@ -80,5 +215,20 @@ void warsaw::model::Application::load() {
 		t.commit();
 	} catch (odb::object_not_persistent e) {
 		cout << e.what() << endl;
+	}
+}
+
+void warsaw::model::Application::selectProject(const string& id) {
+	project_ = Project::retrieveById(id);
+
+	try {
+		Database& db = Database::getInstance();
+		transaction t(db->begin());
+
+		db->update(this);
+
+		t.commit();
+	} catch (const odb::exception& e) {
+		throw runtime_error(e.what());
 	}
 }

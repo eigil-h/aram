@@ -19,57 +19,66 @@
 #ifndef WARZAW_WINDOW_H
 #define WARZAW_WINDOW_H
 
-#include <memory>
 #include <gtkmm.h>
 
 using namespace std;
 
 namespace warsaw {
+	/** 
+	 * Graphical user interface name space
+	 */
 	namespace gui {
 
-		class ProjectContainer : public Gtk::HBox {
-			Gtk::Button playButton;
-			Gtk::Label tmp;
-		public:
-			ProjectContainer();
-		};
-
-		class AudioclipContainer : public Gtk::HBox {
-			Gtk::VBox buttonContainer;
+		/** 
+		 * The most used/useful commands at your fingertips.
+		 */
+		class CommandContainer : public Gtk::VBox {
+			Gtk::Button menuButton;
+			Gtk::ToggleButton playButton;
 			Gtk::ToggleButton recordButton;
 			Gtk::Button markButton;
-			Gtk::Label tmp;
+			
+			void onMenuButtonClicked();
+			void onPlayButtonClicked();
+			void onRecordButtonClicked();
+			void onMarkButtonPressed();
+			void onMarkButtonReleased();
+			
 		public:
-			AudioclipContainer();
+			CommandContainer();
 		};
 
+		class Monitor : public Gtk::VBox {
+		public:
+			Monitor();
+		};
+		
+		class ProjectView : public Gtk::DrawingArea {
+		public:
+			ProjectView();
+		};
+		
+		/** 
+		 * Holding project and audioclip views
+		 */
+		class BodyContainer : public Gtk::VBox {
+			Monitor projectMonitor;
+			Monitor audioclipMonitor;
+			ProjectView projectView;
+		public:
+			BodyContainer();
+		};
+
+		/**
+		 * The main window
+		 */
 		class Window : public Gtk::Window {
-			Gtk::VBox mainContainer;
-			ProjectContainer projectContainer;
-			AudioclipContainer audioclipContainer;
+			Gtk::HBox topContainer;
+			CommandContainer commandContainer;
+			BodyContainer bodyContainer;
 
 		public:
-
 			Window();
-		};
-
-		class WindowManager {
-		public:
-			virtual void run() throw (std::exception) = 0;
-		};
-
-		class WindowManagerFactory {
-		public:
-			static unique_ptr<WindowManager> assemble(int argc, char** argv);
-		};
-
-		class GtkmmApplication : public WindowManager {
-			Glib::RefPtr<Gtk::Application> app;
-
-		public:
-			GtkmmApplication(int argc, char** argv);
-
-			virtual void run() throw (std::exception);
 		};
 	}
 }

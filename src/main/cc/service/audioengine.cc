@@ -53,6 +53,9 @@ warsaw::service::AudioEngineFactory::assemble(int argc, char** argv) {
 
 warsaw::service::AudioEngine::~AudioEngine() {
 }
+const unsigned& warsaw::service::AudioEngine::sampleRate() const {
+	return sampleRate_;
+}
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Silence
@@ -66,7 +69,7 @@ void warsaw::service::Silence::mainTurbo() {
 }
 
 warsaw::service::Silence::Silence() : mainTurboThread(&Silence::mainTurbo, this), running(true) {
-	sampleRate = 100;
+	sampleRate_ = 100;
 	//Load from database the current project
 	Application app;
 	app.load();

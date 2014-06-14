@@ -19,7 +19,7 @@
 #include <iostream>
 #include <exception>
 
-#include "gui/window.h"
+#include "gui/windowmanager.h"
 #include "service/audioengine.h"
 #include "service/database.h"
 
@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
 	try {
 		unique_ptr<AudioEngine> audioEnginePtr = AudioEngineFactory::assemble(argc, argv);
 		WindowManagerFactory::assemble(argc, argv)->run();
-		cout << "see you later, amiga!" << endl;
+		cout << "¡hasta luego, amiga!" << endl;
 		return 0;
 	} catch (std::exception& e) {
 		cout << e.what() << endl;

@@ -17,7 +17,12 @@
  */
 
 #include "window.h"
+#include "menudialog.h"
 #include <iostream>
+
+/*
+ * Top window
+ */
 
 warsaw::gui::Window::Window() {
 	Glib::RefPtr<Gtk::CssProvider> cssProvider = Gtk::CssProvider::create();
@@ -33,77 +38,109 @@ warsaw::gui::Window::Window() {
 		set_title("Warsaw");
 		set_position(Gtk::WindowPosition::WIN_POS_CENTER);
 
-		projectContainer.set_size_request(-1, 325);
-		audioclipContainer.set_size_request(-1, 325);
-
-		mainContainer.pack_start(projectContainer);
-		mainContainer.pack_start(audioclipContainer);
-		add(mainContainer);
+		topContainer.pack_start(commandContainer);
+		topContainer.pack_start(bodyContainer);
+		add(topContainer);
 
 		show_all_children();
 
 	} catch (const Glib::Error& e) {
-		std::cerr << e.what() << std::endl;
-		throw std::exception();
+		throw std::runtime_error(e.what());
 	}
 }
 
-std::unique_ptr<warsaw::gui::WindowManager> warsaw::gui::WindowManagerFactory::assemble(int argc, char** argv) {
-	//To prevent gtk to freak out when program is given eg -silence argument, argc is set to 1
-	std::unique_ptr<WindowManager> app(new GtkmmApplication(1, argv));
-	return app;
-}
+/*
+ * Command container
+ */
 
-warsaw::gui::GtkmmApplication::GtkmmApplication(int argc, char** argv) {
-	app = Gtk::Application::create(argc, argv, "warsaw.app");
-}
+warsaw::gui::CommandContainer::CommandContainer() {
 
-void warsaw::gui::GtkmmApplication::run() throw (std::exception) {
-	gui::Window window;
-	int result = app->run(window);
-
-	if (result != 0) {
-		throw std::exception();
-	}
-}
-
-warsaw::gui::ProjectContainer::ProjectContainer()
-: tmp("Project view") {
-
-	Gtk::Image* image = Gtk::manage(new Gtk::Image(Gtk::Stock::MEDIA_PLAY,
+	Gtk::Image* menuImage = Gtk::manage(new Gtk::Image(Gtk::Stock::DIALOG_QUESTION,
 					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
-	image->show();
-	playButton.set_image(*image);
-	playButton.set_size_request(200, -1);
+	menuImage->show();
+	menuButton.set_image(*menuImage);
 
-	tmp.set_size_request(1000, -1);
 
-	pack_start(playButton);
-	pack_start(tmp);
-}
+	Gtk::Image* playImage = Gtk::manage(new Gtk::Image(Gtk::Stock::MEDIA_PLAY,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	playImage->show();
+	playButton.set_image(*playImage);
 
-warsaw::gui::AudioclipContainer::AudioclipContainer()
-: tmp("Audioclip view") {
 
 	Gtk::Image* recordImage = Gtk::manage(new Gtk::Image(Gtk::Stock::MEDIA_RECORD,
 					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
 	recordImage->show();
-
 	recordButton.set_image(*recordImage);
-	recordButton.set_size_request(-1, 325 / 2);
+
 
 	Gtk::Image* markImage = Gtk::manage(new Gtk::Image(Gtk::Stock::SELECT_ALL,
 					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
 	markImage->show();
 	markButton.set_image(*markImage);
-	markButton.set_size_request(-1, 325 / 2);
 
-	buttonContainer.set_size_request(200, -1);
-	tmp.set_size_request(1000, -1);
+	set_size_request(200, -1);
 
-	buttonContainer.pack_start(recordButton);
-	buttonContainer.pack_start(markButton);
+	menuButton.signal_clicked().connect(
+					sigc::mem_fun(this, &CommandContainer::onMenuButtonClicked));
 
-	pack_start(buttonContainer);
-	pack_start(tmp);
+	playButton.signal_clicked().connect(
+					sigc::mem_fun(this, &CommandContainer::onPlayButtonClicked));
+
+	recordButton.signal_clicked().connect(
+					sigc::mem_fun(this, &CommandContainer::onRecordButtonClicked));
+
+	markButton.signal_pressed().connect(
+					sigc::mem_fun(this, &CommandContainer::onMarkButtonPressed));
+
+	markButton.signal_released().connect(
+					sigc::mem_fun(this, &CommandContainer::onMarkButtonReleased));
+
+	pack_start(menuButton);
+	pack_start(playButton);
+	pack_start(recordButton);
+	pack_start(markButton);
+}
+
+void warsaw::gui::CommandContainer::onMenuButtonClicked() {
+	MenuDialog md;
+	md.run();
+}
+
+void warsaw::gui::CommandContainer::onPlayButtonClicked() {
+	cout << "Play button clicked" << endl;
+
+}
+
+void warsaw::gui::CommandContainer::onRecordButtonClicked() {
+	cout << "Record button clicked" << endl;
+
+}
+
+void warsaw::gui::CommandContainer::onMarkButtonPressed() {
+	cout << "Mark button pressed" << endl;
+
+}
+
+void warsaw::gui::CommandContainer::onMarkButtonReleased() {
+	cout << "Mark button released" << endl;
+
+}
+
+/*
+ * Body container
+ */
+warsaw::gui::Monitor::Monitor() {
+	
+}
+
+warsaw::gui::ProjectView::ProjectView() {
+	
+}
+
+warsaw::gui::BodyContainer::BodyContainer() {
+	set_size_request(1000, -1);
+
+	pack_start(projectMonitor);
+	pack_start(projectView);
+	pack_start(audioclipMonitor);
 }

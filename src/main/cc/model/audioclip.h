@@ -20,6 +20,7 @@
 #define WARSAW_AUDIOCLIP_H
 
 #include <string>
+#include <memory>
 #include <odb/core.hxx>
 
 using namespace std;
@@ -28,22 +29,37 @@ namespace warsaw {
 	namespace model {
 
 		#pragma db object pointer(std::shared_ptr)
-		class AudioClip {
-			AudioClip();
+		class Audioclip {
+			Audioclip();
 
 			friend class odb::access;
 
 			#pragma db id
 			string id_;
 			string name_;
+			unsigned sampleRate_;
 
 		public:
-			AudioClip(const string& name);
-			~AudioClip();
+			Audioclip(const string& name);
+			~Audioclip();
+			
+			bool operator==(const Audioclip& ac) const;
+			bool operator<(const Audioclip& other) const;
 
 			const string& id() const;
 			const string& name() const;
 			void name(const string& name);
+			unsigned length() const;
+			const unsigned& sampleRate() const;
+
+			void rename(const string& newName);
+
+			static void createNew();
+			static shared_ptr<Audioclip> retrieveById(const string& id);
+
+			struct Less {
+				bool operator() (const shared_ptr<Audioclip>& a, const shared_ptr<Audioclip>& b);
+			};
 		};
 	}
 }

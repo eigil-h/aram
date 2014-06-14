@@ -16,51 +16,44 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-/* Audio system abstraction
- *
- * Implementation of Silence
- */
-
-#ifndef WARSAW_AUDIOENGINE_H
-#define WARSAW_AUDIOENGINE_H
+#ifndef WARZAW_WINDOWMANAGER_H
+#define WARZAW_WINDOWMANAGER_H
 
 #include <memory>
-#include <thread>
-#include "../model/project.h"
-#include "../model/project-odb.hxx"
+#include <gtkmm.h>
 
 using namespace std;
 
 namespace warsaw {
-	using namespace model;
-	namespace service {
-
-		class AudioEngine {
-		protected:
-			shared_ptr<Project> project;
-			unsigned sampleRate_;
+	/** 
+	 * Graphical user interface name space
+	 */
+	namespace gui {
+/*
+		 * Below are classes for window/application management
+		 * Central is the WindowManager.run() method. By calling it, the control flow of the application
+		 * will be handed over to the window manager. Any custom code will run as callbacks given to the
+		 * manager system, eg. Gtkmm.
+		 */
+		class WindowManager {
 		public:
-			virtual ~AudioEngine();
-
-			const unsigned& sampleRate() const;
+			virtual void run() throw (std::exception) = 0;
 		};
 
-		class AudioEngineFactory {
+		class WindowManagerFactory {
 		public:
-			static unique_ptr<AudioEngine> assemble(int argc, char** argv);
+			static unique_ptr<WindowManager> assemble(int argc, char** argv);
 		};
 
-		class Silence : public AudioEngine {
-			thread mainTurboThread;
-			bool running;
-			void mainTurbo();
+		class GtkmmApplication : public WindowManager {
+			Glib::RefPtr<Gtk::Application> app;
+
 		public:
-			Silence();
-			virtual ~Silence();
+			GtkmmApplication(int argc, char** argv);
+
+			virtual void run() throw (std::exception);
 		};
 	}
 }
-
 
 #endif
