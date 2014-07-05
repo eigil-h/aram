@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -23,48 +23,48 @@
 #include "project.h"
 #include "project-odb.hxx"
 
-using namespace warsaw::service;
+using namespace aram::service;
 
-warsaw::model::Audioclip::Audioclip() {
+aram::model::Audioclip::Audioclip() {
 }
 
-warsaw::model::Audioclip::Audioclip(const string& n) : id_(warsaw::service::Database::generateId()), 
+aram::model::Audioclip::Audioclip(const string& n) : id_(aram::service::Database::generateId()), 
 				name_(n), 
 				sampleRate_(1010101) {
 }
 
-warsaw::model::Audioclip::~Audioclip() {
+aram::model::Audioclip::~Audioclip() {
 }
 
-bool warsaw::model::Audioclip::operator==(const Audioclip& ac) const {
+bool aram::model::Audioclip::operator==(const Audioclip& ac) const {
 	return id() == ac.id();
 }
 
-bool warsaw::model::Audioclip::operator<(const Audioclip& other) const {
+bool aram::model::Audioclip::operator<(const Audioclip& other) const {
 	return name_ < other.name_;
 }
 
-const string& warsaw::model::Audioclip::id() const {
+const string& aram::model::Audioclip::id() const {
 	return id_;
 }
 
-const string& warsaw::model::Audioclip::name() const {
+const string& aram::model::Audioclip::name() const {
 	return name_;
 }
 
-void warsaw::model::Audioclip::name(const string& name) {
+void aram::model::Audioclip::name(const string& name) {
 	name_ = name;
 }
 
-unsigned warsaw::model::Audioclip::length() const {
+unsigned aram::model::Audioclip::length() const {
 	return 123;
 }
 
-const unsigned& warsaw::model::Audioclip::sampleRate() const {
+const unsigned& aram::model::Audioclip::sampleRate() const {
 	return sampleRate_;
 }
 
-void warsaw::model::Audioclip::createNew() {
+void aram::model::Audioclip::createNew() {
 	shared_ptr<Project> project = Project::retrieveCurrent();
 
 	try {
@@ -84,7 +84,7 @@ void warsaw::model::Audioclip::createNew() {
 	}
 }
 
-shared_ptr<warsaw::model::Audioclip> warsaw::model::Audioclip::retrieveById(const string& audioclipId) {
+shared_ptr<aram::model::Audioclip> aram::model::Audioclip::retrieveById(const string& audioclipId) {
 	try {
 		Database& db = Database::getInstance();
 		transaction t(db->begin());
@@ -105,7 +105,7 @@ shared_ptr<warsaw::model::Audioclip> warsaw::model::Audioclip::retrieveById(cons
 	}
 }
 
-void warsaw::model::Audioclip::rename(const string& newName) {
+void aram::model::Audioclip::rename(const string& newName) {
 	name_ = newName;
 
 	try {
@@ -121,6 +121,6 @@ void warsaw::model::Audioclip::rename(const string& newName) {
 }
 
 
-bool warsaw::model::Audioclip::Less::operator() (const shared_ptr<Audioclip>& a, const shared_ptr<Audioclip>& b) {
+bool aram::model::Audioclip::Less::operator() (const shared_ptr<Audioclip>& a, const shared_ptr<Audioclip>& b) {
 	return (*a) < (*b);
 }

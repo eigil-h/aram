@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -19,17 +19,17 @@
 #include "windowmanager.h"
 #include "window.h"
 
-std::unique_ptr<warsaw::gui::WindowManager> warsaw::gui::WindowManagerFactory::assemble(int argc, char** argv) {
+std::unique_ptr<aram::gui::WindowManager> aram::gui::WindowManagerFactory::assemble(int argc, char** argv) {
 	//To prevent gtk to freak out when program is given eg -silence argument, argc is set to 1
 	std::unique_ptr<WindowManager> app(new GtkmmApplication(1, argv));
 	return app;
 }
 
-warsaw::gui::GtkmmApplication::GtkmmApplication(int argc, char** argv) {
-	app = Gtk::Application::create(argc, argv, "warsaw.app");
+aram::gui::GtkmmApplication::GtkmmApplication(int argc, char** argv) {
+	app = Gtk::Application::create(argc, argv, "aram.app");
 }
 
-void warsaw::gui::GtkmmApplication::run() throw (std::exception) {
+void aram::gui::GtkmmApplication::run() throw (std::exception) {
 	gui::Window window;
 	int result = app->run(window);
 

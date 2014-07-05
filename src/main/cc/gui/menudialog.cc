@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -21,25 +21,25 @@
 #include "../model/project.h"
 #include "../model/audioclip.h"
 
-using namespace warsaw::model;
+using namespace aram::model;
 
-warsaw::gui::EventBroadcasterSingleton::EventBroadcasterSingleton() {
+aram::gui::EventBroadcasterSingleton::EventBroadcasterSingleton() {
 }
 
-warsaw::gui::EventBroadcasterSingleton& warsaw::gui::EventBroadcasterSingleton::getInstance() {
+aram::gui::EventBroadcasterSingleton& aram::gui::EventBroadcasterSingleton::getInstance() {
 	static EventBroadcasterSingleton instance;
 	return instance;
 }
 
-void warsaw::gui::EventBroadcasterSingleton::projectChanged() {
+void aram::gui::EventBroadcasterSingleton::projectChanged() {
 	projectChangedSignal.emit();
 }
 
-void warsaw::gui::EventBroadcasterSingleton::audioclipChanged() {
+void aram::gui::EventBroadcasterSingleton::audioclipChanged() {
 	audioclipChangedSignal.emit();
 }
 
-warsaw::gui::MenuDialog::MenuDialog() : Gtk::Dialog("Menu", true),
+aram::gui::MenuDialog::MenuDialog() : Gtk::Dialog("Menu", true),
 topSection(new TopSection(this)), mainSection(new MainSection(this)) {
 
 	sections.pack_start(*topSection);
@@ -49,15 +49,15 @@ topSection(new TopSection(this)), mainSection(new MainSection(this)) {
 	get_content_area()->show_all();
 }
 
-void warsaw::gui::MenuDialog::refresh() {
+void aram::gui::MenuDialog::refresh() {
 	mainSection->refresh();
 }
 
-warsaw::gui::TopSection::TopSection(MenuDialog* md) : menuDialog(md),
+aram::gui::TopSection::TopSection(MenuDialog* md) : menuDialog(md),
 newProject("New Project"),
 newAudioclip("New Audioclip"),
 aboutFrame("About"),
-aboutLabel("2014 (C) Audio Recorder And Music, aram.com, GPL3  license") {
+aboutLabel("2014 (C) Audio Recorder And Music, aram.ninja, GPL3  license") {
 
 	newProject.signal_clicked().connect(
 					sigc::mem_fun(this, &TopSection::onNewProject));
@@ -73,27 +73,27 @@ aboutLabel("2014 (C) Audio Recorder And Music, aram.com, GPL3  license") {
 	pack_start(aboutFrame);
 }
 
-void warsaw::gui::TopSection::onNewProject() {
+void aram::gui::TopSection::onNewProject() {
 	Project::createNew();
 	menuDialog->refresh();
 }
 
-void warsaw::gui::TopSection::onNewAudioclip() {
+void aram::gui::TopSection::onNewAudioclip() {
 	Audioclip::createNew();
 	menuDialog->refresh();
 }
 
-warsaw::gui::MainSection::MainSection(MenuDialog* md) : menuDialog(md) {
+aram::gui::MainSection::MainSection(MenuDialog* md) : menuDialog(md) {
 	pack_start(projectListView);
 	pack_start(audioclipListView);
 }
 
-void warsaw::gui::MainSection::refresh() {
+void aram::gui::MainSection::refresh() {
 	projectListView.refresh();
 	audioclipListView.refresh();
 }
 
-warsaw::gui::BaseColumns::BaseColumns() {
+aram::gui::BaseColumns::BaseColumns() {
 	add(id);
 	add(name);
 	add(lastOpened);
@@ -101,16 +101,16 @@ warsaw::gui::BaseColumns::BaseColumns() {
 	add(length);
 }
 
-warsaw::gui::ProjectColumns::ProjectColumns() : BaseColumns() {
+aram::gui::ProjectColumns::ProjectColumns() : BaseColumns() {
 }
 
-warsaw::gui::AudioclipColumns::AudioclipColumns() : BaseColumns() {
+aram::gui::AudioclipColumns::AudioclipColumns() : BaseColumns() {
 }
 
-warsaw::gui::BaseListView::BaseListView() : renameCanceled(false) {
+aram::gui::BaseListView::BaseListView() : renameCanceled(false) {
 }
 
-warsaw::gui::ProjectListView::ProjectListView() : listStore(Gtk::ListStore::create(columns)) {
+aram::gui::ProjectListView::ProjectListView() : listStore(Gtk::ListStore::create(columns)) {
 
 	set_model(listStore);
 
@@ -130,24 +130,24 @@ warsaw::gui::ProjectListView::ProjectListView() : listStore(Gtk::ListStore::crea
 					mem_fun(this, &ProjectListView::onRenameCanceled));
 }
 
-void warsaw::gui::BaseListView::onSelectedChanged() {
+void aram::gui::BaseListView::onSelectedChanged() {
 	Gtk::TreeModel::iterator itr = get_selection()->get_selected();
 	if (itr) {
 		onSelected(*itr);
 	}
 }
 
-void warsaw::gui::BaseListView::onRenameStarted(Gtk::CellEditable* editable, const Glib::ustring& path) {
+void aram::gui::BaseListView::onRenameStarted(Gtk::CellEditable* editable, const Glib::ustring& path) {
 	editable->signal_editing_done().connect(
 					mem_fun(this, &BaseListView::onRenameEnded));
 }
 
-void warsaw::gui::BaseListView::onRenameCanceled() {
+void aram::gui::BaseListView::onRenameCanceled() {
 	cout << "onRenameCanceled" << endl;
 	renameCanceled = true;
 }
 
-void warsaw::gui::BaseListView::onRenameEnded() {
+void aram::gui::BaseListView::onRenameEnded() {
 	if (!renameCanceled) {
 		Gtk::TreeModel::iterator itr = get_selection()->get_selected();
 		if (itr) {
@@ -158,7 +158,7 @@ void warsaw::gui::BaseListView::onRenameEnded() {
 	}
 }
 
-void warsaw::gui::ProjectListView::onSelected(const Gtk::TreeModel::Row& row) {
+void aram::gui::ProjectListView::onSelected(const Gtk::TreeModel::Row& row) {
 	Application app;
 	app.load();
 	Glib::ustring colId = row[columns.id];
@@ -174,7 +174,7 @@ void warsaw::gui::ProjectListView::onSelected(const Gtk::TreeModel::Row& row) {
 	}
 }
 
-void warsaw::gui::ProjectListView::onRenamed(const Gtk::TreeModel::Row& row) {
+void aram::gui::ProjectListView::onRenamed(const Gtk::TreeModel::Row& row) {
 	Glib::ustring colId = row[columns.id];
 	Glib::ustring newName = row[columns.name];
 
@@ -182,7 +182,7 @@ void warsaw::gui::ProjectListView::onRenamed(const Gtk::TreeModel::Row& row) {
 	proj->rename(newName.raw());
 }
 
-void warsaw::gui::ProjectListView::refresh() {
+void aram::gui::ProjectListView::refresh() {
 	listStore->clear();
 
 	Application app;
@@ -201,7 +201,7 @@ void warsaw::gui::ProjectListView::refresh() {
 	}
 }
 
-warsaw::gui::AudioclipListView::AudioclipListView() :
+aram::gui::AudioclipListView::AudioclipListView() :
 listStore(Gtk::ListStore::create(columns)) {
 
 	set_model(listStore);
@@ -225,7 +225,7 @@ listStore(Gtk::ListStore::create(columns)) {
 					mem_fun(this, &AudioclipListView::onRenameCanceled));
 }
 
-void warsaw::gui::AudioclipListView::onSelected(const Gtk::TreeModel::Row& row) {
+void aram::gui::AudioclipListView::onSelected(const Gtk::TreeModel::Row& row) {
 	Application app;
 	app.load();
 
@@ -237,7 +237,7 @@ void warsaw::gui::AudioclipListView::onSelected(const Gtk::TreeModel::Row& row) 
 	}
 }
 
-void warsaw::gui::AudioclipListView::onRenamed(const Gtk::TreeModel::Row& row) {
+void aram::gui::AudioclipListView::onRenamed(const Gtk::TreeModel::Row& row) {
 	Glib::ustring colId = row[columns.id];
 	Glib::ustring newName = row[columns.name];
 
@@ -245,11 +245,11 @@ void warsaw::gui::AudioclipListView::onRenamed(const Gtk::TreeModel::Row& row) {
 	ac->rename(newName.raw());
 }
 
-void warsaw::gui::BaseListView::onReload() {
+void aram::gui::BaseListView::onReload() {
 	refresh();
 }
 
-void warsaw::gui::AudioclipListView::refresh() {
+void aram::gui::AudioclipListView::refresh() {
 	listStore->clear();
 
 	Application app;

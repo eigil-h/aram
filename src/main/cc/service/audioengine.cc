@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -35,8 +35,8 @@ static bool isSilence(int argc, char** argv) {
 	return false;
 }
 
-unique_ptr<warsaw::service::AudioEngine>
-warsaw::service::AudioEngineFactory::assemble(int argc, char** argv) {
+unique_ptr<aram::service::AudioEngine>
+aram::service::AudioEngineFactory::assemble(int argc, char** argv) {
 	AudioEngine* as;
 	if (isSilence(argc, argv)) {
 		as = new Silence();
@@ -51,16 +51,16 @@ warsaw::service::AudioEngineFactory::assemble(int argc, char** argv) {
  * AudioEngine
  */
 
-warsaw::service::AudioEngine::~AudioEngine() {
+aram::service::AudioEngine::~AudioEngine() {
 }
-const unsigned& warsaw::service::AudioEngine::sampleRate() const {
+const unsigned& aram::service::AudioEngine::sampleRate() const {
 	return sampleRate_;
 }
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Silence
  */
-void warsaw::service::Silence::mainTurbo() {
+void aram::service::Silence::mainTurbo() {
 	while (running) {
 		this_thread::sleep_for(chrono::milliseconds(50));
 		project->audioEngineProcessedFrames(1024);
@@ -68,7 +68,7 @@ void warsaw::service::Silence::mainTurbo() {
 	cout << "total frames were " << project->frames() << endl;
 }
 
-warsaw::service::Silence::Silence() : mainTurboThread(&Silence::mainTurbo, this), running(true) {
+aram::service::Silence::Silence() : mainTurboThread(&Silence::mainTurbo, this), running(true) {
 	sampleRate_ = 100;
 	//Load from database the current project
 	Application app;
@@ -77,7 +77,7 @@ warsaw::service::Silence::Silence() : mainTurboThread(&Silence::mainTurbo, this)
 	cout << "Silence audio engine has started." << endl;
 }
 
-warsaw::service::Silence::~Silence() {
+aram::service::Silence::~Silence() {
 	running = false;
 	mainTurboThread.join();
 

@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -20,18 +20,18 @@
 #include <iostream>
 
 static int jack_callback_process(jack_nframes_t nFrames, void* arg) {
-	warsaw::service::JackClient* jackClient = static_cast<warsaw::service::JackClient*> (arg);
-	warsaw::model::Samples leftIn = reinterpret_cast<warsaw::model::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(warsaw::model::CHANNEL_LEFT, warsaw::model::DIRECTION_IN),
+	aram::service::JackClient* jackClient = static_cast<aram::service::JackClient*> (arg);
+	aram::model::Samples leftIn = reinterpret_cast<aram::model::Samples> (jack_port_get_buffer(
+					jackClient->getJackPort(aram::model::CHANNEL_LEFT, aram::model::DIRECTION_IN),
 					nFrames));
-	warsaw::model::Samples rightIn = reinterpret_cast<warsaw::model::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(warsaw::model::CHANNEL_RIGHT, warsaw::model::DIRECTION_IN),
+	aram::model::Samples rightIn = reinterpret_cast<aram::model::Samples> (jack_port_get_buffer(
+					jackClient->getJackPort(aram::model::CHANNEL_RIGHT, aram::model::DIRECTION_IN),
 					nFrames));
-	warsaw::model::Samples leftOut = reinterpret_cast<warsaw::model::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(warsaw::model::CHANNEL_LEFT, warsaw::model::DIRECTION_OUT),
+	aram::model::Samples leftOut = reinterpret_cast<aram::model::Samples> (jack_port_get_buffer(
+					jackClient->getJackPort(aram::model::CHANNEL_LEFT, aram::model::DIRECTION_OUT),
 					nFrames));
-	warsaw::model::Samples rightOut = reinterpret_cast<warsaw::model::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(warsaw::model::CHANNEL_RIGHT, warsaw::model::DIRECTION_OUT),
+	aram::model::Samples rightOut = reinterpret_cast<aram::model::Samples> (jack_port_get_buffer(
+					jackClient->getJackPort(aram::model::CHANNEL_RIGHT, aram::model::DIRECTION_OUT),
 					nFrames));
 
 	for (jack_nframes_t i; i < nFrames; i++) {
@@ -42,7 +42,7 @@ static int jack_callback_process(jack_nframes_t nFrames, void* arg) {
 }
 
 static int jack_callback_xrun(void* arg) {
-	warsaw::service::JackClient* jackClient = static_cast<warsaw::service::JackClient*> (arg);
+	aram::service::JackClient* jackClient = static_cast<aram::service::JackClient*> (arg);
 	std::cout << "Xrun, oh no" << std::endl;
 }
 
@@ -66,11 +66,11 @@ static void jack_callback_shutdown(void* arg) {
  * JackClient
  */
 
-warsaw::service::JackClient::JackClient() throw (exception) {
+aram::service::JackClient::JackClient() throw (exception) {
 	jack_set_error_function(jack_callback_error);
 
 	jack_status_t status;
-	jackClient = jack_client_open("Warsaw", JackNullOption, &status);
+	jackClient = jack_client_open("aram", JackNullOption, &status);
 	if (jackClient == nullptr) {
 		cout << "Jack server is not running." << endl;
 		throw exception();
@@ -93,15 +93,15 @@ warsaw::service::JackClient::JackClient() throw (exception) {
 	stereoPort[DIRECTION_OUT].connect(jackClient, DIRECTION_OUT);
 }
 
-warsaw::service::JackClient::~JackClient() {
+aram::service::JackClient::~JackClient() {
 	jack_client_close(jackClient);
 }
 
-unsigned warsaw::service::JackClient::sampleRate() {
+unsigned aram::service::JackClient::sampleRate() {
 	return sampleRate_;
 }
 
-jack_port_t* warsaw::service::JackClient::getJackPort(StereoChannel channel, Direction d) {
+jack_port_t* aram::service::JackClient::getJackPort(StereoChannel channel, Direction d) {
 	return stereoPort[d].getJackPort(channel);
 }
 
@@ -109,12 +109,12 @@ jack_port_t* warsaw::service::JackClient::getJackPort(StereoChannel channel, Dir
  * JackStereoPort
  */
 
-void warsaw::service::JackStereoPort::registerPort(jack_client_t* jackClient, Direction direction) throw (exception) {
+void aram::service::JackStereoPort::registerPort(jack_client_t* jackClient, Direction direction) throw (exception) {
 	ports[CHANNEL_LEFT] = jack_port_register(jackClient,
-					(std::string("warsaw") + (direction == DIRECTION_IN ? "-in" : "-out") + "-left").c_str(),
+					(std::string("aram") + (direction == DIRECTION_IN ? "-in" : "-out") + "-left").c_str(),
 					JACK_DEFAULT_AUDIO_TYPE, direction == DIRECTION_IN ? JackPortIsInput : JackPortIsOutput, 0L);
 	ports[CHANNEL_RIGHT] = jack_port_register(jackClient,
-					(std::string("warsaw") + (direction == DIRECTION_IN ? "-in" : "-out") + "-right").c_str(),
+					(std::string("aram") + (direction == DIRECTION_IN ? "-in" : "-out") + "-right").c_str(),
 					JACK_DEFAULT_AUDIO_TYPE, direction == DIRECTION_IN ? JackPortIsInput : JackPortIsOutput, 0L);
 	if (ports[CHANNEL_LEFT] == nullptr || ports[CHANNEL_RIGHT] == nullptr) {
 		cout << "Jack ports not available" << endl;
@@ -122,7 +122,7 @@ void warsaw::service::JackStereoPort::registerPort(jack_client_t* jackClient, Di
 	}
 }
 
-void warsaw::service::JackStereoPort::connect(jack_client_t* jack_client, Direction direction) throw (exception) {
+void aram::service::JackStereoPort::connect(jack_client_t* jack_client, Direction direction) throw (exception) {
 	JackGetPorts jackGetPorts(jack_client, JackPortIsPhysical | (direction == DIRECTION_IN ? JackPortIsOutput : JackPortIsInput));
 	if (jackGetPorts.isPortSize(2)) {
 		for (int i = 0; i < 2; i++) {
@@ -140,7 +140,7 @@ void warsaw::service::JackStereoPort::connect(jack_client_t* jack_client, Direct
 	}
 }
 
-jack_port_t* warsaw::service::JackStereoPort::getJackPort(StereoChannel channel) {
+jack_port_t* aram::service::JackStereoPort::getJackPort(StereoChannel channel) {
 	return ports[channel];
 }
 
@@ -148,7 +148,7 @@ jack_port_t* warsaw::service::JackStereoPort::getJackPort(StereoChannel channel)
  * JackGetPorts
  */
 
-warsaw::service::JackGetPorts::JackGetPorts(jack_client_t* jackClient, unsigned long flags) : portsSize(0) {
+aram::service::JackGetPorts::JackGetPorts(jack_client_t* jackClient, unsigned long flags) : portsSize(0) {
 	ports = ::jack_get_ports(jackClient, nullptr, nullptr, flags);
 	if (ports == nullptr) {
 		cout << "Can't connect to physical ports" << endl;
@@ -159,15 +159,15 @@ warsaw::service::JackGetPorts::JackGetPorts(jack_client_t* jackClient, unsigned 
 	}
 }
 
-warsaw::service::JackGetPorts::~JackGetPorts() {
+aram::service::JackGetPorts::~JackGetPorts() {
 	jack_free(ports);
 }
 
-bool warsaw::service::JackGetPorts::isPortSize(unsigned int size) {
+bool aram::service::JackGetPorts::isPortSize(unsigned int size) {
 	return portsSize == size;
 }
 
-const char* warsaw::service::JackGetPorts::getPort(unsigned int portNumber) {
+const char* aram::service::JackGetPorts::getPort(unsigned int portNumber) {
 	if (portNumber >= portsSize) {
 		cout << portNumber << "-> No such port! Number of ports are " << portsSize << endl;
 		throw std::exception();

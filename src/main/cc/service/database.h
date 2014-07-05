@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WARSAW_DATABASE_H
-#define WARSAW_DATABASE_H
+#ifndef ARAM_DATABASE_H
+#define ARAM_DATABASE_H
 
 #include <memory>
 #include <string>
@@ -26,7 +26,7 @@
 using namespace std;
 using namespace odb::sqlite;
 
-namespace warsaw {
+namespace aram {
 	namespace service {
 
 		/* Singleton class.
@@ -47,7 +47,7 @@ namespace warsaw {
 		public:
 			static Database& getInstance();
 
-			/* In order to use warsaw:::Database just as if it was an odb:::database.
+			/* In order to use aram:::Database just as if it was an odb:::database.
 			 */
 			unique_ptr<database> const& operator->();
 			

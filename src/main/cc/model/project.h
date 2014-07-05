@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WARSAW_PROJECT_H
-#define WARSAW_PROJECT_H
+#ifndef ARAM_PROJECT_H
+#define ARAM_PROJECT_H
 
 #include <string>
 #include <memory>
@@ -27,7 +27,7 @@
 
 using namespace std;
 
-namespace warsaw {
+namespace aram {
 	namespace model {
 
 		#pragma db object pointer(std::shared_ptr)

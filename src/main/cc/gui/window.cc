@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
  * Top window
  */
 
-warsaw::gui::Window::Window() {
+aram::gui::Window::Window() {
 	Glib::RefPtr<Gtk::CssProvider> cssProvider = Gtk::CssProvider::create();
 	Glib::RefPtr<Gtk::StyleContext> refStyleContext = get_style_context();
 	Glib::RefPtr< Gdk::Screen > defaultScreen = Gdk::Screen::get_default();
@@ -35,7 +35,7 @@ warsaw::gui::Window::Window() {
 		cssProvider->load_from_path("style.css");
 
 		set_default_size(1200, 750);
-		set_title("Warsaw");
+		set_title("Audio Recorder And Music");
 		set_position(Gtk::WindowPosition::WIN_POS_CENTER);
 
 		topContainer.pack_start(commandContainer);
@@ -53,7 +53,7 @@ warsaw::gui::Window::Window() {
  * Command container
  */
 
-warsaw::gui::CommandContainer::CommandContainer() {
+aram::gui::CommandContainer::CommandContainer() {
 
 	Gtk::Image* menuImage = Gtk::manage(new Gtk::Image(Gtk::Stock::DIALOG_QUESTION,
 					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
@@ -101,27 +101,27 @@ warsaw::gui::CommandContainer::CommandContainer() {
 	pack_start(markButton);
 }
 
-void warsaw::gui::CommandContainer::onMenuButtonClicked() {
+void aram::gui::CommandContainer::onMenuButtonClicked() {
 	MenuDialog md;
 	md.run();
 }
 
-void warsaw::gui::CommandContainer::onPlayButtonClicked() {
+void aram::gui::CommandContainer::onPlayButtonClicked() {
 	cout << "Play button clicked" << endl;
 
 }
 
-void warsaw::gui::CommandContainer::onRecordButtonClicked() {
+void aram::gui::CommandContainer::onRecordButtonClicked() {
 	cout << "Record button clicked" << endl;
 
 }
 
-void warsaw::gui::CommandContainer::onMarkButtonPressed() {
+void aram::gui::CommandContainer::onMarkButtonPressed() {
 	cout << "Mark button pressed" << endl;
 
 }
 
-void warsaw::gui::CommandContainer::onMarkButtonReleased() {
+void aram::gui::CommandContainer::onMarkButtonReleased() {
 	cout << "Mark button released" << endl;
 
 }
@@ -129,15 +129,15 @@ void warsaw::gui::CommandContainer::onMarkButtonReleased() {
 /*
  * Body container
  */
-warsaw::gui::Monitor::Monitor() {
+aram::gui::Monitor::Monitor() {
 	
 }
 
-warsaw::gui::ProjectView::ProjectView() {
+aram::gui::ProjectView::ProjectView() {
 	
 }
 
-warsaw::gui::BodyContainer::BodyContainer() {
+aram::gui::BodyContainer::BodyContainer() {
 	set_size_request(1000, -1);
 
 	pack_start(projectMonitor);

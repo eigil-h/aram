@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -21,29 +21,29 @@
 #include <exception>
 
 /*
- *  warsaw::service::double_buffer
+ *  aram::service::double_buffer
  */
 
-warsaw::service::DoubleBuffer::DoubleBuffer(int buffer_size) : b_idx(0), bbuf_ready(true) {
+aram::service::DoubleBuffer::DoubleBuffer(int buffer_size) : b_idx(0), bbuf_ready(true) {
 	dbuf[0] = new buf_t(buffer_size);
 	dbuf[1] = new buf_t(buffer_size);
 	swap(); //Initialize the iterators!
 }
 
-warsaw::service::DoubleBuffer::~DoubleBuffer() {
+aram::service::DoubleBuffer::~DoubleBuffer() {
 	delete dbuf[1];
 	delete dbuf[0];
 }
 
-warsaw::service::buf_t* warsaw::service::DoubleBuffer::frontBuffer() {
+aram::service::buf_t* aram::service::DoubleBuffer::frontBuffer() {
 	return dbuf[b_idx];
 }
 
-warsaw::service::buf_t* warsaw::service::DoubleBuffer::backBuffer() {
+aram::service::buf_t* aram::service::DoubleBuffer::backBuffer() {
 	return dbuf[(b_idx + 1)&1];
 }
 
-void warsaw::service::DoubleBuffer::swap() {
+void aram::service::DoubleBuffer::swap() {
 	lock_guard<mutex> guard(swap_safe);
 	++b_idx &= 1;
 
@@ -52,12 +52,12 @@ void warsaw::service::DoubleBuffer::swap() {
 }
 
 /*
- *  warsaw::service::load_and_read_buffer
+ *  aram::service::load_and_read_buffer
  */
-warsaw::service::LoadAndReadBuffer::LoadAndReadBuffer(int siz) : DoubleBuffer(siz) {
+aram::service::LoadAndReadBuffer::LoadAndReadBuffer(int siz) : DoubleBuffer(siz) {
 }
 
-bool warsaw::service::LoadAndReadBuffer::readFrontBuffer(warsaw::service::sample_t* to_buf, int len) {
+bool aram::service::LoadAndReadBuffer::readFrontBuffer(aram::service::sample_t* to_buf, int len) {
 	bool did_swap;
 	buf_itr_t end_itr = frontBuffer()->end();
 	if (fbuf_itr + len < end_itr) {
@@ -76,7 +76,7 @@ bool warsaw::service::LoadAndReadBuffer::readFrontBuffer(warsaw::service::sample
 	return did_swap;
 }
 
-int warsaw::service::LoadAndReadBuffer::loadBackBuffer(istream& istr) {
+int aram::service::LoadAndReadBuffer::loadBackBuffer(istream& istr) {
 	if (!bbuf_ready) {
 		return 0;
 	}
@@ -110,19 +110,19 @@ int warsaw::service::LoadAndReadBuffer::loadBackBuffer(istream& istr) {
 	return len;
 }
 
-int warsaw::service::LoadAndReadBuffer::loadBackBufferAndSwap(istream& istr) {
+int aram::service::LoadAndReadBuffer::loadBackBufferAndSwap(istream& istr) {
 	int samples_read = loadBackBuffer(istr);
 	swap();
 	return samples_read;
 }
 
 /*
- *  warsaw::service::write_and_store_buffer
+ *  aram::service::write_and_store_buffer
  */
-warsaw::service::WriteAndStoreBuffer::WriteAndStoreBuffer(int siz) : DoubleBuffer(siz) {
+aram::service::WriteAndStoreBuffer::WriteAndStoreBuffer(int siz) : DoubleBuffer(siz) {
 }
 
-bool warsaw::service::WriteAndStoreBuffer::writeFrontBuffer(sample_t* from_buf, int len) {
+bool aram::service::WriteAndStoreBuffer::writeFrontBuffer(sample_t* from_buf, int len) {
 	buf_itr_t itr;
 	{
 		lock_guard<mutex> guard(swap_safe);
@@ -141,7 +141,7 @@ bool warsaw::service::WriteAndStoreBuffer::writeFrontBuffer(sample_t* from_buf, 
 	return true;
 }
 
-int warsaw::service::WriteAndStoreBuffer::swapAndStoreBackBuffer(ostream& ostr) {
+int aram::service::WriteAndStoreBuffer::swapAndStoreBackBuffer(ostream& ostr) {
 	int len = fbuf_itr - frontBuffer()->begin();
 	swap();
 
@@ -153,10 +153,10 @@ int warsaw::service::WriteAndStoreBuffer::swapAndStoreBackBuffer(ostream& ostr) 
 
 
 /*
- *  warsaw::service::single_buffer
+ *  aram::service::single_buffer
  */
 
-warsaw::service::SingleBuffer::SingleBuffer(istream& istr) {
+aram::service::SingleBuffer::SingleBuffer(istream& istr) {
 	istr.seekg(0, ios::end);
 	int len = istr.tellg() / sizeof (sample_t);
 	istr.seekg(0, ios::beg);
@@ -166,7 +166,7 @@ warsaw::service::SingleBuffer::SingleBuffer(istream& istr) {
 	istr.read(reinterpret_cast<char*> (&(*buf_itr)), len * sizeof (sample_t));
 }
 
-void warsaw::service::SingleBuffer::read(sample_t* to, int len) {
+void aram::service::SingleBuffer::read(sample_t* to, int len) {
 	if (buf_itr + len > buf->end()) {
 		throw "out of bounds"; //todo maybe better to fill w zeros?
 	}
@@ -174,6 +174,6 @@ void warsaw::service::SingleBuffer::read(sample_t* to, int len) {
 	buf_itr += len;
 }
 
-void warsaw::service::SingleBuffer::reset() {
+void aram::service::SingleBuffer::reset() {
 	buf_itr = buf->begin();
 }

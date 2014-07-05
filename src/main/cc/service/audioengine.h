@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -22,8 +22,8 @@
  * Implementation of Silence
  */
 
-#ifndef WARSAW_AUDIOENGINE_H
-#define WARSAW_AUDIOENGINE_H
+#ifndef ARAM_AUDIOENGINE_H
+#define ARAM_AUDIOENGINE_H
 
 #include <memory>
 #include <thread>
@@ -32,7 +32,7 @@
 
 using namespace std;
 
-namespace warsaw {
+namespace aram {
 	using namespace model;
 	namespace service {
 

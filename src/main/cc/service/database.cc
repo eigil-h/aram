@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -29,25 +29,25 @@
 #include <iostream>
 #include <algorithm>
 
-using namespace warsaw::model;
+using namespace aram::model;
 
-warsaw::service::Database::Database() :
-db_(new database(System::getHomePath() + "/.warsaw/database",
+aram::service::Database::Database() :
+db_(new database(System::getHomePath() + "/.aram/database",
 SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE)) {
 	createSchemaNoDrop();
 	initApplication();
 }
 
-warsaw::service::Database& warsaw::service::Database::getInstance() {
+aram::service::Database& aram::service::Database::getInstance() {
 	static Database instance;
 	return instance;
 }
 
-unique_ptr<database> const& warsaw::service::Database::operator->() {
+unique_ptr<database> const& aram::service::Database::operator->() {
 	return db_;
 }
 
-string warsaw::service::Database::generateId() {
+string aram::service::Database::generateId() {
 	auto randchar = []() -> char {
 		const char charset[] =
 						"0123456789"
@@ -61,7 +61,7 @@ string warsaw::service::Database::generateId() {
 	return str;
 }
 
-void warsaw::service::Database::createSchemaNoDrop() {
+void aram::service::Database::createSchemaNoDrop() {
 	connection_ptr c(db_->connection());
 	c->execute("PRAGMA foreign_keys=OFF");
 
@@ -76,7 +76,7 @@ void warsaw::service::Database::createSchemaNoDrop() {
 	c->execute("PRAGMA foreign_keys=ON");
 }
 
-void warsaw::service::Database::initApplication() {
+void aram::service::Database::initApplication() {
 	transaction t(db_->begin());
 	auto r(db_->query<ApplicationStats>());
 	const ApplicationStats & stats(*r.begin());
@@ -87,7 +87,7 @@ void warsaw::service::Database::initApplication() {
 			createApplication();
 			break;
 		case 1:
-			cout << "Araposer application exists" << endl;
+			cout << "ARAM application exists" << endl;
 			break;
 		default:
 			throw runtime_error("Too many applications in the database!");
@@ -96,8 +96,8 @@ void warsaw::service::Database::initApplication() {
 
 /* We want one Application with one Project with one AudioClip
  */
-void warsaw::service::Database::createApplication() {
-	cout << "Create Araposer application" << endl;
+void aram::service::Database::createApplication() {
+	cout << "Create ARAM application" << endl;
 
 	try {
 		transaction t(db_->begin());
@@ -108,7 +108,7 @@ void warsaw::service::Database::createApplication() {
 		shared_ptr<Project> p(new Project("<new project>", ac));
 		db_->persist(p);
 
-		Application a("aracomposer.application", p);
+		Application a("aram.application", p);
 		
 		cout << "Trying to persist application" << endl;
 		db_->persist(a);

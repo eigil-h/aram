@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -16,13 +16,13 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WARSAW_SYSTEM_H
-#define WARSAW_SYSTEM_H
+#ifndef ARAM_SYSTEM_H
+#define ARAM_SYSTEM_H
 
 #include <string>
 using namespace std;
 
-namespace warsaw {
+namespace aram {
 
 	class System {
 	public:

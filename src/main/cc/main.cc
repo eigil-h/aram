@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -24,11 +24,11 @@
 #include "service/database.h"
 
 using namespace std;
-using namespace warsaw::gui;
-using namespace warsaw::service;
+using namespace aram::gui;
+using namespace aram::service;
 
 static void printGPL3() {
-	cout << "  Warsaw, the audio recorder and music composer" << endl <<
+	cout << "  ARAM, the audio recorder and music ninja" << endl <<
 					"  Copyright(C) 2014 Eigil Hysvær" << endl <<
 					endl <<
 					"  This program is free software: you can redistribute it and/or modify" << endl <<
@@ -46,7 +46,7 @@ static void printGPL3() {
 }
 
 int main(int argc, char** argv) {
-	printGPL3();
+	printGPL3(); 
 
 	try {
 		unique_ptr<AudioEngine> audioEnginePtr = AudioEngineFactory::assemble(argc, argv);

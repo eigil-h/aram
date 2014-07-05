@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -16,15 +16,15 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WARSAW_BUFFERS_H
-#define WARSAW_BUFFERS_H
+#ifndef ARAM_BUFFERS_H
+#define ARAM_BUFFERS_H
 #include <array>
 #include <vector>
 #include <mutex>
 
 using namespace std;
 
-namespace warsaw {
+namespace aram {
 	namespace service {
 		typedef float sample_t;
 		typedef vector<sample_t> buf_t;

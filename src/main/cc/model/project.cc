@@ -1,5 +1,5 @@
 /*
-	Warsaw, the audio recorder and music composer
+	ARAM, the audio recorder and music ninja
 	Copyright (C) 2014  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
@@ -23,49 +23,49 @@
 #include <algorithm>
 
 
-using namespace warsaw::service;
+using namespace aram::service;
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Project
  */
 
-warsaw::model::Project::Project() {
+aram::model::Project::Project() {
 }
 
-warsaw::model::Project::Project(const string& n, const shared_ptr<Audioclip>& ac) :
-id_(warsaw::service::Database::generateId()), name_(n), frames_(0), armed_(ac), sampleRate_(22049) {
+aram::model::Project::Project(const string& n, const shared_ptr<Audioclip>& ac) :
+id_(aram::service::Database::generateId()), name_(n), frames_(0), armed_(ac), sampleRate_(22049) {
 	audioclips_.insert(ac);
 }
 
-warsaw::model::Project::~Project() {
+aram::model::Project::~Project() {
 }
 
-bool warsaw::model::Project::operator==(const Project& other) const {
+bool aram::model::Project::operator==(const Project& other) const {
 	return id() == other.id();
 }
 
-bool warsaw::model::Project::operator<(const Project& other) const {
+bool aram::model::Project::operator<(const Project& other) const {
 	return name() < other.name();
 }
 
-const string& warsaw::model::Project::id() const {
+const string& aram::model::Project::id() const {
 	return id_;
 }
 
-const string& warsaw::model::Project::name() const {
+const string& aram::model::Project::name() const {
 	return name_;
 }
 
-const set<shared_ptr<warsaw::model::Audioclip>, warsaw::model::Audioclip::Less>& 
-				warsaw::model::Project::audioclips() const {
+const set<shared_ptr<aram::model::Audioclip>, aram::model::Audioclip::Less>& 
+				aram::model::Project::audioclips() const {
 	return audioclips_;
 }
 
-const warsaw::model::Audioclip& warsaw::model::Project::armed() const {
+const aram::model::Audioclip& aram::model::Project::armed() const {
 	return *armed_;
 }
 
-shared_ptr<warsaw::model::Audioclip> warsaw::model::Project::findAudioclip(const string& id) const {
+shared_ptr<aram::model::Audioclip> aram::model::Project::findAudioclip(const string& id) const {
 	for(shared_ptr<Audioclip> ac : audioclips_) {
 		if(ac->id() == id) {
 			return ac;
@@ -74,27 +74,27 @@ shared_ptr<warsaw::model::Audioclip> warsaw::model::Project::findAudioclip(const
 	return nullptr;
 }
 
-const unsigned& warsaw::model::Project::frames() const {
+const unsigned& aram::model::Project::frames() const {
 	return frames_;
 }
 
-unsigned warsaw::model::Project::length() const {
+unsigned aram::model::Project::length() const {
 	return 123;
 }
 
-const unsigned& warsaw::model::Project::sampleRate() const {
+const unsigned& aram::model::Project::sampleRate() const {
 	return sampleRate_;
 }
 
-void warsaw::model::Project::addAudioclip(shared_ptr<Audioclip> ac) {
+void aram::model::Project::addAudioclip(shared_ptr<Audioclip> ac) {
 	audioclips_.insert(ac);
 }
 
-void warsaw::model::Project::audioEngineProcessedFrames(unsigned nFrames) {
+void aram::model::Project::audioEngineProcessedFrames(unsigned nFrames) {
 	frames_ += nFrames;
 }
 
-void warsaw::model::Project::arm(const shared_ptr<Audioclip>& ac) {
+void aram::model::Project::arm(const shared_ptr<Audioclip>& ac) {
 	armed_ = ac; //optimize? - check if this is a change.
 
 	try {
@@ -109,7 +109,7 @@ void warsaw::model::Project::arm(const shared_ptr<Audioclip>& ac) {
 	}
 }
 
-void warsaw::model::Project::rename(const string& newName) {
+void aram::model::Project::rename(const string& newName) {
 	name_ = newName;
 
 	try {
@@ -124,7 +124,7 @@ void warsaw::model::Project::rename(const string& newName) {
 	}
 }
 
-set<warsaw::model::Project> warsaw::model::Project::findAll() {
+set<aram::model::Project> aram::model::Project::findAll() {
 	try {
 		Database& db = Database::getInstance();
 		transaction t(db->begin());
@@ -140,7 +140,7 @@ set<warsaw::model::Project> warsaw::model::Project::findAll() {
 	}
 }
 
-void warsaw::model::Project::createNew() {
+void aram::model::Project::createNew() {
 	try {
 		Database& db = Database::getInstance();
 		transaction t(db->begin());
@@ -158,13 +158,13 @@ void warsaw::model::Project::createNew() {
 	}
 }
 
-shared_ptr<warsaw::model::Project> warsaw::model::Project::retrieveCurrent() {
+shared_ptr<aram::model::Project> aram::model::Project::retrieveCurrent() {
 	Application app;
 	app.load();
 	return app.project();
 }
 
-shared_ptr<warsaw::model::Project> warsaw::model::Project::retrieveById(const string& projectId) {
+shared_ptr<aram::model::Project> aram::model::Project::retrieveById(const string& projectId) {
 	try {
 		Database& db = Database::getInstance();
 		transaction t(db->begin());
@@ -188,29 +188,29 @@ shared_ptr<warsaw::model::Project> warsaw::model::Project::retrieveById(const st
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Application
  */
-warsaw::model::Application::Application() {
+aram::model::Application::Application() {
 }
 
-warsaw::model::Application::Application(const string& name, const shared_ptr<Project>& project) :
+aram::model::Application::Application(const string& name, const shared_ptr<Project>& project) :
 name_(name), project_(project) {
 	cout << name << " created" << endl;
 }
 
-const string& warsaw::model::Application::name() const {
+const string& aram::model::Application::name() const {
 	return name_;
 }
 
-const shared_ptr<warsaw::model::Project>& warsaw::model::Application::project() const {
+const shared_ptr<aram::model::Project>& aram::model::Application::project() const {
 	return project_;
 }
 
-void warsaw::model::Application::load() {
+void aram::model::Application::load() {
 	Database& db = Database::getInstance();
 
 	transaction t(db->begin());
 
 	try {
-		db->load("aracomposer.application", *this);
+		db->load("aram.application", *this);
 
 		t.commit();
 	} catch (odb::object_not_persistent e) {
@@ -218,7 +218,7 @@ void warsaw::model::Application::load() {
 	}
 }
 
-void warsaw::model::Application::selectProject(const string& id) {
+void aram::model::Application::selectProject(const string& id) {
 	project_ = Project::retrieveById(id);
 
 	try {
