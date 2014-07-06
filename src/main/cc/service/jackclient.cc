@@ -49,17 +49,17 @@ static int jack_callback_xrun(void* arg) {
 static uint32_t sampleRate_ = 0;
 
 static int jack_callback_srate(jack_nframes_t nFrames, void* arg) {
-	std::cout << "WARZAW@JACK - the sample rate is now " << nFrames << " per second" << std::endl;
+	std::cout << "ARAM@JACK - the sample rate is now " << nFrames << " per second" << std::endl;
 	sampleRate_ = nFrames;
 	return 0;
 }
 
 static void jack_callback_error(const char* description) {
-	std::cout << "WARZAW@JACK ERROR - " << description << std::endl;
+	std::cout << "ARAM@JACK ERROR - " << description << std::endl;
 }
 
 static void jack_callback_shutdown(void* arg) {
-	std::cout << "WARZAW@JACK - Good bye to Jack Server.." << std::endl;
+	std::cout << "ARAM@JACK - Good bye to Jack Server.." << std::endl;
 }
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
