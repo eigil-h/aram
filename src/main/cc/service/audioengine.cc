@@ -39,9 +39,10 @@ unique_ptr<aram::service::AudioEngine>
 aram::service::AudioEngineFactory::assemble(int argc, char** argv) {
 	AudioEngine* as;
 	if (isSilence(argc, argv)) {
-		as = new Silence();
+		as = new SilenceAdaptedAudioEngine();
 	} else {
-		as = new JackClient();
+//		as = new JackClient();
+		as = new SilenceAdaptedAudioEngine();
 	}
 	unique_ptr<AudioEngine> asp(as);
 	return asp;
@@ -50,36 +51,60 @@ aram::service::AudioEngineFactory::assemble(int argc, char** argv) {
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * AudioEngine
  */
-
-aram::service::AudioEngine::~AudioEngine() {
+void aram::service::AudioEngine::addFrameReadyObserver(void_int_cb c) {
+	onFrameReadyObserver.emplace(c);
 }
-const unsigned& aram::service::AudioEngine::sampleRate() const {
-	return sampleRate_;
+
+void aram::service::AudioEngine::addXRunObserver(void_void_cb c) {
+	onXRunObserver.emplace(c);
+}
+
+void aram::service::AudioEngine::addSampleRateChangeObserver(void_int_cb c) {
+	onSampleRateChangeObserver.emplace(c);
+}
+
+void aram::service::AudioEngine::addShutdownObserver(void_void_cb c) {
+	onShutdownObserver.emplace(c);
+}
+
+void aram::service::AudioEngine::addErrorObserver(void_constcharstar_cb c) {
+	onErrorObserver.emplace(c);
 }
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Silence
  */
-void aram::service::Silence::mainTurbo() {
+void aram::service::SilenceAdaptedAudioEngine::mainTurbo() {
 	while (running) {
 		this_thread::sleep_for(chrono::milliseconds(50));
-		project->audioEngineProcessedFrames(1024);
 	}
-	cout << "total frames were " << project->frames() << endl;
+	//	cout << "total frames were " << project->frames() << endl;
 }
 
-aram::service::Silence::Silence() : mainTurboThread(&Silence::mainTurbo, this), running(true) {
-	sampleRate_ = 100;
+aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() : 
+				mainTurboThread(&SilenceAdaptedAudioEngine::mainTurbo, this), running(true) {
+	//	sampleRate_ = 100;
 	//Load from database the current project
 	Application app;
 	app.load();
-	project = app.project();
+	//	project = app.project();
 	cout << "Silence audio engine has started." << endl;
 }
 
-aram::service::Silence::~Silence() {
+aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
 	running = false;
 	mainTurboThread.join();
 
 	cout << "Silence audio engine has been shut down." << endl;
+}
+
+void aram::service::SilenceAdaptedAudioEngine::init() {
+}
+
+void aram::service::SilenceAdaptedAudioEngine::start() {
+
+}
+
+void aram::service::SilenceAdaptedAudioEngine::stop() {
+
 }

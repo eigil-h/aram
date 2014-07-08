@@ -27,23 +27,37 @@
 
 #include <memory>
 #include <thread>
+#include <unordered_set>
 #include "../model/project.h"
 #include "../model/project-odb.hxx"
 
 using namespace std;
 
+typedef void (*void_int_cb)(int);
+typedef void (*void_void_cb)();
+typedef void (*void_constcharstar_cb)(const char*);
+
+
 namespace aram {
-	using namespace model;
 	namespace service {
-
 		class AudioEngine {
-		protected:
-			shared_ptr<Project> project;
-			unsigned sampleRate_;
 		public:
-			virtual ~AudioEngine();
+			void addFrameReadyObserver(void_int_cb);
+			void addXRunObserver(void_void_cb);
+			void addSampleRateChangeObserver(void_int_cb);
+			void addShutdownObserver(void_void_cb);
+			void addErrorObserver(void_constcharstar_cb);
 
-			const unsigned& sampleRate() const;
+			virtual void init() = 0;
+			virtual void start() = 0;
+			virtual void stop() = 0;
+
+		protected:
+			unordered_set<void_int_cb> onFrameReadyObserver;
+			unordered_set<void_void_cb> onXRunObserver;
+			unordered_set<void_int_cb> onSampleRateChangeObserver;
+			unordered_set<void_void_cb> onShutdownObserver;
+			unordered_set<void_constcharstar_cb> onErrorObserver;
 		};
 
 		class AudioEngineFactory {
@@ -51,13 +65,20 @@ namespace aram {
 			static unique_ptr<AudioEngine> assemble(int argc, char** argv);
 		};
 
-		class Silence : public AudioEngine {
+		class SilenceAdaptedAudioEngine : public AudioEngine {
+		public:
+			SilenceAdaptedAudioEngine();
+			virtual ~SilenceAdaptedAudioEngine();
+			
+			void init();
+			void start();
+			void stop();
+			
+		private:
 			thread mainTurboThread;
 			bool running;
+
 			void mainTurbo();
-		public:
-			Silence();
-			virtual ~Silence();
 		};
 	}
 }

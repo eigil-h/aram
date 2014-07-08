@@ -46,7 +46,7 @@ namespace aram {
 		/**
 		 * Wrapper for jack_client_t
 		 */
-		class JackClient : public AudioEngine {
+		class JackClient {
 			jack_client_t* jackClient;
 
 		public:

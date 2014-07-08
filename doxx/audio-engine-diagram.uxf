@@ -96,9 +96,10 @@ stop()</panel_attributes>
       <w>350</w>
       <h>70</h>
     </coordinates>
-    <panel_attributes>Ex
+    <panel_attributes>Couldn't get this to work
 bg=pink
-std::vector&lt;std::function&lt;void(void)\&gt;&gt; functors;</panel_attributes>
+std::vector&lt;std::function&lt;void(void)\&gt;&gt; functors;
+- so I'll be using good ol' callback's</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>

@@ -98,7 +98,7 @@ aram::service::JackClient::~JackClient() {
 }
 
 unsigned aram::service::JackClient::sampleRate() {
-	return sampleRate_;
+	return 10;
 }
 
 jack_port_t* aram::service::JackClient::getJackPort(StereoChannel channel, Direction d) {
