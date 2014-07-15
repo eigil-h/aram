@@ -20,6 +20,8 @@
 #define ARAM_SYSTEM_H
 
 #include <string>
+#include <vector>
+
 using namespace std;
 
 namespace aram {
@@ -27,8 +29,8 @@ namespace aram {
 	class System {
 	public:
 		static const string getHomePath();
+		static vector<string> getProgramArguments();
 	};
-
 }
 
 
