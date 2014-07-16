@@ -17,19 +17,13 @@
  */
 
 
-/* Audio system abstraction
- *
- * Implementation of Silence
- */
-
 #ifndef ARAM_AUDIOENGINE_H
 #define ARAM_AUDIOENGINE_H
 
 #include <memory>
 #include <thread>
 #include <unordered_set>
-#include "../model/project.h"
-#include "../model/project-odb.hxx"
+#include <jack/jack.h>
 
 using namespace std;
 
@@ -37,11 +31,14 @@ typedef void (*void_int_cb)(int);
 typedef void (*void_void_cb)();
 typedef void (*void_constcharstar_cb)(const char*);
 
-
 namespace aram {
 	namespace service {
 		class AudioEngine {
 		public:
+			AudioEngine();
+			AudioEngine(AudioEngine const&);
+			void operator=(AudioEngine const&);
+
 			void addFrameReadyObserver(void_int_cb);
 			void addXRunObserver(void_void_cb);
 			void addSampleRateChangeObserver(void_int_cb);
@@ -52,7 +49,12 @@ namespace aram {
 			virtual void start() = 0;
 			virtual void stop() = 0;
 
-		protected:
+			int onFrameReady(unsigned frameCount);
+			int onXRun();
+			int onSampleRateChange(unsigned sampleRate);
+			void onShutdown();
+			void onError(const char* msg);
+			
 			unordered_set<void_int_cb> onFrameReadyObserver;
 			unordered_set<void_void_cb> onXRunObserver;
 			unordered_set<void_int_cb> onSampleRateChangeObserver;
@@ -62,7 +64,22 @@ namespace aram {
 
 		class AudioEngineFactory {
 		public:
-			static unique_ptr<AudioEngine> assemble(int argc, char** argv);
+			static AudioEngine& audioEngine();
+		private:
+			static AudioEngine* assemble();
+		};
+
+		class JackAdaptedAudioEngine : public AudioEngine {
+		public:
+			JackAdaptedAudioEngine();
+			virtual ~JackAdaptedAudioEngine();
+
+			void init();
+			void start();
+			void stop();
+			
+		private:
+			jack_client_t* jackClient;
 		};
 
 		class SilenceAdaptedAudioEngine : public AudioEngine {

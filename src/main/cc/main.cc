@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
 	printGPL3(); 
 
 	try {
-		unique_ptr<AudioEngine> audioEnginePtr = AudioEngineFactory::assemble(argc, argv);
+		AudioEngine& audioEnginePtr = AudioEngineFactory::audioEngine();
 		WindowManagerFactory::assemble(argc, argv)->run();
 		cout << "¡hasta luego, amiga!" << endl;
 		return 0;
