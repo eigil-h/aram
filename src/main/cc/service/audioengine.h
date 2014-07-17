@@ -27,6 +27,7 @@
 
 using namespace std;
 
+//replace with sigc++
 typedef void (*void_int_cb)(int);
 typedef void (*void_void_cb)();
 typedef void (*void_constcharstar_cb)(const char*);
@@ -36,8 +37,8 @@ namespace aram {
 		class AudioEngine {
 		public:
 			AudioEngine();
-			AudioEngine(AudioEngine const&);
-			void operator=(AudioEngine const&);
+			AudioEngine(const AudioEngine&) = delete;
+			AudioEngine& operator=(const AudioEngine&) = delete;
 
 			void addFrameReadyObserver(void_int_cb);
 			void addXRunObserver(void_void_cb);
@@ -45,11 +46,10 @@ namespace aram {
 			void addShutdownObserver(void_void_cb);
 			void addErrorObserver(void_constcharstar_cb);
 
-			virtual void init() = 0;
 			virtual void start() = 0;
 			virtual void stop() = 0;
 
-			int onFrameReady(unsigned frameCount);
+			int postOnFrameReady(unsigned frameCount);
 			int onXRun();
 			int onSampleRateChange(unsigned sampleRate);
 			void onShutdown();
@@ -72,9 +72,8 @@ namespace aram {
 		class JackAdaptedAudioEngine : public AudioEngine {
 		public:
 			JackAdaptedAudioEngine();
-			virtual ~JackAdaptedAudioEngine();
+			~JackAdaptedAudioEngine();
 
-			void init();
 			void start();
 			void stop();
 			
@@ -85,17 +84,18 @@ namespace aram {
 		class SilenceAdaptedAudioEngine : public AudioEngine {
 		public:
 			SilenceAdaptedAudioEngine();
-			virtual ~SilenceAdaptedAudioEngine();
-			
-			void init();
+			~SilenceAdaptedAudioEngine();
+
 			void start();
 			void stop();
-			
+
 		private:
 			thread mainTurboThread;
 			bool running;
+			unsigned frameCount_;
 
 			void mainTurbo();
+			int onFrameReady(unsigned frameCount);
 		};
 	}
 }
