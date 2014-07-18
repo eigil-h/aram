@@ -48,72 +48,33 @@ aram::service::AudioEngine* aram::service::AudioEngineFactory::assemble() {
 aram::service::AudioEngine::AudioEngine() {
 }
 
-void aram::service::AudioEngine::connectFrameReadyObserver(sigc::slot<void, unsigned> slot) {
-	frameReadySignal.connect(slot);
-}
-
-void aram::service::AudioEngine::connectXRunObserver(sigc::slot<void> slot) {
-	xRunSignal.connect(slot);
-}
-
-void aram::service::AudioEngine::connectSampleRateChangeObserver(sigc::slot<void, unsigned> slot) {
-	sampleRateChangeSignal.connect(slot);
-}
-
-void aram::service::AudioEngine::connectShutdownObserver(sigc::slot<void> slot) {
-	shutdownSignal.connect(slot);
-}
-
-void aram::service::AudioEngine::connectErrorObserver(sigc::slot<void, const char*> slot) {
-	errorSignal.connect(slot);
-}
-
-void aram::service::AudioEngine::emitFrameReady(unsigned frameCount) {
-	frameReadySignal.emit(frameCount);
-}
-
-void aram::service::AudioEngine::emitXRun() {
-	xRunSignal.emit();
-}
-
-void aram::service::AudioEngine::emitSampleRateChange(unsigned sampleRate) {
-	sampleRateChangeSignal.emit(sampleRate);
-}
-
-void aram::service::AudioEngine::emitShutdown() {
-	shutdownSignal.emit();
-}
-
-void aram::service::AudioEngine::emitError(const char* msg) {
-	errorSignal.emit(msg);
-}
-
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Jack adapted audio engine
  */
 static int onFrameReadyJackFun(uint32_t frameCount, void* ignore) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngineFactory::audioEngine();
-	audioEngine.emitFrameReady(frameCount);
+	audioEngine.frameReadySignal(frameCount);
+	//todo - does Jack expect something in return?
 }
 
 static int onXRunJackFun(void* ignore) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngineFactory::audioEngine();
-	audioEngine.emitXRun();
+	audioEngine.xRunSignal();
 }
 
 static int onSampleRateChangeJackFun(unsigned sampleRate, void* ignore) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngineFactory::audioEngine();
-	audioEngine.emitSampleRateChange(sampleRate);
+	audioEngine.sampleRateChangeSignal(sampleRate);
 }
 
 static void onShutdownJackFun(void* ignore) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngineFactory::audioEngine();
-	audioEngine.emitShutdown();
+	audioEngine.shutdownSignal();
 }
 
 static void onErrorJackFun(const char* msg) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngineFactory::audioEngine();
-	audioEngine.emitError(msg);
+	audioEngine.errorSignal(msg);
 }
 
 aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
@@ -162,7 +123,7 @@ aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() :
 				mainTurboThread(&SilenceAdaptedAudioEngine::mainTurbo, this), 
 				running(false), frameCount_(0) {
 	cout << "Hello?" << endl;
-	connectFrameReadyObserver(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onFrameReady));
+	frameReadySignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onFrameReady));
 }
 
 aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
@@ -184,7 +145,7 @@ void aram::service::SilenceAdaptedAudioEngine::stop() {
 void aram::service::SilenceAdaptedAudioEngine::mainTurbo() {
 	while (true) {
 		if (running) {
-			emitFrameReady(512); //emit
+			frameReadySignal(512);
 		}
 		this_thread::sleep_for(chrono::milliseconds(50));
 	}

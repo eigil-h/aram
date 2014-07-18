@@ -37,22 +37,9 @@ namespace aram {
 			AudioEngine(const AudioEngine&) = delete;
 			AudioEngine& operator=(const AudioEngine&) = delete;
 
-			void connectFrameReadyObserver(sigc::slot<void, unsigned> slot);
-			void connectXRunObserver(sigc::slot<void> slot);
-			void connectSampleRateChangeObserver(sigc::slot<void, unsigned> slot);
-			void connectShutdownObserver(sigc::slot<void> slot);
-			void connectErrorObserver(sigc::slot<void, const char*> slot);
-
 			virtual void start() = 0;
 			virtual void stop() = 0;
 
-			void emitFrameReady(unsigned frameCount);
-			void emitXRun();
-			void emitSampleRateChange(unsigned sampleRate);
-			void emitShutdown();
-			void emitError(const char* msg);
-
-		private:
 			sigc::signal<void, unsigned> frameReadySignal;
 			sigc::signal<void> xRunSignal;
 			sigc::signal<void, unsigned> sampleRateChangeSignal;
