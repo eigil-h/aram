@@ -24,42 +24,40 @@
 #include <thread>
 #include <unordered_set>
 #include <jack/jack.h>
+#include <sigc++/sigc++.h>
 
 using namespace std;
 
-//replace with sigc++
-typedef void (*void_int_cb)(int);
-typedef void (*void_void_cb)();
-typedef void (*void_constcharstar_cb)(const char*);
-
 namespace aram {
 	namespace service {
+
 		class AudioEngine {
 		public:
 			AudioEngine();
 			AudioEngine(const AudioEngine&) = delete;
 			AudioEngine& operator=(const AudioEngine&) = delete;
 
-			void addFrameReadyObserver(void_int_cb);
-			void addXRunObserver(void_void_cb);
-			void addSampleRateChangeObserver(void_int_cb);
-			void addShutdownObserver(void_void_cb);
-			void addErrorObserver(void_constcharstar_cb);
+			void connectFrameReadyObserver(sigc::slot<void, unsigned> slot);
+			void connectXRunObserver(sigc::slot<void> slot);
+			void connectSampleRateChangeObserver(sigc::slot<void, unsigned> slot);
+			void connectShutdownObserver(sigc::slot<void> slot);
+			void connectErrorObserver(sigc::slot<void, const char*> slot);
 
 			virtual void start() = 0;
 			virtual void stop() = 0;
 
-			int postOnFrameReady(unsigned frameCount);
-			int onXRun();
-			int onSampleRateChange(unsigned sampleRate);
-			void onShutdown();
-			void onError(const char* msg);
-			
-			unordered_set<void_int_cb> onFrameReadyObserver;
-			unordered_set<void_void_cb> onXRunObserver;
-			unordered_set<void_int_cb> onSampleRateChangeObserver;
-			unordered_set<void_void_cb> onShutdownObserver;
-			unordered_set<void_constcharstar_cb> onErrorObserver;
+			void emitFrameReady(unsigned frameCount);
+			void emitXRun();
+			void emitSampleRateChange(unsigned sampleRate);
+			void emitShutdown();
+			void emitError(const char* msg);
+
+		private:
+			sigc::signal<void, unsigned> frameReadySignal;
+			sigc::signal<void> xRunSignal;
+			sigc::signal<void, unsigned> sampleRateChangeSignal;
+			sigc::signal<void> shutdownSignal;
+			sigc::signal<void, const char*> errorSignal;
 		};
 
 		class AudioEngineFactory {
@@ -76,7 +74,7 @@ namespace aram {
 
 			void start();
 			void stop();
-			
+
 		private:
 			jack_client_t* jackClient;
 		};
@@ -95,7 +93,7 @@ namespace aram {
 			unsigned frameCount_;
 
 			void mainTurbo();
-			int onFrameReady(unsigned frameCount);
+			void onFrameReady(unsigned frameCount);
 		};
 	}
 }

@@ -48,54 +48,44 @@ aram::service::AudioEngine* aram::service::AudioEngineFactory::assemble() {
 aram::service::AudioEngine::AudioEngine() {
 }
 
-void aram::service::AudioEngine::addFrameReadyObserver(void_int_cb c) {
-	onFrameReadyObserver.emplace(c);
+void aram::service::AudioEngine::connectFrameReadyObserver(sigc::slot<void, unsigned> slot) {
+	frameReadySignal.connect(slot);
 }
 
-void aram::service::AudioEngine::addXRunObserver(void_void_cb c) {
-	onXRunObserver.emplace(c);
+void aram::service::AudioEngine::connectXRunObserver(sigc::slot<void> slot) {
+	xRunSignal.connect(slot);
 }
 
-void aram::service::AudioEngine::addSampleRateChangeObserver(void_int_cb c) {
-	onSampleRateChangeObserver.emplace(c);
+void aram::service::AudioEngine::connectSampleRateChangeObserver(sigc::slot<void, unsigned> slot) {
+	sampleRateChangeSignal.connect(slot);
 }
 
-void aram::service::AudioEngine::addShutdownObserver(void_void_cb c) {
-	onShutdownObserver.emplace(c);
+void aram::service::AudioEngine::connectShutdownObserver(sigc::slot<void> slot) {
+	shutdownSignal.connect(slot);
 }
 
-void aram::service::AudioEngine::addErrorObserver(void_constcharstar_cb c) {
-	onErrorObserver.emplace(c);
+void aram::service::AudioEngine::connectErrorObserver(sigc::slot<void, const char*> slot) {
+	errorSignal.connect(slot);
 }
 
-int aram::service::AudioEngine::postOnFrameReady(unsigned frameCount) {
-	for (void_int_cb cb : onFrameReadyObserver) {
-		cb(frameCount);
-	}
+void aram::service::AudioEngine::emitFrameReady(unsigned frameCount) {
+	frameReadySignal.emit(frameCount);
 }
 
-int aram::service::AudioEngine::onXRun() {
-	for (void_void_cb cb : onXRunObserver) {
-		cb();
-	}
+void aram::service::AudioEngine::emitXRun() {
+	xRunSignal.emit();
 }
 
-int aram::service::AudioEngine::onSampleRateChange(unsigned sampleRate) {
-	for (void_int_cb cb : onSampleRateChangeObserver) {
-		cb(sampleRate);
-	}
+void aram::service::AudioEngine::emitSampleRateChange(unsigned sampleRate) {
+	sampleRateChangeSignal.emit(sampleRate);
 }
 
-void aram::service::AudioEngine::onShutdown() {
-	for (void_void_cb cb : onShutdownObserver) {
-		cb();
-	}
+void aram::service::AudioEngine::emitShutdown() {
+	shutdownSignal.emit();
 }
 
-void aram::service::AudioEngine::onError(const char* msg) {
-	for (void_constcharstar_cb cb : onErrorObserver) {
-		cb(msg);
-	}
+void aram::service::AudioEngine::emitError(const char* msg) {
+	errorSignal.emit(msg);
 }
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
@@ -103,27 +93,27 @@ void aram::service::AudioEngine::onError(const char* msg) {
  */
 static int onFrameReadyJackFun(uint32_t frameCount, void* ignore) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngineFactory::audioEngine();
-	audioEngine.postOnFrameReady(frameCount);
+	audioEngine.emitFrameReady(frameCount);
 }
 
 static int onXRunJackFun(void* ignore) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngineFactory::audioEngine();
-	audioEngine.onXRun();
+	audioEngine.emitXRun();
 }
 
 static int onSampleRateChangeJackFun(unsigned sampleRate, void* ignore) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngineFactory::audioEngine();
-	audioEngine.onSampleRateChange(sampleRate);
+	audioEngine.emitSampleRateChange(sampleRate);
 }
 
 static void onShutdownJackFun(void* ignore) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngineFactory::audioEngine();
-	audioEngine.onShutdown();
+	audioEngine.emitShutdown();
 }
 
 static void onErrorJackFun(const char* msg) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngineFactory::audioEngine();
-	audioEngine.onError(msg);
+	audioEngine.emitError(msg);
 }
 
 aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
@@ -162,37 +152,44 @@ void aram::service::JackAdaptedAudioEngine::stop() {
 	}
 }
 
+
+
+
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Silence adapted audio engine
  */
 aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() :
 				mainTurboThread(&SilenceAdaptedAudioEngine::mainTurbo, this), 
 				running(false), frameCount_(0) {
+	cout << "Hello?" << endl;
+	connectFrameReadyObserver(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onFrameReady));
 }
 
 aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
+	cout << "total destruction" << endl;
 	stop();
 	mainTurboThread.join();
 }
 
 void aram::service::SilenceAdaptedAudioEngine::start() {
+	frameCount_ = 0;
 	running = true;
 }
 
 void aram::service::SilenceAdaptedAudioEngine::stop() {
 	running = false;
+	cout << "frame count = " << frameCount_ << endl;
 }
 
 void aram::service::SilenceAdaptedAudioEngine::mainTurbo() {
 	while (true) {
 		if (running) {
-			postOnFrameReady(512);
+			emitFrameReady(512); //emit
 		}
 		this_thread::sleep_for(chrono::milliseconds(50));
 	}
 }
 
-int aram::service::SilenceAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
+void aram::service::SilenceAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 	frameCount_ += frameCount;
-	return frameCount_;
 }
