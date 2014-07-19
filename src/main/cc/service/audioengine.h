@@ -31,6 +31,13 @@ using namespace std;
 namespace aram {
 	namespace service {
 
+		/**
+		 * Abstract audio engine with concrete signal storage.
+		 * Subclasses make real representation of audio engines like JACK.
+		 * Implemented as singleton because we always want one and only one
+		 * audio engine instance. This way it becomes easy for C style audio engine
+		 * callbacks to access the signal storage contained here.
+		 */
 		class AudioEngine {
 		public:
 			static AudioEngine& getInstance();
