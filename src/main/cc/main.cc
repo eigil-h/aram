@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
 	printGPL3(); 
 
 	try {
-		AudioEngine& audioEngine = AudioEngineFactory::audioEngine();
+		AudioEngine& audioEngine = AudioEngine::audioEngine();
 		audioEngine.start();
 		WindowManagerFactory::assemble(argc, argv)->run();
 		audioEngine.stop();

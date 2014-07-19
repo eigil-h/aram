@@ -33,9 +33,7 @@ namespace aram {
 
 		class AudioEngine {
 		public:
-			AudioEngine();
-			AudioEngine(const AudioEngine&) = delete;
-			AudioEngine& operator=(const AudioEngine&) = delete;
+			static AudioEngine& audioEngine();
 
 			virtual void start() = 0;
 			virtual void stop() = 0;
@@ -45,13 +43,15 @@ namespace aram {
 			sigc::signal<void, unsigned> sampleRateChangeSignal;
 			sigc::signal<void> shutdownSignal;
 			sigc::signal<void, const char*> errorSignal;
-		};
 
-		class AudioEngineFactory {
-		public:
-			static AudioEngine& audioEngine();
+		protected:
+			AudioEngine();
+
 		private:
-			static AudioEngine* assemble();
+			static AudioEngine* newAudioEngine();
+
+			AudioEngine(const AudioEngine&) = delete;
+			AudioEngine& operator=(const AudioEngine&) = delete;
 		};
 
 		class JackAdaptedAudioEngine : public AudioEngine {
