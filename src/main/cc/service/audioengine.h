@@ -33,7 +33,7 @@ namespace aram {
 
 		class AudioEngine {
 		public:
-			static AudioEngine& audioEngine();
+			static AudioEngine& getInstance();
 
 			virtual void start() = 0;
 			virtual void stop() = 0;
