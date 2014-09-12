@@ -18,7 +18,17 @@
 
 #include "system.h"
 #include <cstdlib>
+#include <sys/stat.h>
+#include <cerrno>
+#include <cstring>
+#include <stdexcept>
 
 const string aram::System::getHomePath() {
 	return ::getenv("HOME");
+}
+
+void aram::System::mkdir(const string& path) {
+	if(::mkdir(path.c_str(), 0700) != 0 && errno != EEXIST) {
+		throw runtime_error(::strerror(errno));
+	}
 }

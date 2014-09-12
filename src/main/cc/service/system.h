@@ -27,8 +27,8 @@ namespace aram {
 	class System {
 	public:
 		static const string getHomePath();
+		static void mkdir(const string& path);
 	};
-
 }
 
 

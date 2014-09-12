@@ -19,6 +19,7 @@
 #include "project.h"
 #include "project-odb.hxx"
 #include "../service/database.h"
+#include "src/main/cc/service/system.h"
 #include <iostream>
 #include <algorithm>
 
@@ -189,6 +190,7 @@ shared_ptr<aram::model::Project> aram::model::Project::retrieveById(const string
  * Application
  */
 aram::model::Application::Application() {
+	System::mkdir(System::getHomePath() + "/.aram");
 }
 
 aram::model::Application::Application(const string& name, const shared_ptr<Project>& project) :
