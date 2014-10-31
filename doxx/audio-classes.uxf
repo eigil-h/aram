@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="12.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>70</x>
+      <y>100</y>
+      <w>280</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>/AudioEngine/
+--
++frameReadySignal : signal
+--
+/+start()/
+/+stop()/</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>420</x>
+      <y>260</y>
+      <w>290</w>
+      <h>270</h>
+    </coordinates>
+    <panel_attributes>Project
+--
+
+--
+onFrameReady(fCount : unsigned)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>420</x>
+      <y>100</y>
+      <w>290</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>Port
+--
+--
+getBuffer() : sample_buffer_t</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Note</type>
+    <coordinates>
+      <x>70</x>
+      <y>280</y>
+      <w>130</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>All ports and 
+buffers are 
+stereo!
+bg=#ffffa0</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
