@@ -17,47 +17,77 @@
  */
 
 
-/* Audio system abstraction
- *
- * Implementation of Silence
- */
-
 #ifndef ARAM_AUDIOENGINE_H
 #define ARAM_AUDIOENGINE_H
 
 #include <memory>
 #include <thread>
-#include "../model/project.h"
-#include "../model/project-odb.hxx"
+#include <unordered_set>
+#include <jack/jack.h>
+#include <sigc++/sigc++.h>
 
 using namespace std;
 
 namespace aram {
-	using namespace model;
 	namespace service {
 
+		/**
+		 * Abstract audio engine with concrete signal storage.
+		 * Subclasses make real representation of audio engines like JACK.
+		 * Implemented as singleton because we always want one and only one
+		 * audio engine instance. This way it becomes easy for C style audio engine
+		 * callbacks to access the signal storage contained here.
+		 */
 		class AudioEngine {
+		public:
+			static AudioEngine& getInstance();
+
+			virtual void start() = 0;
+			virtual void stop() = 0;
+
+			sigc::signal<void, unsigned> frameReadySignal;
+			sigc::signal<void> xRunSignal;
+			sigc::signal<void, unsigned> sampleRateChangeSignal;
+			sigc::signal<void> shutdownSignal;
+			sigc::signal<void, const char*> errorSignal;
+
 		protected:
-			shared_ptr<Project> project;
-			unsigned sampleRate_;
-		public:
-			virtual ~AudioEngine();
+			AudioEngine();
 
-			const unsigned& sampleRate() const;
+		private:
+			static AudioEngine* newAudioEngine();
+
+			AudioEngine(const AudioEngine&) = delete;
+			AudioEngine& operator=(const AudioEngine&) = delete;
 		};
 
-		class AudioEngineFactory {
+		class JackAdaptedAudioEngine : public AudioEngine {
 		public:
-			static unique_ptr<AudioEngine> assemble(int argc, char** argv);
+			JackAdaptedAudioEngine();
+			~JackAdaptedAudioEngine();
+
+			void start();
+			void stop();
+
+		private:
+			jack_client_t* jackClient;
 		};
 
-		class Silence : public AudioEngine {
+		class SilenceAdaptedAudioEngine : public AudioEngine {
+		public:
+			SilenceAdaptedAudioEngine();
+			~SilenceAdaptedAudioEngine();
+
+			void start();
+			void stop();
+
+		private:
 			thread mainTurboThread;
 			bool running;
+			unsigned frameCount_;
+
 			void mainTurbo();
-		public:
-			Silence();
-			virtual ~Silence();
+			void onFrameReady(unsigned frameCount);
 		};
 	}
 }

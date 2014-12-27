@@ -18,6 +18,9 @@
 
 #include "system.h"
 #include <cstdlib>
+#include <unistd.h>
+#include <sstream>
+#include <fstream>
 #include <sys/stat.h>
 #include <cerrno>
 #include <cstring>
@@ -31,4 +34,18 @@ void aram::System::mkdir(const string& path) {
 	if(::mkdir(path.c_str(), 0700) != 0 && errno != EEXIST) {
 		throw runtime_error(::strerror(errno));
 	}
+}
+
+//linux only, afaik
+vector<string> aram::System::getProgramArguments() {
+	vector<string> result;
+	pid_t pid = getpid();
+	stringstream ss;
+	ss << "/proc/" << pid << "/cmdline";
+	ifstream f(ss.str(), ios::binary);
+	string line;
+	while(getline(f, line, '\0')) {
+		result.push_back(line);
+	}
+	return result;
 }

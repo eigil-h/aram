@@ -22,64 +22,132 @@
 #include "audioengine.h"
 #include "jackclient.h"
 #include "database.h"
-
-/*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
- * AudioEngineFactory
- */
-static bool isSilence(int argc, char** argv) {
-	for (int i = 0; i < argc; i++) {
-		if (strcmp(argv[i], "-silence") == 0) {
-			return true;
-		}
-	}
-	return false;
-}
-
-unique_ptr<aram::service::AudioEngine>
-aram::service::AudioEngineFactory::assemble(int argc, char** argv) {
-	AudioEngine* as;
-	if (isSilence(argc, argv)) {
-		as = new Silence();
-	} else {
-		as = new JackClient();
-	}
-	unique_ptr<AudioEngine> asp(as);
-	return asp;
-}
+#include "system.h"
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * AudioEngine
  */
-
-aram::service::AudioEngine::~AudioEngine() {
+aram::service::AudioEngine& aram::service::AudioEngine::getInstance() {
+	static unique_ptr<AudioEngine> asp(newAudioEngine());
+	return *asp;
 }
-const unsigned& aram::service::AudioEngine::sampleRate() const {
-	return sampleRate_;
+
+aram::service::AudioEngine* aram::service::AudioEngine::newAudioEngine() {
+	for (string s : aram::System::getProgramArguments()) {
+		if (s == "-silence") {
+			return new SilenceAdaptedAudioEngine();
+		}
+	}
+	//todo new JackAdaptedAudioEngine();
+	return new SilenceAdaptedAudioEngine();
+}
+
+aram::service::AudioEngine::AudioEngine() {
 }
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
- * Silence
+ * Jack adapted audio engine
  */
-void aram::service::Silence::mainTurbo() {
-	while (running) {
-		this_thread::sleep_for(chrono::milliseconds(50));
-		project->audioEngineProcessedFrames(1024);
+static int onFrameReadyJackFun(uint32_t frameCount, void* ignore) {
+	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
+	audioEngine.frameReadySignal(frameCount);
+	//todo - does Jack expect something in return?
+}
+
+static int onXRunJackFun(void* ignore) {
+	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
+	audioEngine.xRunSignal();
+}
+
+static int onSampleRateChangeJackFun(unsigned sampleRate, void* ignore) {
+	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
+	audioEngine.sampleRateChangeSignal(sampleRate);
+}
+
+static void onShutdownJackFun(void* ignore) {
+	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
+	audioEngine.shutdownSignal();
+}
+
+static void onErrorJackFun(const char* msg) {
+	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
+	audioEngine.errorSignal(msg);
+}
+
+aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
+	jack_set_error_function(onErrorJackFun);
+
+	jack_status_t status;
+	jackClient = jack_client_open("aram", JackNullOption, &status);
+	if (jackClient == nullptr) {
+		cout << "Jack server is not running." << endl;
+		throw exception();
 	}
-	cout << "total frames were " << project->frames() << endl;
+
+	jack_set_process_callback(jackClient, onFrameReadyJackFun, this);
+	jack_set_xrun_callback(jackClient, onXRunJackFun, this);
+	jack_set_sample_rate_callback(jackClient, onSampleRateChangeJackFun, this);
+	jack_on_shutdown(jackClient, onShutdownJackFun, this);
+
+	/*registerPort
+	 * jack_activate
+	 * port connect
+	 *  - guess this should go into some JackClient class.
+	 */
 }
 
-aram::service::Silence::Silence() : mainTurboThread(&Silence::mainTurbo, this), running(true) {
-	sampleRate_ = 100;
-	//Load from database the current project
-	Application app;
-	app.load();
-	project = app.project();
-	cout << "Silence audio engine has started." << endl;
+aram::service::JackAdaptedAudioEngine::~JackAdaptedAudioEngine() {
+	stop();
 }
 
-aram::service::Silence::~Silence() {
-	running = false;
+void aram::service::JackAdaptedAudioEngine::start() {
+}
+
+void aram::service::JackAdaptedAudioEngine::stop() {
+	if (jackClient != nullptr) {
+		jack_client_close(jackClient);
+		jackClient = nullptr;
+	}
+}
+
+
+
+
+/*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
+ * Silence adapted audio engine
+ */
+aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() :
+				mainTurboThread(&SilenceAdaptedAudioEngine::mainTurbo, this), 
+				running(false), frameCount_(0) {
+	cout << "Constructing the Silence Adapted Audio Engine" << endl;
+	frameReadySignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onFrameReady));
+}
+
+aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
+	cout << "Destroying the Silence Adapted Audio Engine" << endl;
+	stop();
 	mainTurboThread.join();
+}
 
-	cout << "Silence audio engine has been shut down." << endl;
+void aram::service::SilenceAdaptedAudioEngine::start() {
+	frameCount_ = 0;
+	running = true;
+}
+
+void aram::service::SilenceAdaptedAudioEngine::stop() {
+	running = false;
+	cout << "frame count = " << frameCount_ << endl;
+}
+
+void aram::service::SilenceAdaptedAudioEngine::mainTurbo() {
+	while (true) {
+		if (running) {
+			frameReadySignal(512);
+		}
+		this_thread::sleep_for(chrono::milliseconds(50));
+	}
+}
+
+void aram::service::SilenceAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
+	frameCount_ += frameCount;
 }

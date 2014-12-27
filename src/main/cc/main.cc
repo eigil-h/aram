@@ -49,8 +49,10 @@ int main(int argc, char** argv) {
 	printGPL3(); 
 
 	try {
-		unique_ptr<AudioEngine> audioEnginePtr = AudioEngineFactory::assemble(argc, argv);
+		AudioEngine& audioEngine = AudioEngine::getInstance();
+		audioEngine.start();
 		WindowManagerFactory::assemble(argc, argv)->run();
+		audioEngine.stop();
 		cout << "¡hasta luego, amiga!" << endl;
 		return 0;
 	} catch (std::exception& e) {

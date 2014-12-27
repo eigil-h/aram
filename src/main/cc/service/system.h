@@ -20,6 +20,8 @@
 #define ARAM_SYSTEM_H
 
 #include <string>
+#include <vector>
+
 using namespace std;
 
 namespace aram {
@@ -28,6 +30,7 @@ namespace aram {
 	public:
 		static const string getHomePath();
 		static void mkdir(const string& path);
+		static vector<string> getProgramArguments();
 	};
 }
 
