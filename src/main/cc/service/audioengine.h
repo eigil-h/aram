@@ -55,7 +55,7 @@ namespace aram {
 			bool playback;
 
 			virtual ~AudioEngine();
-			
+
 			void addChannel(const string& channel);
 			void removeChannel(string channel);
 			void armChannel(string channel);
@@ -75,8 +75,10 @@ namespace aram {
 
 		/**
 		 * Audio engine using JACK
-     */
+		 */
 		class JackAdaptedAudioEngine : public AudioEngine {
+#define JACK_CALLBACK_SUCCESS 0;
+
 		public:
 			JackAdaptedAudioEngine();
 			~JackAdaptedAudioEngine();
@@ -87,10 +89,9 @@ namespace aram {
 			void onFrameReady(unsigned frameCount);
 		};
 
-
 		/**
 		 * Audio engine without audio. Useful for GUI design work.
-     */
+		 */
 		class SilenceAdaptedAudioEngine : public AudioEngine {
 		public:
 			SilenceAdaptedAudioEngine();
@@ -100,8 +101,8 @@ namespace aram {
 			thread mainTurboThread;
 			bool running;
 			unsigned frameCountPlayback,
-					frameCountRecording,
-					frameCountTotal;
+			frameCountRecording,
+			frameCountTotal;
 
 			void mainTurbo();
 			void onFrameReady(unsigned frameCount);

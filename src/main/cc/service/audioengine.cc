@@ -67,17 +67,19 @@ void aram::service::AudioEngine::armChannel(string channel) {
 static int onFrameReadyJackFun(uint32_t frameCount, void* ignore) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
 	audioEngine.frameReadySignal(frameCount);
-	//todo - does Jack expect something in return?
+	return JACK_CALLBACK_SUCCESS;
 }
 
 static int onXRunJackFun(void* ignore) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
 	audioEngine.xRunSignal();
+	return JACK_CALLBACK_SUCCESS;
 }
 
 static int onSampleRateChangeJackFun(unsigned sampleRate, void* ignore) {
 	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
 	audioEngine.sampleRateChangeSignal(sampleRate);
+	return JACK_CALLBACK_SUCCESS;
 }
 
 static void onShutdownJackFun(void* ignore) {
