@@ -50,8 +50,7 @@ void aram::service::JackStereoPort::connectPhysicalPort(jack_client_t* jack_clie
 				result = jack_connect(jack_client, jack_port_name(ports[i]), jackGetPorts.getPort(i));
 			}
 			if (result != 0) {
-				cout << "can't connect ports" << endl;
-				throw std::exception();
+				throw runtime_error("can't connect ports");
 			}
 		}
 	}
