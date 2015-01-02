@@ -20,7 +20,7 @@
 #ifndef ARAM_AUDIOENGINE_H
 #define ARAM_AUDIOENGINE_H
 
-#include <memory>
+#include <forward_list>
 #include <thread>
 #include <jack/jack.h>
 #include <sigc++/sigc++.h>
@@ -28,6 +28,9 @@
 using namespace std;
 
 namespace aram {
+	/**
+	 * Services that knows nothing about the models.
+	 */
 	namespace service {
 
 		/**
@@ -50,12 +53,18 @@ namespace aram {
 			sigc::signal<void, const char*> errorSignal;
 
 			bool playback;
-			bool recording;
 
 			virtual ~AudioEngine();
+			
+			void addChannel(const string& channel);
+			void removeChannel(string channel);
+			void armChannel(string channel);
 
 		protected:
 			AudioEngine();
+
+			forward_list<string> channels;
+			string armedChannel;
 
 		private:
 			static AudioEngine* newAudioEngine();
@@ -64,6 +73,9 @@ namespace aram {
 			AudioEngine& operator=(const AudioEngine&) = delete;
 		};
 
+		/**
+		 * Audio engine using JACK
+     */
 		class JackAdaptedAudioEngine : public AudioEngine {
 		public:
 			JackAdaptedAudioEngine();
@@ -71,8 +83,14 @@ namespace aram {
 
 		private:
 			jack_client_t* jackClient;
+
+			void onFrameReady(unsigned frameCount);
 		};
 
+
+		/**
+		 * Audio engine without audio. Useful for GUI design work.
+     */
 		class SilenceAdaptedAudioEngine : public AudioEngine {
 		public:
 			SilenceAdaptedAudioEngine();

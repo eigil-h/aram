@@ -121,8 +121,7 @@ void aram::gui::CommandContainer::onRecordButtonClicked() {
 	cout << "Record button clicked" << endl;
 
 	AudioEngine& audioEngine = AudioEngine::getInstance();
-	//todo - check actual state of this toggle button
-	audioEngine.recording = !audioEngine.recording;
+	//todo - arm the selected channel
 }
 
 void aram::gui::CommandContainer::onMarkButtonPressed() {

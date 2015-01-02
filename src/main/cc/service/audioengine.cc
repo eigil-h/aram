@@ -19,6 +19,7 @@
 #include <iostream>
 #include <cstring>
 #include <chrono>
+#include <algorithm>
 #include "audioengine.h"
 #include "jackclient.h"
 #include "database.h"
@@ -46,6 +47,18 @@ aram::service::AudioEngine::AudioEngine() {
 }
 
 aram::service::AudioEngine::~AudioEngine() {
+}
+
+void aram::service::AudioEngine::addChannel(const string& channel) {
+	channels.push_front(channel);
+}
+
+void aram::service::AudioEngine::removeChannel(string channel) {
+	
+}
+
+void aram::service::AudioEngine::armChannel(string channel) {
+	
 }
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
@@ -92,11 +105,7 @@ aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
 	jack_set_sample_rate_callback(jackClient, onSampleRateChangeJackFun, this);
 	jack_on_shutdown(jackClient, onShutdownJackFun, this);
 
-	/*registerPort
-	 * jack_activate
-	 * port connect
-	 *  - guess this should go into some JackClient class.
-	 */
+	frameReadySignal.connect(sigc::mem_fun(this, &JackAdaptedAudioEngine::onFrameReady));
 }
 
 aram::service::JackAdaptedAudioEngine::~JackAdaptedAudioEngine() {
@@ -106,7 +115,25 @@ aram::service::JackAdaptedAudioEngine::~JackAdaptedAudioEngine() {
 	}
 }
 
+void aram::service::JackAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
+	//unconditionally copy input buffer to output buffer for immediate playback
 
+	if(playback) {
+
+		for_each(channels.begin(), channels.end(), [](string& channel) {
+			//get read audio buffer mapped to the channel
+			//get the port mapped to the channel
+			//copy audio buffer frames to the port
+		});
+
+		if (!armedChannel.empty()) {
+			//get write audio buffer mapped to the armed channel
+			//get the port mapped to the channel
+			//copy input buffer frames to audio buffer. Remember to restart the 
+			//input buffer if necessary.
+		}
+	}
+}
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Silence adapted audio engine
@@ -116,6 +143,7 @@ aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() :
 				running(true), frameCountPlayback(0), frameCountRecording(0), 
 				frameCountTotal(0) {
 	cout << "Constructing the Silence Adapted Audio Engine" << endl;
+
 	frameReadySignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onFrameReady));
 }
 
@@ -124,16 +152,17 @@ aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
 
 	running = false;
 	this_thread::sleep_for(chrono::milliseconds(100));
-	mainTurboThread.join();
 
-	cout << "frame count played back= " << frameCountPlayback << endl;
-	cout << "frame count recorded= " << frameCountRecording << endl;
-	cout << "frame count total= " << frameCountTotal << endl;
+	cout << "frame count played back = " << frameCountPlayback << endl;
+	cout << "frame count recorded = " << frameCountRecording << endl;
+	cout << "frame count total = " << frameCountTotal << endl;
+
+	mainTurboThread.join();
 }
 
 void aram::service::SilenceAdaptedAudioEngine::mainTurbo() {
 	while (running) {
-		frameReadySignal(1000);
+		frameReadySignal(1);
 		this_thread::sleep_for(chrono::milliseconds(50));
 	}
 }
@@ -143,7 +172,7 @@ void aram::service::SilenceAdaptedAudioEngine::onFrameReady(unsigned frameCount)
 	if(playback) {
 		frameCountPlayback += frameCount;
 
-		if (recording) {
+		if (!armedChannel.empty()) {
 			frameCountRecording += frameCount;
 		}
 	}
