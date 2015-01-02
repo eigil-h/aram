@@ -20,7 +20,7 @@
 #define ARAM_TYPES_H
 
 namespace aram {
-	namespace model {
+	namespace service {
 
 		enum Direction {
 			DIRECTION_IN, DIRECTION_OUT, DIRECTION_sizeof

@@ -21,17 +21,17 @@
 
 static int jack_callback_process(jack_nframes_t nFrames, void* arg) {
 	aram::service::JackClient* jackClient = static_cast<aram::service::JackClient*> (arg);
-	aram::model::Samples leftIn = reinterpret_cast<aram::model::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(aram::model::CHANNEL_LEFT, aram::model::DIRECTION_IN),
+	aram::service::Samples leftIn = reinterpret_cast<aram::service::Samples> (jack_port_get_buffer(
+					jackClient->getJackPort(aram::service::CHANNEL_LEFT, aram::service::DIRECTION_IN),
 					nFrames));
-	aram::model::Samples rightIn = reinterpret_cast<aram::model::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(aram::model::CHANNEL_RIGHT, aram::model::DIRECTION_IN),
+	aram::service::Samples rightIn = reinterpret_cast<aram::service::Samples> (jack_port_get_buffer(
+					jackClient->getJackPort(aram::service::CHANNEL_RIGHT, aram::service::DIRECTION_IN),
 					nFrames));
-	aram::model::Samples leftOut = reinterpret_cast<aram::model::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(aram::model::CHANNEL_LEFT, aram::model::DIRECTION_OUT),
+	aram::service::Samples leftOut = reinterpret_cast<aram::service::Samples> (jack_port_get_buffer(
+					jackClient->getJackPort(aram::service::CHANNEL_LEFT, aram::service::DIRECTION_OUT),
 					nFrames));
-	aram::model::Samples rightOut = reinterpret_cast<aram::model::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(aram::model::CHANNEL_RIGHT, aram::model::DIRECTION_OUT),
+	aram::service::Samples rightOut = reinterpret_cast<aram::service::Samples> (jack_port_get_buffer(
+					jackClient->getJackPort(aram::service::CHANNEL_RIGHT, aram::service::DIRECTION_OUT),
 					nFrames));
 
 	for (jack_nframes_t i; i < nFrames; i++) {

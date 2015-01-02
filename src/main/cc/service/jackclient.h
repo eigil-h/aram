@@ -23,10 +23,9 @@
 #include <exception>
 
 #include "audioengine.h"
-#include "../model/types.h"
+#include "types.h"
 
 using namespace std;
-using namespace aram::model;
 
 namespace aram {
 	namespace service {
