@@ -22,16 +22,16 @@
 static int jack_callback_process(jack_nframes_t nFrames, void* arg) {
 	aram::service::JackClient* jackClient = static_cast<aram::service::JackClient*> (arg);
 	aram::service::Samples leftIn = reinterpret_cast<aram::service::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(aram::service::CHANNEL_LEFT, aram::service::DIRECTION_IN),
+					jackClient->getJackPort(aram::service::CHANNEL_LEFT, aram::service::DIRECTION_INPUT),
 					nFrames));
 	aram::service::Samples rightIn = reinterpret_cast<aram::service::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(aram::service::CHANNEL_RIGHT, aram::service::DIRECTION_IN),
+					jackClient->getJackPort(aram::service::CHANNEL_RIGHT, aram::service::DIRECTION_INPUT),
 					nFrames));
 	aram::service::Samples leftOut = reinterpret_cast<aram::service::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(aram::service::CHANNEL_LEFT, aram::service::DIRECTION_OUT),
+					jackClient->getJackPort(aram::service::CHANNEL_LEFT, aram::service::DIRECTION_OUTPUT),
 					nFrames));
 	aram::service::Samples rightOut = reinterpret_cast<aram::service::Samples> (jack_port_get_buffer(
-					jackClient->getJackPort(aram::service::CHANNEL_RIGHT, aram::service::DIRECTION_OUT),
+					jackClient->getJackPort(aram::service::CHANNEL_RIGHT, aram::service::DIRECTION_OUTPUT),
 					nFrames));
 
 	for (jack_nframes_t i; i < nFrames; i++) {
@@ -72,16 +72,15 @@ aram::service::JackClient::JackClient() throw (exception) {
 	jack_status_t status;
 	jackClient = jack_client_open("aram", JackNullOption, &status);
 	if (jackClient == nullptr) {
-		cout << "Jack server is not running." << endl;
-		throw exception();
+		throw runtime_error("Jack server is not running.");
 	}
 	jack_set_process_callback(jackClient, jack_callback_process, this);
 	jack_set_xrun_callback(jackClient, jack_callback_xrun, this);
 	jack_set_sample_rate_callback(jackClient, jack_callback_srate, NULL);
 	jack_on_shutdown(jackClient, jack_callback_shutdown, NULL);
 
-	stereoPort[DIRECTION_IN].registerPort(jackClient, DIRECTION_IN);
-	stereoPort[DIRECTION_OUT].registerPort(jackClient, DIRECTION_OUT);
+	stereoPort[DIRECTION_INPUT].registerPort(jackClient, DIRECTION_INPUT, "in");
+	stereoPort[DIRECTION_OUTPUT].registerPort(jackClient, DIRECTION_OUTPUT, "out");
 
 	int errorCode = jack_activate(jackClient);
 	if (errorCode != 0) {
@@ -89,8 +88,8 @@ aram::service::JackClient::JackClient() throw (exception) {
 		throw exception();
 	}
 
-	stereoPort[DIRECTION_IN].connect(jackClient, DIRECTION_IN);
-	stereoPort[DIRECTION_OUT].connect(jackClient, DIRECTION_OUT);
+	stereoPort[DIRECTION_INPUT].connectPhysicalPort(jackClient, DIRECTION_INPUT);
+	stereoPort[DIRECTION_OUTPUT].connectPhysicalPort(jackClient, DIRECTION_OUTPUT);
 }
 
 aram::service::JackClient::~JackClient() {
@@ -102,32 +101,35 @@ unsigned aram::service::JackClient::sampleRate() {
 }
 
 jack_port_t* aram::service::JackClient::getJackPort(StereoChannel channel, Direction d) {
-	return stereoPort[d].getJackPort(channel);
+	return stereoPort[d].ports[channel];
 }
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * JackStereoPort
  */
 
-void aram::service::JackStereoPort::registerPort(jack_client_t* jackClient, Direction direction) throw (exception) {
+void aram::service::JackStereoPort::registerPort(jack_client_t* jackClient, 
+				Direction direction, const string& name) {
 	ports[CHANNEL_LEFT] = jack_port_register(jackClient,
-					(std::string("aram") + (direction == DIRECTION_IN ? "-in" : "-out") + "-left").c_str(),
-					JACK_DEFAULT_AUDIO_TYPE, direction == DIRECTION_IN ? JackPortIsInput : JackPortIsOutput, 0L);
+					(std::string("aram-") + name + "-left").c_str(), JACK_DEFAULT_AUDIO_TYPE, 
+					direction == DIRECTION_INPUT ? JackPortIsInput : JackPortIsOutput, 0L);
+
 	ports[CHANNEL_RIGHT] = jack_port_register(jackClient,
-					(std::string("aram") + (direction == DIRECTION_IN ? "-in" : "-out") + "-right").c_str(),
-					JACK_DEFAULT_AUDIO_TYPE, direction == DIRECTION_IN ? JackPortIsInput : JackPortIsOutput, 0L);
+					(std::string("aram-") + name + "-right").c_str(), JACK_DEFAULT_AUDIO_TYPE, 
+					direction == DIRECTION_INPUT ? JackPortIsInput : JackPortIsOutput, 0L);
+
 	if (ports[CHANNEL_LEFT] == nullptr || ports[CHANNEL_RIGHT] == nullptr) {
-		cout << "Jack ports not available" << endl;
-		throw exception();
+		throw runtime_error("Jack ports not available");
 	}
 }
 
-void aram::service::JackStereoPort::connect(jack_client_t* jack_client, Direction direction) throw (exception) {
-	JackGetPorts jackGetPorts(jack_client, JackPortIsPhysical | (direction == DIRECTION_IN ? JackPortIsOutput : JackPortIsInput));
+
+void aram::service::JackStereoPort::connectPhysicalPort(jack_client_t* jack_client, Direction direction) {
+	JackGetPorts jackGetPorts(jack_client, JackPortIsPhysical | (direction == DIRECTION_INPUT ? JackPortIsOutput : JackPortIsInput));
 	if (jackGetPorts.isPortSize(2)) {
 		for (int i = 0; i < 2; i++) {
 			int result;
-			if (direction == DIRECTION_IN) {
+			if (direction == DIRECTION_INPUT) {
 				result = jack_connect(jack_client, jackGetPorts.getPort(i), jack_port_name(ports[i]));
 			} else {
 				result = jack_connect(jack_client, jack_port_name(ports[i]), jackGetPorts.getPort(i));
@@ -140,9 +142,6 @@ void aram::service::JackStereoPort::connect(jack_client_t* jack_client, Directio
 	}
 }
 
-jack_port_t* aram::service::JackStereoPort::getJackPort(StereoChannel channel) {
-	return ports[channel];
-}
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * JackGetPorts
@@ -151,8 +150,7 @@ jack_port_t* aram::service::JackStereoPort::getJackPort(StereoChannel channel) {
 aram::service::JackGetPorts::JackGetPorts(jack_client_t* jackClient, unsigned long flags) : portsSize(0) {
 	ports = ::jack_get_ports(jackClient, nullptr, nullptr, flags);
 	if (ports == nullptr) {
-		cout << "Can't connect to physical ports" << endl;
-		throw exception();
+		throw runtime_error("Can't connect to physical ports");
 	}
 	while (ports[portsSize] != nullptr) {
 		portsSize++;
@@ -169,8 +167,7 @@ bool aram::service::JackGetPorts::isPortSize(unsigned int size) {
 
 const char* aram::service::JackGetPorts::getPort(unsigned int portNumber) {
 	if (portNumber >= portsSize) {
-		cout << portNumber << "-> No such port! Number of ports are " << portsSize << endl;
-		throw std::exception();
+		throw runtime_error(portNumber + "-> No such port! Number of ports are " + portsSize);
 	}
 	return ports[portNumber];
 }

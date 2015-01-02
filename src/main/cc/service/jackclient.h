@@ -20,9 +20,8 @@
 #define ARAM_JACKCLIENT_H
 
 #include <jack/jack.h>
-#include <exception>
+#include <stdexcept>
 
-#include "audioengine.h"
 #include "types.h"
 
 using namespace std;
@@ -34,12 +33,12 @@ namespace aram {
 		 * Wrapper for two jack_port_t
 		 */
 		class JackStereoPort {
+		public:
 			jack_port_t* ports[CHANNEL_sizeof];
 
-		public:
-			void registerPort(jack_client_t* jackClient, Direction direction) throw (exception);
-			void connect(jack_client_t* jackClient, Direction direction) throw (exception);
-			jack_port_t* getJackPort(StereoChannel channel);
+			void registerPort(jack_client_t* jackClient, Direction direction, const string& name);
+			void connectPhysicalPort(jack_client_t* jackClient, Direction direction);
+			//we do other connections with QjackCtl tool 
 		};
 
 		/**

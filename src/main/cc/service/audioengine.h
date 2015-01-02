@@ -24,6 +24,7 @@
 #include <thread>
 #include <jack/jack.h>
 #include <sigc++/sigc++.h>
+#include "jackclient.h"
 
 using namespace std;
 
@@ -85,6 +86,8 @@ namespace aram {
 
 		private:
 			jack_client_t* jackClient;
+			JackStereoPort physicalInputPort;
+			JackStereoPort physicalOutputPort;
 
 			void onFrameReady(unsigned frameCount);
 		};

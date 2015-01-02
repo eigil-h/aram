@@ -98,8 +98,7 @@ aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
 	jack_status_t status;
 	jackClient = jack_client_open("aram", JackNullOption, &status);
 	if (jackClient == nullptr) {
-		cout << "Jack server is not running." << endl;
-		throw exception();
+		throw runtime_error("Jack server is not running.");
 	}
 
 	jack_set_process_callback(jackClient, onFrameReadyJackFun, this);
@@ -107,18 +106,39 @@ aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
 	jack_set_sample_rate_callback(jackClient, onSampleRateChangeJackFun, this);
 	jack_on_shutdown(jackClient, onShutdownJackFun, this);
 
+	physicalInputPort.registerPort(jackClient, DIRECTION_INPUT, "physical-input");
+	physicalOutputPort.registerPort(jackClient, DIRECTION_OUTPUT, "physical-output");
+
+	int errorCode = jack_activate(jackClient);
+	if (errorCode != 0) {
+		throw runtime_error("Jack activation failed with error " + errorCode);
+	}
+
+	physicalInputPort.connectPhysicalPort(jackClient, DIRECTION_INPUT);
+	physicalOutputPort.connectPhysicalPort(jackClient, DIRECTION_OUTPUT);
+
 	frameReadySignal.connect(sigc::mem_fun(this, &JackAdaptedAudioEngine::onFrameReady));
 }
 
 aram::service::JackAdaptedAudioEngine::~JackAdaptedAudioEngine() {
 	if (jackClient != nullptr) {
 		jack_client_close(jackClient);
-		jackClient = nullptr;
 	}
 }
 
 void aram::service::JackAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
+	Samples leftIn = reinterpret_cast<Samples> (jack_port_get_buffer(
+					physicalInputPort.ports[CHANNEL_LEFT], frameCount));
+	Samples rightIn = reinterpret_cast<Samples> (jack_port_get_buffer(
+					physicalInputPort.ports[CHANNEL_RIGHT], frameCount));
+	Samples leftOut = reinterpret_cast<Samples> (jack_port_get_buffer(
+					physicalOutputPort.ports[CHANNEL_LEFT], frameCount));
+	Samples rightOut = reinterpret_cast<Samples> (jack_port_get_buffer(
+					physicalOutputPort.ports[CHANNEL_RIGHT], frameCount));
+
 	//unconditionally copy input buffer to output buffer for immediate playback
+	::memcpy(leftOut, leftIn, sizeof(Sample) * frameCount);
+	::memcpy(rightOut, rightIn, sizeof (Sample) * frameCount);
 
 	if(playback) {
 

@@ -23,7 +23,7 @@ namespace aram {
 	namespace service {
 
 		enum Direction {
-			DIRECTION_IN, DIRECTION_OUT, DIRECTION_sizeof
+			DIRECTION_INPUT, DIRECTION_OUTPUT, DIRECTION_sizeof
 		};
 
 		enum StereoChannel {
