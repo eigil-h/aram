@@ -1,6 +1,6 @@
 /*
 	ARAM, the audio recorder and music ninja
-	Copyright (C) 2014  Eigil Hysvær
+	Copyright (C) 2014-2015  Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
