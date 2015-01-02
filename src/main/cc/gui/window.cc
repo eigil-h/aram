@@ -19,6 +19,9 @@
 #include "window.h"
 #include "menudialog.h"
 #include <iostream>
+#include "../service/audioengine.h"
+
+using namespace aram::service;
 
 /*
  * Top window
@@ -109,21 +112,25 @@ void aram::gui::CommandContainer::onMenuButtonClicked() {
 void aram::gui::CommandContainer::onPlayButtonClicked() {
 	cout << "Play button clicked" << endl;
 
+	AudioEngine& audioEngine = AudioEngine::getInstance();
+	//todo - check actual state of this toggle button
+	audioEngine.playback = !audioEngine.playback;
 }
 
 void aram::gui::CommandContainer::onRecordButtonClicked() {
 	cout << "Record button clicked" << endl;
 
+	AudioEngine& audioEngine = AudioEngine::getInstance();
+	//todo - check actual state of this toggle button
+	audioEngine.recording = !audioEngine.recording;
 }
 
 void aram::gui::CommandContainer::onMarkButtonPressed() {
 	cout << "Mark button pressed" << endl;
-
 }
 
 void aram::gui::CommandContainer::onMarkButtonReleased() {
 	cout << "Mark button released" << endl;
-
 }
 
 /*

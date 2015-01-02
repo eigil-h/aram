@@ -22,7 +22,6 @@
 
 #include <memory>
 #include <thread>
-#include <unordered_set>
 #include <jack/jack.h>
 #include <sigc++/sigc++.h>
 
@@ -37,6 +36,8 @@ namespace aram {
 		 * Implemented as singleton because we always want one and only one
 		 * audio engine instance. This way it becomes easy for C style audio engine
 		 * callbacks to access the signal storage contained here.
+		 *
+		 * !..Keep in mind: possible concurrency issues while changing state..!
 		 */
 		class AudioEngine {
 		public:
@@ -47,6 +48,9 @@ namespace aram {
 			sigc::signal<void, unsigned> sampleRateChangeSignal;
 			sigc::signal<void> shutdownSignal;
 			sigc::signal<void, const char*> errorSignal;
+
+			bool playback;
+			bool recording;
 
 			virtual ~AudioEngine();
 
@@ -77,7 +81,9 @@ namespace aram {
 		private:
 			thread mainTurboThread;
 			bool running;
-			unsigned frameCount_;
+			unsigned frameCountPlayback,
+					frameCountRecording,
+					frameCountTotal;
 
 			void mainTurbo();
 			void onFrameReady(unsigned frameCount);

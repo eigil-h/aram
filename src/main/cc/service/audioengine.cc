@@ -113,7 +113,8 @@ aram::service::JackAdaptedAudioEngine::~JackAdaptedAudioEngine() {
  */
 aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() :
 				mainTurboThread(&SilenceAdaptedAudioEngine::mainTurbo, this), 
-				running(true), frameCount_(0) {
+				running(true), frameCountPlayback(0), frameCountRecording(0), 
+				frameCountTotal(0) {
 	cout << "Constructing the Silence Adapted Audio Engine" << endl;
 	frameReadySignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onFrameReady));
 }
@@ -123,9 +124,11 @@ aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
 
 	running = false;
 	this_thread::sleep_for(chrono::milliseconds(100));
-	cout << "frame count = " << frameCount_ << endl;
-
 	mainTurboThread.join();
+
+	cout << "frame count played back= " << frameCountPlayback << endl;
+	cout << "frame count recorded= " << frameCountRecording << endl;
+	cout << "frame count total= " << frameCountTotal << endl;
 }
 
 void aram::service::SilenceAdaptedAudioEngine::mainTurbo() {
@@ -136,5 +139,12 @@ void aram::service::SilenceAdaptedAudioEngine::mainTurbo() {
 }
 
 void aram::service::SilenceAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
-	frameCount_ += frameCount;
+	frameCountTotal += frameCount;
+	if(playback) {
+		frameCountPlayback += frameCount;
+
+		if (recording) {
+			frameCountRecording += frameCount;
+		}
+	}
 }
