@@ -39,8 +39,7 @@ aram::service::AudioEngine* aram::service::AudioEngine::newAudioEngine() {
 			return new SilenceAdaptedAudioEngine();
 		}
 	}
-	//todo new JackAdaptedAudioEngine();
-	return new SilenceAdaptedAudioEngine();
+	return new JackAdaptedAudioEngine();
 }
 
 aram::service::AudioEngine::AudioEngine() {
