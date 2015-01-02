@@ -42,23 +42,6 @@ namespace aram {
 		};
 
 		/**
-		 * Wrapper for jack_client_t
-		 */
-		class JackClient {
-			jack_client_t* jackClient;
-
-		public:
-			JackStereoPort stereoPort[DIRECTION_sizeof];
-
-			JackClient() throw (exception);
-			virtual ~JackClient();
-
-			jack_port_t* getJackPort(StereoChannel channel, Direction d);
-
-			unsigned sampleRate();
-		};
-
-		/**
 		 * Wrapper for jack_get_ports()
 		 */
 		class JackGetPorts {
