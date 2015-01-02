@@ -45,6 +45,9 @@ aram::service::AudioEngine* aram::service::AudioEngine::newAudioEngine() {
 aram::service::AudioEngine::AudioEngine() {
 }
 
+aram::service::AudioEngine::~AudioEngine() {
+}
+
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Jack adapted audio engine
  */
@@ -97,19 +100,11 @@ aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
 }
 
 aram::service::JackAdaptedAudioEngine::~JackAdaptedAudioEngine() {
-	stop();
-}
-
-void aram::service::JackAdaptedAudioEngine::start() {
-}
-
-void aram::service::JackAdaptedAudioEngine::stop() {
 	if (jackClient != nullptr) {
 		jack_client_close(jackClient);
 		jackClient = nullptr;
 	}
 }
-
 
 
 
@@ -121,28 +116,24 @@ aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() :
 				running(false), frameCount_(0) {
 	cout << "Constructing the Silence Adapted Audio Engine" << endl;
 	frameReadySignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onFrameReady));
-}
 
-aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
-	cout << "Destroying the Silence Adapted Audio Engine" << endl;
-	stop();
-	mainTurboThread.join();
-}
-
-void aram::service::SilenceAdaptedAudioEngine::start() {
 	frameCount_ = 0;
 	running = true;
 }
 
-void aram::service::SilenceAdaptedAudioEngine::stop() {
+aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
+	cout << "Destroying the Silence Adapted Audio Engine" << endl;
+
 	running = false;
 	cout << "frame count = " << frameCount_ << endl;
+
+	mainTurboThread.join();
 }
 
 void aram::service::SilenceAdaptedAudioEngine::mainTurbo() {
 	while (true) {
 		if (running) {
-			frameReadySignal(512);
+			frameReadySignal(1000);
 		}
 		this_thread::sleep_for(chrono::milliseconds(50));
 	}

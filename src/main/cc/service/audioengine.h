@@ -42,14 +42,13 @@ namespace aram {
 		public:
 			static AudioEngine& getInstance();
 
-			virtual void start() = 0;
-			virtual void stop() = 0;
-
 			sigc::signal<void, unsigned> frameReadySignal;
 			sigc::signal<void> xRunSignal;
 			sigc::signal<void, unsigned> sampleRateChangeSignal;
 			sigc::signal<void> shutdownSignal;
 			sigc::signal<void, const char*> errorSignal;
+
+			virtual ~AudioEngine();
 
 		protected:
 			AudioEngine();
@@ -66,9 +65,6 @@ namespace aram {
 			JackAdaptedAudioEngine();
 			~JackAdaptedAudioEngine();
 
-			void start();
-			void stop();
-
 		private:
 			jack_client_t* jackClient;
 		};
@@ -77,9 +73,6 @@ namespace aram {
 		public:
 			SilenceAdaptedAudioEngine();
 			~SilenceAdaptedAudioEngine();
-
-			void start();
-			void stop();
 
 		private:
 			thread mainTurboThread;
