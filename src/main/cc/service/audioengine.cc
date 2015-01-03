@@ -108,8 +108,8 @@ void aram::service::JackAdaptedAudioEngine::init() {
 	jack_set_sample_rate_callback(jackClient, onSampleRateChangeJackFun, this);
 	jack_on_shutdown(jackClient, onShutdownJackFun, this);
 
-	physicalInputPort.registerPort(jackClient, DIRECTION_INPUT, "physical-input");
-	physicalOutputPort.registerPort(jackClient, DIRECTION_OUTPUT, "physical-output");
+	physicalInputPort.registerPort(jackClient, DIRECTION_INPUT, "capture");
+	physicalOutputPort.registerPort(jackClient, DIRECTION_OUTPUT, "playback");
 
 	int errorCode = jack_activate(jackClient);
 	if (errorCode != 0) {
