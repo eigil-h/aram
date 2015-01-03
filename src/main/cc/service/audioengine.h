@@ -25,6 +25,7 @@
 #include <jack/jack.h>
 #include <sigc++/sigc++.h>
 #include "jackclient.h"
+#include "buffers.h"
 
 using namespace std;
 
@@ -55,7 +56,7 @@ namespace aram {
 
 			bool playback;
 
-			//jack call backs are using getInstance for setting the signals,
+			//jack callbacks are using getInstance for setting the signals,
 			//so we can't call jack_set_sample_rate_callback from the constructor.
 			//Instead we call it from this one.
 			virtual void init() = 0;
@@ -63,20 +64,26 @@ namespace aram {
 			virtual ~AudioEngine();
 
 			void addChannel(const string& channel);
-			void removeChannel(string channel);
-			void armChannel(string channel);
+			void removeChannel(const string& channel);
+			void armChannel(const string& channel);
 
 		protected:
-			AudioEngine();
+			AudioEngine(unsigned recordingBufferLen);
 
 			forward_list<string> channels;
 			string armedChannel;
+			WriteAndStoreBuffer recordingBufferLeft, recordingBufferRight;
 
 		private:
 			static AudioEngine* newAudioEngine();
 
 			AudioEngine(const AudioEngine&) = delete;
 			AudioEngine& operator=(const AudioEngine&) = delete;
+
+
+			thread backBufferThread;
+			bool backBufferRunning;
+			void backBufferTurbo();
 		};
 
 		/**

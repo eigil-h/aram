@@ -42,22 +42,46 @@ aram::service::AudioEngine* aram::service::AudioEngine::newAudioEngine() {
 	return new JackAdaptedAudioEngine();
 }
 
-aram::service::AudioEngine::AudioEngine() {
+aram::service::AudioEngine::AudioEngine(unsigned recordingBufferLen) :
+				recordingBufferLeft(recordingBufferLen), 
+				recordingBufferRight(recordingBufferLen),
+				backBufferThread(&AudioEngine::backBufferTurbo, this),
+				backBufferRunning(true) {
 }
 
 aram::service::AudioEngine::~AudioEngine() {
+	backBufferRunning = false;
+	this_thread::sleep_for(chrono::milliseconds(1100));
+	backBufferThread.join();
+}
+
+void aram::service::AudioEngine::backBufferTurbo() {
+	while(backBufferRunning) {
+		this_thread::sleep_for(chrono::milliseconds(1000));
+
+		if (playback) {
+			if (!armedChannel.empty()) {
+
+		//get the file output streams
+		//recordingBufferLeft.swapAndStoreBackBuffer(leftChannelStream);
+		//recordingBufferRight.swapAndStoreBackBuffer(rightChannelStream);
+			}
+		}
+		
+		//for each channel - loadBackBuffer
+	}
 }
 
 void aram::service::AudioEngine::addChannel(const string& channel) {
 	channels.push_front(channel);
 }
 
-void aram::service::AudioEngine::removeChannel(string channel) {
-	
+void aram::service::AudioEngine::removeChannel(const string& channel) {
+
 }
 
-void aram::service::AudioEngine::armChannel(string channel) {
-	
+void aram::service::AudioEngine::armChannel(const string& channel) {
+
 }
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
@@ -91,7 +115,7 @@ static void onErrorJackFun(const char* msg) {
 	audioEngine.errorSignal(msg);
 }
 
-aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
+aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() : AudioEngine(491520) {
 }
 
 void aram::service::JackAdaptedAudioEngine::init() {
@@ -139,22 +163,24 @@ void aram::service::JackAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 					physicalOutputPort.ports[CHANNEL_RIGHT], frameCount));
 
 	//unconditionally copy input buffer to output buffer for immediate playback
-	::memcpy(leftOut, leftIn, sizeof(Sample) * frameCount);
+	::memcpy(leftOut, leftIn, sizeof (Sample) * frameCount);
 	::memcpy(rightOut, rightIn, sizeof (Sample) * frameCount);
 
-	if(playback) {
+	if (playback) {
 
-		for_each(channels.begin(), channels.end(), [](string& channel) {
+		for_each(channels.begin(), channels.end(), [](string & channel) {
 			//get read audio buffer mapped to the channel
 			//get the port mapped to the channel
 			//copy audio buffer frames to the port
 		});
 
 		if (!armedChannel.empty()) {
-			//get write audio buffer mapped to the armed channel
-			//get the port mapped to the channel
-			//copy input buffer frames to audio buffer. Remember to restart the 
-			//input buffer if necessary.
+			if (!recordingBufferLeft.writeFrontBuffer(leftIn, frameCount)) {
+				xRunSignal(); //todo - maybe a parameter to explain it's not really an xrun...?
+			}
+			if (!recordingBufferRight.writeFrontBuffer(rightIn, frameCount)) {
+				xRunSignal();
+			}
 		}
 	}
 }
@@ -162,10 +188,10 @@ void aram::service::JackAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Silence adapted audio engine
  */
-aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() :
-				mainTurboThread(&SilenceAdaptedAudioEngine::mainTurbo, this), 
-				running(true), frameCountPlayback(0), frameCountRecording(0), 
-				frameCountTotal(0) {
+aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() : AudioEngine(100),
+mainTurboThread(&SilenceAdaptedAudioEngine::mainTurbo, this),
+running(true), frameCountPlayback(0), frameCountRecording(0),
+frameCountTotal(0) {
 	cout << "Constructing the Silence Adapted Audio Engine" << endl;
 }
 
@@ -195,7 +221,7 @@ void aram::service::SilenceAdaptedAudioEngine::mainTurbo() {
 
 void aram::service::SilenceAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 	frameCountTotal += frameCount;
-	if(playback) {
+	if (playback) {
 		frameCountPlayback += frameCount;
 
 		if (!armedChannel.empty()) {
