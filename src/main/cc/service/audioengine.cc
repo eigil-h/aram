@@ -92,6 +92,9 @@ static void onErrorJackFun(const char* msg) {
 }
 
 aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
+}
+
+void aram::service::JackAdaptedAudioEngine::init() {
 	jack_set_error_function(onErrorJackFun);
 
 	jack_status_t status;
@@ -164,7 +167,9 @@ aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() :
 				running(true), frameCountPlayback(0), frameCountRecording(0), 
 				frameCountTotal(0) {
 	cout << "Constructing the Silence Adapted Audio Engine" << endl;
+}
 
+void aram::service::SilenceAdaptedAudioEngine::init() {
 	frameReadySignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onFrameReady));
 }
 

@@ -55,6 +55,11 @@ namespace aram {
 
 			bool playback;
 
+			//jack call backs are using getInstance for setting the signals,
+			//so we can't call jack_set_sample_rate_callback from the constructor.
+			//Instead we call it from this one.
+			virtual void init() = 0;
+
 			virtual ~AudioEngine();
 
 			void addChannel(const string& channel);
@@ -84,6 +89,8 @@ namespace aram {
 			JackAdaptedAudioEngine();
 			~JackAdaptedAudioEngine();
 
+			void init();
+
 		private:
 			jack_client_t* jackClient;
 			JackStereoPort physicalInputPort;
@@ -99,6 +106,8 @@ namespace aram {
 		public:
 			SilenceAdaptedAudioEngine();
 			~SilenceAdaptedAudioEngine();
+
+			void init();
 
 		private:
 			thread mainTurboThread;
