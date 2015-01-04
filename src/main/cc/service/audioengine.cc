@@ -90,10 +90,11 @@ aram::service::Recorder::Recorder(const string& channel_) :
 				channel(channel_),
 				recordingBufferLeft(491520),
 				recordingBufferRight(491520),
-				recordingStreamLeft((System::getHomePath() + "/.aram/" + channel + "-l").c_str(),
+				recordingStreamLeft((System::getHomePath() + "/.aram/" + channel_ + "-l").c_str(),
 								ios_base::binary | ios_base::trunc),
-				recordingStreamRight((System::getHomePath() + "/.aram/" + channel + "-r").c_str(),
+				recordingStreamRight((System::getHomePath() + "/.aram/" + channel_ + "-r").c_str(),
 								ios_base::binary | ios_base::trunc) {
+	cout << "Recorder " << channel << " created" << endl;
 }
 
 
