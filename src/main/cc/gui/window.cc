@@ -113,15 +113,19 @@ void aram::gui::CommandContainer::onPlayButtonClicked() {
 	cout << "Play button clicked" << endl;
 
 	AudioEngine& audioEngine = AudioEngine::getInstance();
-	//todo - check actual state of this toggle button
-	audioEngine.playback = !audioEngine.playback;
+	audioEngine.playback = playButton.get_active();
 }
 
 void aram::gui::CommandContainer::onRecordButtonClicked() {
 	cout << "Record button clicked" << endl;
 
 	AudioEngine& audioEngine = AudioEngine::getInstance();
-	//todo - arm the selected channel
+
+	if (recordButton.get_active()) {
+		audioEngine.armChannel("the_only_one");
+	} else {
+		audioEngine.disarmChannel();
+	}
 }
 
 void aram::gui::CommandContainer::onMarkButtonPressed() {
