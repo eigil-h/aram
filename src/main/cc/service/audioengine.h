@@ -20,6 +20,8 @@
 #ifndef ARAM_AUDIOENGINE_H
 #define ARAM_AUDIOENGINE_H
 
+#include <iostream>
+#include <fstream>
 #include <forward_list>
 #include <thread>
 #include <jack/jack.h>
@@ -34,6 +36,21 @@ namespace aram {
 	 * Services that knows nothing about the models.
 	 */
 	namespace service {
+
+		class Recorder {
+			WriteAndStoreBuffer recordingBufferLeft;
+			WriteAndStoreBuffer recordingBufferRight;
+			ofstream recordingStreamLeft;
+			ofstream recordingStreamRight;
+
+		public:
+			Recorder(const string& channel);
+			//return false if fail. It's called by RT thread, so we don't want overhead of throwing exception.
+			bool record(Samples left, Samples right, unsigned count);
+			void swapAndStore();
+
+			string channel;
+		};
 
 		/**
 		 * Abstract audio engine with concrete signal storage.
@@ -66,20 +83,19 @@ namespace aram {
 			void addChannel(const string& channel);
 			void removeChannel(const string& channel);
 			void armChannel(const string& channel);
+			void disarmChannel();
 
 		protected:
-			AudioEngine(unsigned recordingBufferLen);
+			AudioEngine();
 
+			unique_ptr<Recorder> recorder;
 			forward_list<string> channels;
-			string armedChannel;
-			WriteAndStoreBuffer recordingBufferLeft, recordingBufferRight;
 
 		private:
 			static AudioEngine* newAudioEngine();
 
 			AudioEngine(const AudioEngine&) = delete;
 			AudioEngine& operator=(const AudioEngine&) = delete;
-
 
 			thread backBufferThread;
 			bool backBufferRunning;

@@ -16,7 +16,6 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
 #include <cstring>
 #include <chrono>
 #include <algorithm>
@@ -42,9 +41,7 @@ aram::service::AudioEngine* aram::service::AudioEngine::newAudioEngine() {
 	return new JackAdaptedAudioEngine();
 }
 
-aram::service::AudioEngine::AudioEngine(unsigned recordingBufferLen) :
-				recordingBufferLeft(recordingBufferLen), 
-				recordingBufferRight(recordingBufferLen),
+aram::service::AudioEngine::AudioEngine() :
 				backBufferThread(&AudioEngine::backBufferTurbo, this),
 				backBufferRunning(true) {
 }
@@ -60,11 +57,8 @@ void aram::service::AudioEngine::backBufferTurbo() {
 		this_thread::sleep_for(chrono::milliseconds(1000));
 
 		if (playback) {
-			if (!armedChannel.empty()) {
-
-		//get the file output streams
-		//recordingBufferLeft.swapAndStoreBackBuffer(leftChannelStream);
-		//recordingBufferRight.swapAndStoreBackBuffer(rightChannelStream);
+			if (recorder.get() != nullptr) {
+				recorder->swapAndStore();
 			}
 		}
 		
@@ -81,8 +75,44 @@ void aram::service::AudioEngine::removeChannel(const string& channel) {
 }
 
 void aram::service::AudioEngine::armChannel(const string& channel) {
-
+	recorder.reset(new Recorder(channel));
 }
+
+void aram::service::AudioEngine::disarmChannel() {
+	recorder.reset();
+}
+
+
+/*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
+ * Recorder
+ */
+aram::service::Recorder::Recorder(const string& channel_) :
+				channel(channel_),
+				recordingBufferLeft(491520),
+				recordingBufferRight(491520),
+				recordingStreamLeft((System::getHomePath() + "/.aram/" + channel + "-l").c_str(),
+								ios_base::binary | ios_base::trunc),
+				recordingStreamRight((System::getHomePath() + "/.aram/" + channel + "-r").c_str(),
+								ios_base::binary | ios_base::trunc) {
+}
+
+
+
+bool aram::service::Recorder::record(Samples left, Samples right, unsigned count) {
+	if (!recordingBufferLeft.writeFrontBuffer(left, count)) {
+		return false;
+	}
+	if (!recordingBufferRight.writeFrontBuffer(right, count)) {
+		return false;
+	}
+	return true;
+}
+
+void aram::service::Recorder::swapAndStore() {
+	recordingBufferLeft.swapAndStoreBackBuffer(recordingStreamLeft);
+	recordingBufferRight.swapAndStoreBackBuffer(recordingStreamRight);
+}
+
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Jack adapted audio engine
@@ -115,7 +145,7 @@ static void onErrorJackFun(const char* msg) {
 	audioEngine.errorSignal(msg);
 }
 
-aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() : AudioEngine(491520) {
+aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
 }
 
 void aram::service::JackAdaptedAudioEngine::init() {
@@ -174,12 +204,9 @@ void aram::service::JackAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 			//copy audio buffer frames to the port
 		});
 
-		if (!armedChannel.empty()) {
-			if (!recordingBufferLeft.writeFrontBuffer(leftIn, frameCount)) {
+		if (recorder.get() != nullptr) {
+			if(!recorder->record(leftIn, rightIn, frameCount)) {
 				xRunSignal(); //todo - maybe a parameter to explain it's not really an xrun...?
-			}
-			if (!recordingBufferRight.writeFrontBuffer(rightIn, frameCount)) {
-				xRunSignal();
 			}
 		}
 	}
@@ -188,10 +215,10 @@ void aram::service::JackAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Silence adapted audio engine
  */
-aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() : AudioEngine(100),
-mainTurboThread(&SilenceAdaptedAudioEngine::mainTurbo, this),
-running(true), frameCountPlayback(0), frameCountRecording(0),
-frameCountTotal(0) {
+aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() : 
+				mainTurboThread(&SilenceAdaptedAudioEngine::mainTurbo, this),
+				running(true), frameCountPlayback(0), frameCountRecording(0),
+				frameCountTotal(0) {
 	cout << "Constructing the Silence Adapted Audio Engine" << endl;
 }
 
@@ -224,7 +251,7 @@ void aram::service::SilenceAdaptedAudioEngine::onFrameReady(unsigned frameCount)
 	if (playback) {
 		frameCountPlayback += frameCount;
 
-		if (!armedChannel.empty()) {
+		if (recorder.get() != nullptr) {
 			frameCountRecording += frameCount;
 		}
 	}
