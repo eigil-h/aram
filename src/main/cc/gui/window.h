@@ -29,53 +29,58 @@ namespace aram {
 	 */
 	namespace gui {
 
+		/** Combobox where to select active track for receiving input for recording.
+		 */
+		class ReceivingTrackBox : public Gtk::VBox {
+			struct Model : public Gtk::TreeModel::ColumnRecord {
+				Model();
+				Gtk::TreeModelColumn<Glib::ustring> trackId;
+				Gtk::TreeModelColumn<Glib::ustring> trackName;
+			};
+		public:
+			ReceivingTrackBox();
+			~ReceivingTrackBox();
+
+		private:
+			sigc::connection focusGainedConnection;
+			sigc::connection focusLostConnection;
+			Gtk::ComboBox combo;
+			Model comboModel;
+			Glib::RefPtr<Gtk::ListStore> comboModelRef;
+
+			Gtk::HBox buttonBox;
+			Gtk::Button addButton;
+			Gtk::Button removeButton;
+
+			void onSelected();
+			void onActivated();
+			bool onFocusGained(GdkEventFocus* event);
+			bool onFocusLost(GdkEventFocus* event);
+			void onAddTrack();
+			void onRemoveTrack();
+		};
+
 		/** 
 		 * The most used/useful commands at your fingertips.
 		 */
-		class CommandContainer : public Gtk::VBox {
-			Gtk::Button menuButton;
-			Gtk::ToggleButton playButton;
-			Gtk::ToggleButton recordButton;
-			Gtk::Button markButton;
-			
-			void onMenuButtonClicked();
-			void onPlayButtonClicked();
-			void onRecordButtonClicked();
-			void onMarkButtonPressed();
-			void onMarkButtonReleased();
-			
+		class CommandContainer : public Gtk::HBox {
 		public:
 			CommandContainer();
-		};
 
-		class Monitor : public Gtk::VBox {
-		public:
-			Monitor();
-		};
-		
-		class ProjectView : public Gtk::DrawingArea {
-		public:
-			ProjectView();
-		};
-		
-		/** 
-		 * Holding project and audioclip views
-		 */
-		class BodyContainer : public Gtk::VBox {
-			Monitor projectMonitor;
-			Monitor audioclipMonitor;
-			ProjectView projectView;
-		public:
-			BodyContainer();
+		private:
+			Gtk::ToggleButton playButton;
+			Gtk::ToggleButton recordButton;
+			ReceivingTrackBox trackBox;
+
+			void onPlayButtonClicked();
+			void onRecordButtonClicked();
 		};
 
 		/**
 		 * The main window
 		 */
 		class Window : public Gtk::Window {
-			Gtk::HBox topContainer;
 			CommandContainer commandContainer;
-			BodyContainer bodyContainer;
 
 		public:
 			Window();

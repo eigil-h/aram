@@ -71,7 +71,6 @@ void aram::service::AudioEngine::addChannel(const string& channel) {
 }
 
 void aram::service::AudioEngine::removeChannel(const string& channel) {
-
 }
 
 void aram::service::AudioEngine::armChannel(const string& channel) {

@@ -17,7 +17,6 @@
  */
 
 #include "window.h"
-#include "menudialog.h"
 #include <iostream>
 #include "../service/audioengine.h"
 
@@ -26,7 +25,6 @@ using namespace aram::service;
 /*
  * Top window
  */
-
 aram::gui::Window::Window() {
 	Glib::RefPtr<Gtk::CssProvider> cssProvider = Gtk::CssProvider::create();
 	Glib::RefPtr<Gtk::StyleContext> refStyleContext = get_style_context();
@@ -37,13 +35,11 @@ aram::gui::Window::Window() {
 	try {
 		cssProvider->load_from_path("style.css");
 
-		set_default_size(1200, 750);
+		set_default_size(800, 200);
 		set_title("Audio Recorder And Music");
 		set_position(Gtk::WindowPosition::WIN_POS_CENTER);
 
-		topContainer.pack_start(commandContainer);
-		topContainer.pack_start(bodyContainer);
-		add(topContainer);
+		add(commandContainer);
 
 		show_all_children();
 
@@ -55,20 +51,12 @@ aram::gui::Window::Window() {
 /*
  * Command container
  */
-
 aram::gui::CommandContainer::CommandContainer() {
-
-	Gtk::Image* menuImage = Gtk::manage(new Gtk::Image(Gtk::Stock::DIALOG_QUESTION,
-					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
-	menuImage->show();
-	menuButton.set_image(*menuImage);
-
 
 	Gtk::Image* playImage = Gtk::manage(new Gtk::Image(Gtk::Stock::MEDIA_PLAY,
 					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
 	playImage->show();
 	playButton.set_image(*playImage);
-
 
 	Gtk::Image* recordImage = Gtk::manage(new Gtk::Image(Gtk::Stock::MEDIA_RECORD,
 					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
@@ -76,37 +64,82 @@ aram::gui::CommandContainer::CommandContainer() {
 	recordButton.set_image(*recordImage);
 
 
-	Gtk::Image* markImage = Gtk::manage(new Gtk::Image(Gtk::Stock::SELECT_ALL,
-					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
-	markImage->show();
-	markButton.set_image(*markImage);
-
-	set_size_request(200, -1);
-
-	menuButton.signal_clicked().connect(
-					sigc::mem_fun(this, &CommandContainer::onMenuButtonClicked));
-
 	playButton.signal_clicked().connect(
 					sigc::mem_fun(this, &CommandContainer::onPlayButtonClicked));
 
 	recordButton.signal_clicked().connect(
 					sigc::mem_fun(this, &CommandContainer::onRecordButtonClicked));
 
-	markButton.signal_pressed().connect(
-					sigc::mem_fun(this, &CommandContainer::onMarkButtonPressed));
-
-	markButton.signal_released().connect(
-					sigc::mem_fun(this, &CommandContainer::onMarkButtonReleased));
-
-	pack_start(menuButton);
 	pack_start(playButton);
 	pack_start(recordButton);
-	pack_start(markButton);
+	pack_start(trackBox);
 }
 
-void aram::gui::CommandContainer::onMenuButtonClicked() {
-	MenuDialog md;
-	md.run();
+aram::gui::ReceivingTrackBox::ReceivingTrackBox() :
+combo(true) {
+
+	combo.set_model((comboModelRef = Gtk::ListStore::create(comboModel)));
+
+	{
+		Gtk::TreeModel::Row row = *(comboModelRef->append());
+		row[comboModel.trackId] = "track#1";
+		row[comboModel.trackName] = "Groovy bass";
+	}
+	{
+		Gtk::TreeModel::Row row = *(comboModelRef->append());
+		row[comboModel.trackId] = "track#2";
+		row[comboModel.trackName] = "Groovy guitar";
+	}
+
+	combo.set_entry_text_column(comboModel.trackName);
+	combo.set_active(0);
+
+
+	Gtk::Entry* entry = combo.get_entry();
+	if (entry) {
+		entry->add_events(Gdk::FOCUS_CHANGE_MASK);
+		entry->signal_changed().connect(
+						sigc::mem_fun(this, &ReceivingTrackBox::onSelected));
+		entry->signal_activate().connect(
+						sigc::mem_fun(this, &ReceivingTrackBox::onActivated));
+		focusGainedConnection = entry->signal_focus_in_event().connect(
+						sigc::mem_fun(this, &ReceivingTrackBox::onFocusGained));
+		focusLostConnection = entry->signal_focus_out_event().connect(
+						sigc::mem_fun(this, &ReceivingTrackBox::onFocusLost));
+	} else {
+		throw runtime_error("receivingTrackCB.get_entry() failed");
+	}
+
+	Gtk::Image* addImage = Gtk::manage(new Gtk::Image(Gtk::Stock::ADD,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	addImage->show();
+	addButton.set_image(*addImage);
+
+	Gtk::Image* removeImage = Gtk::manage(new Gtk::Image(Gtk::Stock::REMOVE,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	removeImage->show();
+	removeButton.set_image(*removeImage);
+
+	addButton.signal_clicked().connect(
+					sigc::mem_fun(this, &ReceivingTrackBox::onAddTrack));
+	removeButton.signal_clicked().connect(
+					sigc::mem_fun(this, &ReceivingTrackBox::onRemoveTrack));
+
+
+	buttonBox.pack_start(addButton);
+	buttonBox.pack_start(removeButton);
+
+	pack_start(combo);
+	pack_start(buttonBox);
+}
+
+aram::gui::ReceivingTrackBox::~ReceivingTrackBox() {
+	focusLostConnection.disconnect();
+}
+
+aram::gui::ReceivingTrackBox::Model::Model() {
+	add(trackId);
+	add(trackName);
 }
 
 void aram::gui::CommandContainer::onPlayButtonClicked() {
@@ -128,29 +161,84 @@ void aram::gui::CommandContainer::onRecordButtonClicked() {
 	}
 }
 
-void aram::gui::CommandContainer::onMarkButtonPressed() {
-	cout << "Mark button pressed" << endl;
+void aram::gui::ReceivingTrackBox::onSelected() {
+	cout << "onSelected() " << combo.get_active_row_number() << endl;
+	Gtk::Entry* entry = combo.get_entry();
+	if (entry) {
+		cout << "  " << entry->get_text() << endl;
+
+		Gtk::TreeModel::iterator itr = combo.get_active();
+		if (itr) {
+			Gtk::TreeModel::Row row = *itr;
+			cout << "  " << row[comboModel.trackName] << endl;
+		} else {
+			//Happens when editing
+			cout << "  No active" << endl;
+		}
+	}
 }
 
-void aram::gui::CommandContainer::onMarkButtonReleased() {
-	cout << "Mark button released" << endl;
+void aram::gui::ReceivingTrackBox::onActivated() {
+	cout << "onEntryActivate() " << combo.get_active_row_number() << endl;
+	Gtk::Entry* entry = combo.get_entry();
+	if (entry) {
+		cout << "  " << entry->get_text() << endl;
+
+		Gtk::TreeModel::iterator itr = combo.get_active();
+		if (itr) {
+			Gtk::TreeModel::Row row = *itr;
+			cout << "  " << row[comboModel.trackName] << endl;
+		} else {
+			//Happens when editing
+			cout << "  No active" << endl;
+		}
+	}
 }
 
-/*
- * Body container
- */
-aram::gui::Monitor::Monitor() {
-	
+bool aram::gui::ReceivingTrackBox::onFocusGained(GdkEventFocus* event) {
+	cout << "onFocusGained() " << combo.get_active_row_number() << endl;
+	Gtk::Entry* entry = combo.get_entry();
+	if (entry) {
+		cout << "  " << entry->get_text() << endl;
+
+		Gtk::TreeModel::iterator itr = combo.get_active();
+		if (itr) {
+			Gtk::TreeModel::Row row = *itr;
+			cout << "  " << row[comboModel.trackName] << endl;
+		} else {
+			//Happens when editing
+			cout << "  No active" << endl;
+		}
+	}
+
+	return true;
 }
 
-aram::gui::ProjectView::ProjectView() {
-	
+bool aram::gui::ReceivingTrackBox::onFocusLost(GdkEventFocus* event) {
+	cout << "onFocusLost() " << combo.get_active_row_number() << endl;
+	Gtk::Entry* entry = combo.get_entry();
+	if (entry) {
+		cout << "  " << entry->get_text() << endl;
+
+		Gtk::TreeModel::iterator itr = combo.get_active();
+		if (itr) {
+			Gtk::TreeModel::Row row = *itr;
+			cout << "  " << row[comboModel.trackName] << endl;
+		} else {
+			//Happens when editing
+			cout << "  No active" << endl;
+		}
+	}
+
+	return true;
 }
 
-aram::gui::BodyContainer::BodyContainer() {
-	set_size_request(1000, -1);
+void aram::gui::ReceivingTrackBox::onAddTrack() {
+	Gtk::TreeModel::Row row = *(comboModelRef->prepend());
+	row[comboModel.trackId] = "track#?";
+	row[comboModel.trackName] = "<new track>";
+	combo.set_active(0);
+}
 
-	pack_start(projectMonitor);
-	pack_start(projectView);
-	pack_start(audioclipMonitor);
+void aram::gui::ReceivingTrackBox::onRemoveTrack() {
 }
