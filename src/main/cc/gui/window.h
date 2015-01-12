@@ -42,7 +42,7 @@ namespace aram {
 			~ReceivingTrackBox();
 
 		private:
-			Gtk::TreeModel::iterator activeRowIterator;
+			Gtk::TreeModel::Row activeRow;
 			sigc::connection focusGainedConnection;
 			sigc::connection focusLostConnection;
 			Gtk::ComboBox combo;
