@@ -169,11 +169,13 @@ void aram::gui::ReceivingTrackBox::onSelected() {
 
 		Gtk::TreeModel::iterator itr = combo.get_active();
 		if (itr) {
+			activeRowIterator = itr;
+
 			Gtk::TreeModel::Row row = *itr;
 			cout << "  " << row[comboModel.trackName] << endl;
 		} else {
 			//Happens when editing
-			cout << "  No active" << endl;
+			cout << "  No active row" << endl;
 		}
 	}
 }
@@ -186,11 +188,13 @@ void aram::gui::ReceivingTrackBox::onActivated() {
 
 		Gtk::TreeModel::iterator itr = combo.get_active();
 		if (itr) {
+			activeRowIterator = itr;
+
 			Gtk::TreeModel::Row row = *itr;
 			cout << "  " << row[comboModel.trackName] << endl;
 		} else {
 			//Happens when editing
-			cout << "  No active" << endl;
+			cout << "  No active row" << endl;
 		}
 	}
 }
@@ -203,11 +207,13 @@ bool aram::gui::ReceivingTrackBox::onFocusGained(GdkEventFocus* event) {
 
 		Gtk::TreeModel::iterator itr = combo.get_active();
 		if (itr) {
+			activeRowIterator = itr;
+
 			Gtk::TreeModel::Row row = *itr;
 			cout << "  " << row[comboModel.trackName] << endl;
 		} else {
 			//Happens when editing
-			cout << "  No active" << endl;
+			cout << "  No active row" << endl;
 		}
 	}
 
@@ -222,11 +228,15 @@ bool aram::gui::ReceivingTrackBox::onFocusLost(GdkEventFocus* event) {
 
 		Gtk::TreeModel::iterator itr = combo.get_active();
 		if (itr) {
+			activeRowIterator = itr;
+
 			Gtk::TreeModel::Row row = *itr;
 			cout << "  " << row[comboModel.trackName] << endl;
+		} else if(activeRowIterator) {
+			Gtk::TreeModel::Row row = *activeRowIterator;
+			row[comboModel.trackName] = entry->get_text();
 		} else {
-			//Happens when editing
-			cout << "  No active" << endl;
+			cout << "  No active row" << endl;
 		}
 	}
 
