@@ -229,7 +229,7 @@ bool aram::gui::ReceivingTrackBox::onFocusLost(GdkEventFocus* event) {
 			activeRow = row;
 			cout << "  " << row[comboModel.trackName] << endl;
 		} else if(activeRow) {
-			Gtk::TreeModel::Row row = *activeRow;
+			Gtk::TreeModel::Row row = activeRow;
 			row[comboModel.trackName] = entry->get_text();
 		} else {
 			cout << "  No active row" << endl;
