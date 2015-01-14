@@ -3,7 +3,7 @@
 #include "../../main/model/project.h"
 #include "src/main/datasource.h"
 
-using namespace wreckit;
+using namespace aram;
 using namespace std;
 
 class MySampleCounterListener : public SampleCounterListener {
@@ -98,7 +98,7 @@ TEST_CASE("AudioClip_4", "Test find(All)") {
 }
 
 TEST_CASE("ApplicationAndProject", "drop, create and save") {
-	ProjectApplication app("wreckit");
+	ProjectApplication app("aram");
 	Project project;
 
 	project.drop();
@@ -115,7 +115,7 @@ TEST_CASE("ApplicationAndProject", "drop, create and save") {
 }
 
 TEST_CASE("ApplicationAndProject_2", "find and load") {
-	ProjectApplication appTemplate("wreckit");
+	ProjectApplication appTemplate("aram");
 	vector<ProjectApplication> apps = appTemplate.find();
 	REQUIRE(apps.size() == 1);
 
