@@ -27,8 +27,8 @@ void front_thread_func(aram::service::LoadAndReadBuffer& my_dbuf) {
 	}
 }
 
-static void make_file(aram::service::sample_t max) {
-	ofstream of("/tmp/tmpdata", ios::out | ios::binary | ios::trunc);
+static void make_file(aram::service::sample_t max, string filename = "/tmp/tmpdata") {
+	ofstream of(filename, ios::out | ios::binary | ios::trunc);
 	if (of.is_open()) {
 		for (aram::service::sample_t i = 0.f; i < max; i += 1.f) {
 			of.write(reinterpret_cast<char*> (&i), sizeof (aram::service::sample_t));
@@ -42,7 +42,7 @@ static void make_file(aram::service::sample_t max) {
 TEST_CASE("double_buffer/single_thread", "Should behave as predicted in a single thread run.") {
 	make_file(24.f);
 	ifstream ifstr("/tmp/tmpdata", ios::in | ios::binary);
-	forward_list<istream*> istr_list(1, &ifstr);
+	forward_list<istream*> istr_list = {&ifstr};
 
 	aram::service::LoadAndReadBuffer my_dbuf(10);
 	aram::service::sample_t my_buf[3];
@@ -72,6 +72,61 @@ TEST_CASE("double_buffer/single_thread", "Should behave as predicted in a single
 	REQUIRE(my_buf[2] == 0.f);
 
 	ifstr.close();
+}
+
+TEST_CASE("back_buffer_fill", "for empty stream list, fill back buffer with 0's") {
+	forward_list<istream*> emptyList;
+	aram::service::LoadAndReadBuffer my_dbuf(5);
+	aram::service::sample_t my_buf[5];
+
+	REQUIRE(my_dbuf.loadBackBufferAndSwap(emptyList) == 0);
+
+	REQUIRE(my_dbuf.readFrontBuffer(my_buf, 5));
+
+	for(int i=0; i<5; i++) {
+		REQUIRE(my_buf[i] == 0.f);
+	}
+}
+
+TEST_CASE("load_back_buffer_multi_streams", "loadBackBuffer should continue with next stream on EOF") {
+	make_file(10.f, "/tmp/tmpdata1");
+	make_file(12.f, "/tmp/tmpdata2");
+
+	ifstream ifstr1("/tmp/tmpdata1", ios::in | ios::binary);
+	ifstream ifstr2("/tmp/tmpdata2", ios::in | ios::binary);
+	ifstream ifstr3("/tmp/tmpdata1", ios::in | ios::binary);
+
+	forward_list<istream*> istr_list = {&ifstr1, &ifstr2, &ifstr3};
+
+	aram::service::LoadAndReadBuffer my_dbuf(15);
+	aram::service::sample_t my_buf[15];
+
+	REQUIRE(distance(istr_list.begin(), istr_list.end()) == 3);
+	REQUIRE(my_dbuf.loadBackBufferAndSwap(istr_list) == 15);
+	REQUIRE(distance(istr_list.begin(), istr_list.end()) == 2);
+	REQUIRE(my_dbuf.loadBackBuffer(istr_list) == 15);
+	REQUIRE(distance(istr_list.begin(), istr_list.end()) == 1);
+
+	REQUIRE(my_dbuf.loadBackBuffer(istr_list) == 0); // not ready yet
+	REQUIRE(distance(istr_list.begin(), istr_list.end()) == 1); //nothing changed
+
+	REQUIRE(my_dbuf.readFrontBuffer(my_buf, 15));
+	REQUIRE(my_buf[9] == 9.f);
+	REQUIRE(my_buf[10] == 0.f);
+
+	REQUIRE(my_dbuf.loadBackBuffer(istr_list) == 2);
+	REQUIRE(istr_list.empty());
+
+	REQUIRE(my_dbuf.readFrontBuffer(my_buf, 15));
+	REQUIRE(my_buf[6] == 11.f);
+	REQUIRE(my_buf[7] == 0.f);
+
+	REQUIRE(my_dbuf.readFrontBuffer(my_buf, 15));
+	REQUIRE(my_buf[0] == 8.f);
+	REQUIRE(my_buf[1] == 9.f);
+	REQUIRE(my_buf[2] == 0.f);
+	REQUIRE(my_buf[3] == 0.f);
+	REQUIRE(my_buf[14] == 0.f);
 }
 
 TEST_CASE("double_buffer/double_thread", "Two threads accessing one double_buffer") {

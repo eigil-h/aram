@@ -19,6 +19,7 @@
 #include "buffers.h"
 #include <iostream>
 #include <exception>
+#include <algorithm>
 
 /*
  *  aram::service::double_buffer
@@ -80,7 +81,6 @@ int aram::service::LoadAndReadBuffer::loadBackBuffer(forward_list<istream*>& ist
 	if (!bbuf_ready) {
 		return 0;
 	}
-	istream& istr = *istr_list.front();
 	buf_itr_t end_itr;
 	buf_itr_t bbuf_itr;
 	{
@@ -88,27 +88,45 @@ int aram::service::LoadAndReadBuffer::loadBackBuffer(forward_list<istream*>& ist
 		end_itr = backBuffer()->end();
 		bbuf_itr = backBuffer()->begin();
 	}
-	int stream_pos = istr.tellg();
-	istr.seekg(0, ios::end);
-	int stream_end = istr.tellg();
-	istr.seekg(stream_pos, ios::beg);
 
-	int len = end_itr - bbuf_itr;
-	if (len > (stream_end - stream_pos) / sizeof (sample_t)) {
-		len = (stream_end - stream_pos) / sizeof (sample_t);
+	int total_len = 0;
+	int fillsize = end_itr - bbuf_itr;
+
+	while(!istr_list.empty()) {
+		istream& istr = *istr_list.front();
+
+		int stream_pos = istr.tellg();
+		istr.seekg(0, ios::end);
+		int stream_end = istr.tellg();
+		istr.seekg(stream_pos, ios::beg);
+
+		int len = end_itr - bbuf_itr;
+		if (len > (stream_end - stream_pos) / sizeof (sample_t)) {
+			len = (stream_end - stream_pos) / sizeof (sample_t);
+		}
+		total_len += len;
+
+		istr.read(reinterpret_cast<char*> (&(*bbuf_itr)), len * sizeof (sample_t));
+		bbuf_itr += len;
+
+		fillsize = end_itr - bbuf_itr;
+		if(fillsize == 0) {
+			//the buffer is filled
+			break;
+		}
+		//We're done with this stream
+		istr_list.pop_front();
 	}
 
-	istr.read(reinterpret_cast<char*> (&(*bbuf_itr)), len * sizeof (sample_t));
-	bbuf_itr += len;
-	int fillsize = end_itr - bbuf_itr;
 	bbuf_itr = fill_n(bbuf_itr, fillsize, 0.f);
 
 	if (bbuf_itr != end_itr) {
-		throw runtime_error("bug in write_back_buffer!");
+		throw runtime_error("bug in loadBackBuffer!");
 	}
 
 	bbuf_ready = false;
-	return len;
+
+	return total_len;
 }
 
 int aram::service::LoadAndReadBuffer::loadBackBufferAndSwap(forward_list<istream*>& istr) {
@@ -150,8 +168,6 @@ int aram::service::WriteAndStoreBuffer::swapAndStoreBackBuffer(ostream& ostr) {
 
 	return len;
 }
-
-
 
 /*
  *  aram::service::single_buffer
