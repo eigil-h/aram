@@ -9,7 +9,7 @@
 static bool run = true;
 vector<aram::service::sample_t> result;
 
-void back_thread_func(aram::service::LoadAndReadBuffer& my_dbuf, istream& ifstr) {
+void back_thread_func(aram::service::LoadAndReadBuffer& my_dbuf, forward_list<istream*>& ifstr) {
 	while (run) {
 		this_thread::sleep_for(chrono::milliseconds(200));
 		my_dbuf.loadBackBuffer(ifstr);
@@ -42,19 +42,20 @@ static void make_file(aram::service::sample_t max) {
 TEST_CASE("double_buffer/single_thread", "Should behave as predicted in a single thread run.") {
 	make_file(24.f);
 	ifstream ifstr("/tmp/tmpdata", ios::in | ios::binary);
+	forward_list<istream*> istr_list(1, &ifstr);
 
 	aram::service::LoadAndReadBuffer my_dbuf(10);
 	aram::service::sample_t my_buf[3];
 
-	REQUIRE(my_dbuf.loadBackBufferAndSwap(ifstr) == 10);
-	REQUIRE(my_dbuf.loadBackBuffer(ifstr) == 10);
-	REQUIRE(my_dbuf.loadBackBuffer(ifstr) == 0);
+	REQUIRE(my_dbuf.loadBackBufferAndSwap(istr_list) == 10);
+	REQUIRE(my_dbuf.loadBackBuffer(istr_list) == 10);
+	REQUIRE(my_dbuf.loadBackBuffer(istr_list) == 0);
 	REQUIRE(!my_dbuf.readFrontBuffer(my_buf, 3));
 	REQUIRE(!my_dbuf.readFrontBuffer(my_buf, 3));
 	REQUIRE(!my_dbuf.readFrontBuffer(my_buf, 3));
-	REQUIRE(my_dbuf.loadBackBuffer(ifstr) == 0);
+	REQUIRE(my_dbuf.loadBackBuffer(istr_list) == 0);
 	REQUIRE(my_dbuf.readFrontBuffer(my_buf, 3));
-	REQUIRE(my_dbuf.loadBackBuffer(ifstr) == 4);
+	REQUIRE(my_dbuf.loadBackBuffer(istr_list) == 4);
 	REQUIRE(!my_dbuf.readFrontBuffer(my_buf, 3));
 	REQUIRE(!my_dbuf.readFrontBuffer(my_buf, 3));
 	REQUIRE(my_dbuf.readFrontBuffer(my_buf, 3));
@@ -76,11 +77,12 @@ TEST_CASE("double_buffer/single_thread", "Should behave as predicted in a single
 TEST_CASE("double_buffer/double_thread", "Two threads accessing one double_buffer") {
 	make_file(140.f);
 	ifstream ifstr("/tmp/tmpdata", ios::in | ios::binary);
+	forward_list<istream*> istrList(1, &ifstr);
 
 	aram::service::LoadAndReadBuffer my_dbuf(20);
-	my_dbuf.loadBackBufferAndSwap(ifstr);
+	my_dbuf.loadBackBufferAndSwap(istrList);
 
-	thread back_thread(back_thread_func, ref(my_dbuf), ref(ifstr));
+	thread back_thread(back_thread_func, ref(my_dbuf), ref(istrList));
 	thread front_thread(front_thread_func, ref(my_dbuf));
 
 	this_thread::sleep_for(chrono::seconds(3));

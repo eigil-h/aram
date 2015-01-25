@@ -20,6 +20,7 @@
 #define ARAM_BUFFERS_H
 #include <array>
 #include <vector>
+#include <forward_list>
 #include <mutex>
 
 using namespace std;
@@ -78,15 +79,15 @@ namespace aram {
 
 			/**
 			 * Fill up back buffer. Excess buffer space are filled with 0.
-			 * Return number of actual samples read from stream.
+			 * Return number of actual samples read from streams.
 			 */
-			int loadBackBuffer(istream& istr);
+			int loadBackBuffer(forward_list<istream*>& istr);
 
 			/**
 			 * Use first time so that there's data to read in the front buffer.
-			 * Return number of actual samples read from stream.
+			 * Return number of actual samples read from streams.
 			 */
-			int loadBackBufferAndSwap(istream& istr);
+			int loadBackBufferAndSwap(forward_list<istream*>& istr);
 		};
 
 		class WriteAndStoreBuffer : public DoubleBuffer {

@@ -76,10 +76,11 @@ bool aram::service::LoadAndReadBuffer::readFrontBuffer(aram::service::sample_t* 
 	return did_swap;
 }
 
-int aram::service::LoadAndReadBuffer::loadBackBuffer(istream& istr) {
+int aram::service::LoadAndReadBuffer::loadBackBuffer(forward_list<istream*>& istr_list) {
 	if (!bbuf_ready) {
 		return 0;
 	}
+	istream& istr = *istr_list.front();
 	buf_itr_t end_itr;
 	buf_itr_t bbuf_itr;
 	{
@@ -110,7 +111,7 @@ int aram::service::LoadAndReadBuffer::loadBackBuffer(istream& istr) {
 	return len;
 }
 
-int aram::service::LoadAndReadBuffer::loadBackBufferAndSwap(istream& istr) {
+int aram::service::LoadAndReadBuffer::loadBackBufferAndSwap(forward_list<istream*>& istr) {
 	int samples_read = loadBackBuffer(istr);
 	swap();
 	return samples_read;
