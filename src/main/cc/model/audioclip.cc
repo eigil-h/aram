@@ -124,3 +124,30 @@ void aram::model::Audioclip::rename(const string& newName) {
 bool aram::model::Audioclip::Less::operator() (const shared_ptr<Audioclip>& a, const shared_ptr<Audioclip>& b) {
 	return (*a) < (*b);
 }
+
+aram::model::Channel::Channel() {
+}
+
+aram::model::Channel::Channel(const string& n, const shared_ptr<Audioclip>& ac) : 
+				id_(aram::service::Database::generateId()), name_(n) {
+	addAudioclip(ac, 0);
+}
+
+aram::model::Channel::~Channel() {
+}
+
+const string& aram::model::Channel::id() const {
+	return id_;
+}
+
+const string& aram::model::Channel::name() const {
+	return name_;
+}
+
+void aram::model::Channel::addAudioclip(const shared_ptr<aram::model::Audioclip>& ac, uint64_t position) {
+	audioclips_[position] = ac;
+}
+
+shared_ptr<aram::model::Audioclip> aram::model::Channel::firstAudioclip() {
+	return audioclips_.begin()->second;
+}

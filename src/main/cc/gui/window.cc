@@ -19,8 +19,10 @@
 #include "window.h"
 #include <iostream>
 #include "../service/audioengine.h"
+#include "../model/project.h"
 
 using namespace aram::service;
+using namespace aram::model;
 
 /*
  * Top window
@@ -36,7 +38,8 @@ aram::gui::Window::Window() {
 		cssProvider->load_from_path("style.css");
 
 		set_default_size(800, 200);
-		set_title("Audio Recorder And Music");
+		shared_ptr<Project> project = Project::retrieveCurrent();
+		set_title("Audio Recorder And Music : " + project->name() + " @ " + to_string(project->sampleRate()) + "Hz");
 		set_position(Gtk::WindowPosition::WIN_POS_CENTER);
 
 		add(commandContainer);
@@ -80,20 +83,15 @@ combo(true) {
 
 	combo.set_model((comboModelRef = Gtk::ListStore::create(comboModel)));
 
-	{
+	list<shared_ptr<Channel>> channels = Project::retrieveCurrent()->channels();
+	for (shared_ptr<Channel> ch : channels) {
 		Gtk::TreeModel::Row row = *(comboModelRef->append());
-		row[comboModel.trackId] = "track#1";
-		row[comboModel.trackName] = "Groovy bass";
-	}
-	{
-		Gtk::TreeModel::Row row = *(comboModelRef->append());
-		row[comboModel.trackId] = "track#2";
-		row[comboModel.trackName] = "Groovy guitar";
+		row[comboModel.trackId] = ch->id();
+		row[comboModel.trackName] = ch->name();
 	}
 
 	combo.set_entry_text_column(comboModel.trackName);
 	combo.set_active(0);
-
 
 	Gtk::Entry* entry = combo.get_entry();
 	if (entry) {

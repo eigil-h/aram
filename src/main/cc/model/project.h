@@ -22,6 +22,7 @@
 #include <string>
 #include <memory>
 #include <set>
+#include <list>
 #include <odb/core.hxx>
 #include "audioclip.h"
 
@@ -39,14 +40,14 @@ namespace aram {
 			string name_;
 			#pragma db value_not_null
 			set<shared_ptr<Audioclip>, Audioclip::Less> audioclips_;
-			#pragma db not_null
-			shared_ptr<Audioclip> armed_;
+			#pragma db value_not_null
+			list<shared_ptr<Channel>> channels_;
 			unsigned frames_;
 			unsigned sampleRate_;
 
 		public:
 			Project();
-			Project(const string& name, const shared_ptr<Audioclip>& ac);
+			Project(const string& name, const shared_ptr<Channel>& ch);
 			~Project();
 
 			bool operator==(const Project& other) const;
@@ -55,13 +56,12 @@ namespace aram {
 			const string& id() const;
 			const string& name() const;
 			const set<shared_ptr<Audioclip>, Audioclip::Less>& audioclips() const;
-			const Audioclip& armed() const;
+			const list<shared_ptr<Channel>>& channels() const;
 			shared_ptr<Audioclip> findAudioclip(const string& id) const;
 			const unsigned& frames() const;
 			unsigned length() const;
 			const unsigned& sampleRate() const;
 			void addAudioclip(shared_ptr<Audioclip> ac);
-			void arm(const shared_ptr<Audioclip>& ac);
 
 			/* "(For PCM, A-law and μ-law data,) a frame is all data that belongs to one sampling interval.
 			 * This means that the frame rate is the same as the sample rate."

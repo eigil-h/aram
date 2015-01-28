@@ -21,6 +21,8 @@
 
 #include <string>
 #include <memory>
+#include <map>
+#include <cstdint>
 #include <odb/core.hxx>
 
 using namespace std;
@@ -60,6 +62,29 @@ namespace aram {
 			struct Less {
 				bool operator() (const shared_ptr<Audioclip>& a, const shared_ptr<Audioclip>& b);
 			};
+		};
+
+
+		#pragma db object pointer(std::shared_ptr)
+		class Channel {
+			Channel();
+
+			friend class odb::access;
+
+			#pragma db id
+			string id_;
+			string name_;
+			map<uint64_t, shared_ptr<Audioclip>> audioclips_;
+
+		public:
+			Channel(const string& name, const shared_ptr<Audioclip>& ac);
+			~Channel();
+
+			const string& id() const;
+			const string& name() const;
+
+			void addAudioclip(const shared_ptr<Audioclip>& ac, uint64_t position);
+			shared_ptr<Audioclip> firstAudioclip();
 		};
 	}
 }

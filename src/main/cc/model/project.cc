@@ -33,9 +33,10 @@ using namespace aram::service;
 aram::model::Project::Project() {
 }
 
-aram::model::Project::Project(const string& n, const shared_ptr<Audioclip>& ac) :
-id_(aram::service::Database::generateId()), name_(n), frames_(0), armed_(ac), sampleRate_(22049) {
-	audioclips_.insert(ac);
+aram::model::Project::Project(const string& n, const shared_ptr<Channel>& ch) :
+id_(aram::service::Database::generateId()), name_(n), frames_(0), sampleRate_(22049) {
+	channels_.push_front(ch);
+	audioclips_.insert(ch->firstAudioclip());
 }
 
 aram::model::Project::~Project() {
@@ -62,8 +63,8 @@ const set<shared_ptr<aram::model::Audioclip>, aram::model::Audioclip::Less>&
 	return audioclips_;
 }
 
-const aram::model::Audioclip& aram::model::Project::armed() const {
-	return *armed_;
+const list<shared_ptr<aram::model::Channel>>& aram::model::Project::channels() const {
+	return channels_;
 }
 
 shared_ptr<aram::model::Audioclip> aram::model::Project::findAudioclip(const string& id) const {
@@ -93,21 +94,6 @@ void aram::model::Project::addAudioclip(shared_ptr<Audioclip> ac) {
 
 void aram::model::Project::audioEngineProcessedFrames(unsigned nFrames) {
 	frames_ += nFrames;
-}
-
-void aram::model::Project::arm(const shared_ptr<Audioclip>& ac) {
-	armed_ = ac; //optimize? - check if this is a change.
-
-	try {
-		Database& db = Database::getInstance();
-		transaction t(db->begin());
-
-		db->update(*this);
-
-		t.commit();
-	} catch (const odb::exception& e) {
-		throw runtime_error(e.what());
-	}
 }
 
 void aram::model::Project::rename(const string& newName) {
@@ -150,7 +136,10 @@ void aram::model::Project::createNew() {
 		shared_ptr<Audioclip> ac(new Audioclip("<new audioclip>"));
 		db->persist(ac);
 
-		shared_ptr<Project> p(new Project("<new project>", ac));
+		shared_ptr<Channel> ch(new Channel("<new channel>", ac));
+		db->persist(ch);
+
+		shared_ptr<Project> p(new Project("<new project>", ch));
 		db->persist(p);
 
 		t.commit();
