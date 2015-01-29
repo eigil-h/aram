@@ -76,10 +76,10 @@ aram::gui::CommandContainer::CommandContainer() {
 
 	pack_start(playButton);
 	pack_start(recordButton);
-	pack_start(trackBox);
+	pack_start(channelBox);
 }
 
-aram::gui::ReceivingTrackBox::ReceivingTrackBox() :
+aram::gui::ReceivingChannelBox::ReceivingChannelBox() :
 combo(true) {
 
 	combo.set_model((comboModelRef = Gtk::ListStore::create(comboModel)));
@@ -87,26 +87,26 @@ combo(true) {
 	list<shared_ptr<Channel>> channels = Project::retrieveCurrent()->channels();
 	for (shared_ptr<Channel> ch : channels) {
 		Gtk::TreeModel::Row row = *(comboModelRef->append());
-		row[comboModel.trackId] = ch->id();
-		row[comboModel.trackName] = ch->name();
+		row[comboModel.channelId] = ch->id();
+		row[comboModel.channelName] = ch->name();
 	}
 
-	combo.set_entry_text_column(comboModel.trackName);
+	combo.set_entry_text_column(comboModel.channelName);
 	combo.set_active(0);
 
 	Gtk::Entry* entry = combo.get_entry();
 	if (entry) {
 		entry->add_events(Gdk::FOCUS_CHANGE_MASK);
 		entry->signal_changed().connect(
-						sigc::mem_fun(this, &ReceivingTrackBox::onSelected));
+						sigc::mem_fun(this, &ReceivingChannelBox::onSelected));
 		entry->signal_activate().connect(
-						sigc::mem_fun(this, &ReceivingTrackBox::onActivated));
+						sigc::mem_fun(this, &ReceivingChannelBox::onActivated));
 		focusGainedConnection = entry->signal_focus_in_event().connect(
-						sigc::mem_fun(this, &ReceivingTrackBox::onFocusGained));
+						sigc::mem_fun(this, &ReceivingChannelBox::onFocusGained));
 		focusLostConnection = entry->signal_focus_out_event().connect(
-						sigc::mem_fun(this, &ReceivingTrackBox::onFocusLost));
+						sigc::mem_fun(this, &ReceivingChannelBox::onFocusLost));
 	} else {
-		throw runtime_error("receivingTrackCB.get_entry() failed");
+		throw runtime_error("receivingChannelCB.get_entry() failed");
 	}
 
 	Gtk::Image* addImage = Gtk::manage(new Gtk::Image(Gtk::Stock::ADD,
@@ -120,9 +120,9 @@ combo(true) {
 	removeButton.set_image(*removeImage);
 
 	addButton.signal_clicked().connect(
-					sigc::mem_fun(this, &ReceivingTrackBox::onAddTrack));
+					sigc::mem_fun(this, &ReceivingChannelBox::onAddChannel));
 	removeButton.signal_clicked().connect(
-					sigc::mem_fun(this, &ReceivingTrackBox::onRemoveTrack));
+					sigc::mem_fun(this, &ReceivingChannelBox::onRemoveChannel));
 
 
 	buttonBox.pack_start(addButton);
@@ -132,13 +132,13 @@ combo(true) {
 	pack_start(buttonBox);
 }
 
-aram::gui::ReceivingTrackBox::~ReceivingTrackBox() {
+aram::gui::ReceivingChannelBox::~ReceivingChannelBox() {
 	focusLostConnection.disconnect();
 }
 
-aram::gui::ReceivingTrackBox::Model::Model() {
-	add(trackId);
-	add(trackName);
+aram::gui::ReceivingChannelBox::Model::Model() {
+	add(channelId);
+	add(channelName);
 }
 
 void aram::gui::CommandContainer::onPlayButtonClicked() {
@@ -160,7 +160,7 @@ void aram::gui::CommandContainer::onRecordButtonClicked() {
 	}
 }
 
-void aram::gui::ReceivingTrackBox::onSelected() {
+void aram::gui::ReceivingChannelBox::onSelected() {
 	LOG(INFO) << "onSelected() " << combo.get_active_row_number();
 	Gtk::Entry* entry = combo.get_entry();
 	if (entry) {
@@ -170,7 +170,7 @@ void aram::gui::ReceivingTrackBox::onSelected() {
 		if (itr) {
 			Gtk::TreeModel::Row row = *itr;
 			activeRow = row;
-			LOG(INFO) << "  " << row[comboModel.trackName];
+			LOG(INFO) << "  " << row[comboModel.channelName];
 		} else {
 			//Happens when editing
 			LOG(INFO) << "  No active row";
@@ -178,7 +178,7 @@ void aram::gui::ReceivingTrackBox::onSelected() {
 	}
 }
 
-void aram::gui::ReceivingTrackBox::onActivated() {
+void aram::gui::ReceivingChannelBox::onActivated() {
 	LOG(INFO) << "onEntryActivate() " << combo.get_active_row_number();
 	Gtk::Entry* entry = combo.get_entry();
 	if (entry) {
@@ -188,7 +188,7 @@ void aram::gui::ReceivingTrackBox::onActivated() {
 		if (itr) {
 			Gtk::TreeModel::Row row = *itr;
 			activeRow = row;
-			LOG(INFO) << "  " << row[comboModel.trackName];
+			LOG(INFO) << "  " << row[comboModel.channelName];
 		} else {
 			//Happens when editing
 			LOG(INFO) << "  No active row";
@@ -196,7 +196,7 @@ void aram::gui::ReceivingTrackBox::onActivated() {
 	}
 }
 
-bool aram::gui::ReceivingTrackBox::onFocusGained(GdkEventFocus* event) {
+bool aram::gui::ReceivingChannelBox::onFocusGained(GdkEventFocus* event) {
 	LOG(INFO) << "onFocusGained() " << combo.get_active_row_number();
 	Gtk::Entry* entry = combo.get_entry();
 	if (entry) {
@@ -206,7 +206,7 @@ bool aram::gui::ReceivingTrackBox::onFocusGained(GdkEventFocus* event) {
 		if (itr) {
 			Gtk::TreeModel::Row row = *itr;
 			activeRow = row;
-			LOG(INFO) << "  " << row[comboModel.trackName];
+			LOG(INFO) << "  " << row[comboModel.channelName];
 		} else {
 			//Happens when editing
 			LOG(INFO) << "  No active row";
@@ -216,7 +216,7 @@ bool aram::gui::ReceivingTrackBox::onFocusGained(GdkEventFocus* event) {
 	return true;
 }
 
-bool aram::gui::ReceivingTrackBox::onFocusLost(GdkEventFocus* event) {
+bool aram::gui::ReceivingChannelBox::onFocusLost(GdkEventFocus* event) {
 	LOG(INFO) << "onFocusLost() " << combo.get_active_row_number();
 	Gtk::Entry* entry = combo.get_entry();
 	if (entry) {
@@ -226,10 +226,10 @@ bool aram::gui::ReceivingTrackBox::onFocusLost(GdkEventFocus* event) {
 		if (itr) {
 			Gtk::TreeModel::Row row = *itr;
 			activeRow = row;
-			LOG(INFO) << "  " << row[comboModel.trackName];
+			LOG(INFO) << "  " << row[comboModel.channelName];
 		} else if(activeRow) {
 			Gtk::TreeModel::Row row = activeRow;
-			row[comboModel.trackName] = entry->get_text();
+			row[comboModel.channelName] = entry->get_text();
 		} else {
 			LOG(INFO) << "  No active row";
 		}
@@ -238,12 +238,12 @@ bool aram::gui::ReceivingTrackBox::onFocusLost(GdkEventFocus* event) {
 	return true;
 }
 
-void aram::gui::ReceivingTrackBox::onAddTrack() {
+void aram::gui::ReceivingChannelBox::onAddChannel() {
 	Gtk::TreeModel::Row row = *(comboModelRef->prepend());
-	row[comboModel.trackId] = "track#?";
-	row[comboModel.trackName] = "<new track>";
+	row[comboModel.channelId] = "channel#?";
+	row[comboModel.channelName] = "<new channel>";
 	combo.set_active(0);
 }
 
-void aram::gui::ReceivingTrackBox::onRemoveTrack() {
+void aram::gui::ReceivingChannelBox::onRemoveChannel() {
 }

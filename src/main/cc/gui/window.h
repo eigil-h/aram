@@ -29,17 +29,17 @@ namespace aram {
 	 */
 	namespace gui {
 
-		/** Combobox where to select active track for receiving input for recording.
+		/** Combobox where to select active channel for receiving input for recording.
 		 */
-		class ReceivingTrackBox : public Gtk::VBox {
+		class ReceivingChannelBox : public Gtk::VBox {
 			struct Model : public Gtk::TreeModel::ColumnRecord {
 				Model();
-				Gtk::TreeModelColumn<Glib::ustring> trackId;
-				Gtk::TreeModelColumn<Glib::ustring> trackName;
+				Gtk::TreeModelColumn<Glib::ustring> channelId;
+				Gtk::TreeModelColumn<Glib::ustring> channelName;
 			};
 		public:
-			ReceivingTrackBox();
-			~ReceivingTrackBox();
+			ReceivingChannelBox();
+			~ReceivingChannelBox();
 
 		private:
 			Gtk::TreeModel::Row activeRow;
@@ -57,8 +57,8 @@ namespace aram {
 			void onActivated();
 			bool onFocusGained(GdkEventFocus* event);
 			bool onFocusLost(GdkEventFocus* event);
-			void onAddTrack();
-			void onRemoveTrack();
+			void onAddChannel();
+			void onRemoveChannel();
 		};
 
 		/** 
@@ -71,7 +71,7 @@ namespace aram {
 		private:
 			Gtk::ToggleButton playButton;
 			Gtk::ToggleButton recordButton;
-			ReceivingTrackBox trackBox;
+			ReceivingChannelBox channelBox;
 
 			void onPlayButtonClicked();
 			void onRecordButtonClicked();
