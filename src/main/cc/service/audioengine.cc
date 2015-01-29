@@ -185,13 +185,13 @@ aram::service::JackAdaptedAudioEngine::~JackAdaptedAudioEngine() {
 
 void aram::service::JackAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 	Samples leftIn = reinterpret_cast<Samples> (jack_port_get_buffer(
-					physicalInputPort.ports[CHANNEL_LEFT], frameCount));
+					physicalInputPort.ports[STEREO_LEFT], frameCount));
 	Samples rightIn = reinterpret_cast<Samples> (jack_port_get_buffer(
-					physicalInputPort.ports[CHANNEL_RIGHT], frameCount));
+					physicalInputPort.ports[STEREO_RIGHT], frameCount));
 	Samples leftOut = reinterpret_cast<Samples> (jack_port_get_buffer(
-					physicalOutputPort.ports[CHANNEL_LEFT], frameCount));
+					physicalOutputPort.ports[STEREO_LEFT], frameCount));
 	Samples rightOut = reinterpret_cast<Samples> (jack_port_get_buffer(
-					physicalOutputPort.ports[CHANNEL_RIGHT], frameCount));
+					physicalOutputPort.ports[STEREO_RIGHT], frameCount));
 
 	//unconditionally copy input buffer to output buffer for immediate playback
 	::memcpy(leftOut, leftIn, sizeof (Sample) * frameCount);

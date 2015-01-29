@@ -25,15 +25,15 @@
 
 void aram::service::JackStereoPort::registerPort(jack_client_t* jackClient, 
 				Direction direction, const string& name) {
-	ports[CHANNEL_LEFT] = jack_port_register(jackClient,
+	ports[STEREO_LEFT] = jack_port_register(jackClient,
 					(std::string("aram-") + name + "-left").c_str(), JACK_DEFAULT_AUDIO_TYPE, 
 					direction == DIRECTION_INPUT ? JackPortIsInput : JackPortIsOutput, 0L);
 
-	ports[CHANNEL_RIGHT] = jack_port_register(jackClient,
+	ports[STEREO_RIGHT] = jack_port_register(jackClient,
 					(std::string("aram-") + name + "-right").c_str(), JACK_DEFAULT_AUDIO_TYPE, 
 					direction == DIRECTION_INPUT ? JackPortIsInput : JackPortIsOutput, 0L);
 
-	if (ports[CHANNEL_LEFT] == nullptr || ports[CHANNEL_RIGHT] == nullptr) {
+	if (ports[STEREO_LEFT] == nullptr || ports[STEREO_RIGHT] == nullptr) {
 		throw runtime_error("Jack ports not available");
 	}
 }

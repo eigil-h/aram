@@ -27,7 +27,7 @@ namespace aram {
 		};
 
 		enum StereoChannel {
-			CHANNEL_LEFT, CHANNEL_RIGHT, CHANNEL_sizeof
+			STEREO_LEFT, STEREO_RIGHT, STEREO_sizeof
 		};
 
 		typedef float Sample;

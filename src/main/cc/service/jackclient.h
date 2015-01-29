@@ -34,7 +34,7 @@ namespace aram {
 		 */
 		class JackStereoPort {
 		public:
-			jack_port_t* ports[CHANNEL_sizeof];
+			jack_port_t* ports[STEREO_sizeof];
 
 			void registerPort(jack_client_t* jackClient, Direction direction, const string& name);
 			void connectPhysicalPort(jack_client_t* jackClient, Direction direction);
