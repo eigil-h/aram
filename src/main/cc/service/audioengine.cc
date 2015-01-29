@@ -23,6 +23,7 @@
 #include "jackclient.h"
 #include "database.h"
 #include "system.h"
+#include "../easylogging++.h"
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * AudioEngine
@@ -93,7 +94,7 @@ aram::service::Recorder::Recorder(const string& channel_) :
 								ios_base::binary | ios_base::trunc),
 				recordingStreamRight((System::getHomePath() + "/.aram/" + channel_ + "-r").c_str(),
 								ios_base::binary | ios_base::trunc) {
-	cout << "Recorder " << channel << " created" << endl;
+	LOG(INFO) << "Recorder " << channel << " created";
 }
 
 
@@ -219,7 +220,7 @@ aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() :
 				mainTurboThread(&SilenceAdaptedAudioEngine::mainTurbo, this),
 				running(true), frameCountPlayback(0), frameCountRecording(0),
 				frameCountTotal(0) {
-	cout << "Constructing the Silence Adapted Audio Engine" << endl;
+	LOG(INFO) << "Constructing the Silence Adapted Audio Engine";
 }
 
 void aram::service::SilenceAdaptedAudioEngine::init() {
@@ -227,14 +228,14 @@ void aram::service::SilenceAdaptedAudioEngine::init() {
 }
 
 aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
-	cout << "Destroying the Silence Adapted Audio Engine" << endl;
+	LOG(INFO) << "Destroying the Silence Adapted Audio Engine";
 
 	running = false;
 	this_thread::sleep_for(chrono::milliseconds(100));
 
-	cout << "frame count played back = " << frameCountPlayback << endl;
-	cout << "frame count recorded = " << frameCountRecording << endl;
-	cout << "frame count total = " << frameCountTotal << endl;
+	LOG(INFO) << "frame count played back = " << frameCountPlayback;
+	LOG(INFO) << "frame count recorded = " << frameCountRecording;
+	LOG(INFO) << "frame count total = " << frameCountTotal;
 
 	mainTurboThread.join();
 }

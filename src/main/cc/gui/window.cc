@@ -20,6 +20,7 @@
 #include <iostream>
 #include "../service/audioengine.h"
 #include "../model/project.h"
+#include "../easylogging++.h"
 
 using namespace aram::service;
 using namespace aram::model;
@@ -141,14 +142,14 @@ aram::gui::ReceivingTrackBox::Model::Model() {
 }
 
 void aram::gui::CommandContainer::onPlayButtonClicked() {
-	cout << "Play button clicked" << endl;
+	LOG(INFO) << "Play button clicked";
 
 	AudioEngine& audioEngine = AudioEngine::getInstance();
 	audioEngine.playback = playButton.get_active();
 }
 
 void aram::gui::CommandContainer::onRecordButtonClicked() {
-	cout << "Record button clicked" << endl;
+	LOG(INFO) << "Record button clicked";
 
 	AudioEngine& audioEngine = AudioEngine::getInstance();
 
@@ -160,55 +161,55 @@ void aram::gui::CommandContainer::onRecordButtonClicked() {
 }
 
 void aram::gui::ReceivingTrackBox::onSelected() {
-	cout << "onSelected() " << combo.get_active_row_number() << endl;
+	LOG(INFO) << "onSelected() " << combo.get_active_row_number();
 	Gtk::Entry* entry = combo.get_entry();
 	if (entry) {
-		cout << "  " << entry->get_text() << endl;
+		LOG(INFO) << "  " << entry->get_text();
 
 		Gtk::TreeModel::iterator itr = combo.get_active();
 		if (itr) {
 			Gtk::TreeModel::Row row = *itr;
 			activeRow = row;
-			cout << "  " << row[comboModel.trackName] << endl;
+			LOG(INFO) << "  " << row[comboModel.trackName];
 		} else {
 			//Happens when editing
-			cout << "  No active row" << endl;
+			LOG(INFO) << "  No active row";
 		}
 	}
 }
 
 void aram::gui::ReceivingTrackBox::onActivated() {
-	cout << "onEntryActivate() " << combo.get_active_row_number() << endl;
+	LOG(INFO) << "onEntryActivate() " << combo.get_active_row_number();
 	Gtk::Entry* entry = combo.get_entry();
 	if (entry) {
-		cout << "  " << entry->get_text() << endl;
+		LOG(INFO) << "  " << entry->get_text();
 
 		Gtk::TreeModel::iterator itr = combo.get_active();
 		if (itr) {
 			Gtk::TreeModel::Row row = *itr;
 			activeRow = row;
-			cout << "  " << row[comboModel.trackName] << endl;
+			LOG(INFO) << "  " << row[comboModel.trackName];
 		} else {
 			//Happens when editing
-			cout << "  No active row" << endl;
+			LOG(INFO) << "  No active row";
 		}
 	}
 }
 
 bool aram::gui::ReceivingTrackBox::onFocusGained(GdkEventFocus* event) {
-	cout << "onFocusGained() " << combo.get_active_row_number() << endl;
+	LOG(INFO) << "onFocusGained() " << combo.get_active_row_number();
 	Gtk::Entry* entry = combo.get_entry();
 	if (entry) {
-		cout << "  " << entry->get_text() << endl;
+		LOG(INFO) << "  " << entry->get_text();
 
 		Gtk::TreeModel::iterator itr = combo.get_active();
 		if (itr) {
 			Gtk::TreeModel::Row row = *itr;
 			activeRow = row;
-			cout << "  " << row[comboModel.trackName] << endl;
+			LOG(INFO) << "  " << row[comboModel.trackName];
 		} else {
 			//Happens when editing
-			cout << "  No active row" << endl;
+			LOG(INFO) << "  No active row";
 		}
 	}
 
@@ -216,21 +217,21 @@ bool aram::gui::ReceivingTrackBox::onFocusGained(GdkEventFocus* event) {
 }
 
 bool aram::gui::ReceivingTrackBox::onFocusLost(GdkEventFocus* event) {
-	cout << "onFocusLost() " << combo.get_active_row_number() << endl;
+	LOG(INFO) << "onFocusLost() " << combo.get_active_row_number();
 	Gtk::Entry* entry = combo.get_entry();
 	if (entry) {
-		cout << "  " << entry->get_text() << endl;
+		LOG(INFO) << "  " << entry->get_text();
 
 		Gtk::TreeModel::iterator itr = combo.get_active();
 		if (itr) {
 			Gtk::TreeModel::Row row = *itr;
 			activeRow = row;
-			cout << "  " << row[comboModel.trackName] << endl;
+			LOG(INFO) << "  " << row[comboModel.trackName];
 		} else if(activeRow) {
 			Gtk::TreeModel::Row row = activeRow;
 			row[comboModel.trackName] = entry->get_text();
 		} else {
-			cout << "  No active row" << endl;
+			LOG(INFO) << "  No active row";
 		}
 	}
 

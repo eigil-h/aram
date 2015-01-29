@@ -28,6 +28,7 @@
 #include <exception>
 #include <iostream>
 #include <algorithm>
+#include "../easylogging++.h"
 
 using namespace aram::model;
 
@@ -70,7 +71,7 @@ void aram::service::Database::createSchemaNoDrop() {
 		odb::schema_catalog::create_schema(*db_, "", false);
 		t.commit();
 	} catch (exception& e) {
-		cout << "\"" << e.what() << "\". - Looks like the schema exists. Continuing.." << endl;
+		LOG(DEBUG) << "\"" << e.what() << "\". - Looks like the schema exists.";
 	}
 
 	c->execute("PRAGMA foreign_keys=ON");
@@ -87,7 +88,7 @@ void aram::service::Database::initApplication() {
 			createApplication();
 			break;
 		case 1:
-			cout << "ARAM application exists" << endl;
+			LOG(DEBUG) << "ARAM application already exists";
 			break;
 		default:
 			throw runtime_error("Too many applications in the database!");
@@ -97,7 +98,7 @@ void aram::service::Database::initApplication() {
 /* We want one Application with one Project with one AudioClip
  */
 void aram::service::Database::createApplication() {
-	cout << "Create ARAM application" << endl;
+	LOG(INFO) << "Create new ARAM";
 
 	try {
 		transaction t(db_->begin());
@@ -113,12 +114,12 @@ void aram::service::Database::createApplication() {
 
 		Application a("aram.application", p);
 		
-		cout << "Trying to persist application" << endl;
+		LOG(DEBUG) << "Trying to persist application";
 		db_->persist(a);
 
 		t.commit();
 
-		cout << "Application persisted" << endl;
+		LOG(INFO) << "ARAM successfully created!" << endl;
 	} catch (const odb::exception& e) {
 		throw runtime_error(e.what());
 	}

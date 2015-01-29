@@ -23,6 +23,10 @@
 #include "service/audioengine.h"
 #include "service/database.h"
 
+#include "easylogging++.h"
+
+INITIALIZE_EASYLOGGINGPP
+
 using namespace std;
 using namespace aram::gui;
 using namespace aram::service;
@@ -55,7 +59,7 @@ int main(int argc, char** argv) {
 		cout << "¡hasta luego, amiga!" << endl;
 		return 0;
 	} catch (std::exception& e) {
-		cout << e.what() << endl;
+		LOG(ERROR) << e.what();
 		return -1;
 	}
 }

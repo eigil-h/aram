@@ -22,6 +22,7 @@
 #include "src/main/cc/service/system.h"
 #include <iostream>
 #include <algorithm>
+#include "../easylogging++.h"
 
 
 using namespace aram::service;
@@ -184,7 +185,7 @@ aram::model::Application::Application() {
 
 aram::model::Application::Application(const string& name, const shared_ptr<Project>& project) :
 name_(name), project_(project) {
-	cout << name << " created" << endl;
+	LOG(INFO) << name << " created";
 }
 
 const string& aram::model::Application::name() const {
@@ -205,7 +206,7 @@ void aram::model::Application::load() {
 
 		t.commit();
 	} catch (odb::object_not_persistent e) {
-		cout << e.what() << endl;
+		LOG(ERROR) << e.what();
 	}
 }
 
