@@ -23,7 +23,10 @@
 #include <iostream>
 #include <fstream>
 #include <forward_list>
+#include <array>
+#include <map>
 #include <thread>
+#include <utility>
 #include <jack/jack.h>
 #include <sigc++/sigc++.h>
 #include "jackclient.h"
@@ -37,6 +40,10 @@ namespace aram {
 	 */
 	namespace service {
 
+		/**
+		 * A Recorder object is created when the user hits the record button. 
+		 * Once recording is unselected, the object is destroyed.
+		 */
 		class Recorder {
 			WriteAndStoreBuffer recordingBufferLeft;
 			WriteAndStoreBuffer recordingBufferRight;
@@ -49,6 +56,20 @@ namespace aram {
 			bool record(Samples left, Samples right, unsigned count);
 			void swapAndStore();
 
+			string channel;
+		};
+
+		/**
+		 * A ChannelPlayer object is created when a channel is created, and destroyed when the
+		 * channel is destroyed.
+		 */
+		class ChannelPlayer {
+			array<pair<LoadAndReadBuffer, forward_list<istream*>>,2> playbackSD;
+		public:
+			ChannelPlayer(const string& channel);
+			bool playback(Samples left, Samples right, unsigned count);
+			void load();
+			
 			string channel;
 		};
 
@@ -89,7 +110,7 @@ namespace aram {
 			AudioEngine();
 
 			unique_ptr<Recorder> recorder;
-			forward_list<string> channels;
+			forward_list<pair<string, unique_ptr<ChannelPlayer>>> channels;
 
 		private:
 			static AudioEngine* newAudioEngine();
@@ -118,6 +139,7 @@ namespace aram {
 			jack_client_t* jackClient;
 			JackStereoPort physicalInputPort;
 			JackStereoPort physicalOutputPort;
+			map<string, JackStereoPort> channelPorts;
 
 			void onFrameReady(unsigned frameCount);
 		};

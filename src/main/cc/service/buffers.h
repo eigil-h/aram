@@ -66,7 +66,6 @@ namespace aram {
 
 		class LoadAndReadBuffer : public DoubleBuffer {
 		public:
-
 			LoadAndReadBuffer(int siz);
 
 			/**

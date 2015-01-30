@@ -68,7 +68,7 @@ void aram::service::AudioEngine::backBufferTurbo() {
 }
 
 void aram::service::AudioEngine::addChannel(const string& channel) {
-	channels.push_front(channel);
+	channels.push_front(make_pair(channel, unique_ptr<ChannelPlayer>(new ChannelPlayer(channel))));
 }
 
 void aram::service::AudioEngine::removeChannel(const string& channel) {
@@ -94,10 +94,9 @@ aram::service::Recorder::Recorder(const string& channel_) :
 								ios_base::binary | ios_base::trunc),
 				recordingStreamRight((System::getHomePath() + "/.aram/" + channel_ + "-r").c_str(),
 								ios_base::binary | ios_base::trunc) {
-	LOG(INFO) << "Recorder " << channel << " created";
+
+	LOG(INFO) << "Recorder for " << channel << " created";
 }
-
-
 
 bool aram::service::Recorder::record(Samples left, Samples right, unsigned count) {
 	if (!recordingBufferLeft.writeFrontBuffer(left, count)) {
@@ -114,6 +113,30 @@ void aram::service::Recorder::swapAndStore() {
 	recordingBufferRight.swapAndStoreBackBuffer(recordingStreamRight);
 }
 
+
+/*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
+ * ChannelPlayer
+ */
+aram::service::ChannelPlayer::ChannelPlayer(const string& channel_) :
+				channel(channel_) {
+	
+	//Lookup in the database to make list of streams. Suggests that this method also needs a 'postition' parameter
+
+	playbackSD[STEREO_LEFT] = make_pair(LoadAndReadBuffer(491520), 
+					ifstream((System::getHomePath() + "/.aram/" + channel_ + "-l").c_str(), ios_base::binary));
+	playbackSD[STEREO_RIGHT] = make_pair(LoadAndReadBuffer(491520),
+					ifstream((System::getHomePath() + "/.aram/" + channel_ + "-r").c_str(), ios_base::binary));
+}
+
+bool aram::service::ChannelPlayer::playback(Samples left, Samples right, unsigned count) {
+	playbackSD[STEREO_LEFT].first.readFrontBuffer(left, count);
+	playbackSD[STEREO_RIGHT].first.readFrontBuffer(right, count);
+}
+
+void aram::service::ChannelPlayer::load() {
+	playbackSD[STEREO_LEFT].first.loadBackBuffer(playbackSD[STEREO_LEFT].second);
+	playbackSD[STEREO_RIGHT].first.loadBackBuffer(playbackSD[STEREO_RIGHT].second);
+}
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Jack adapted audio engine
@@ -198,11 +221,13 @@ void aram::service::JackAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 	::memcpy(rightOut, rightIn, sizeof (Sample) * frameCount);
 
 	if (playback) {
-
-		for_each(channels.begin(), channels.end(), [](string & channel) {
-			//get read audio buffer mapped to the channel
-			//get the port mapped to the channel
-			//copy audio buffer frames to the port
+		for_each(channels.begin(), channels.end(), [&](pair<string, unique_ptr<ChannelPlayer>>& channel) {
+			Samples leftPortOut = reinterpret_cast<Samples> (jack_port_get_buffer(
+							channelPorts[channel.first].ports[STEREO_LEFT], frameCount));
+			Samples rightPortOut = reinterpret_cast<Samples> (jack_port_get_buffer(
+							channelPorts[channel.first].ports[STEREO_RIGHT], frameCount));
+			
+			channel.second->playback(leftPortOut, rightPortOut, frameCount);
 		});
 
 		if (recorder.get() != nullptr) {
