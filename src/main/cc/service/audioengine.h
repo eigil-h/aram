@@ -64,7 +64,8 @@ namespace aram {
 		 * channel is destroyed.
 		 */
 		class ChannelPlayer {
-			array<pair<LoadAndReadBuffer, forward_list<istream*>>,2> playbackSD;
+			array<pair<unique_ptr<LoadAndReadBuffer>, forward_list<istream*>>,2> playbackSD;
+
 		public:
 			ChannelPlayer(const string& channel);
 			bool playback(Samples left, Samples right, unsigned count);

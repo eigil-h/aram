@@ -116,26 +116,32 @@ void aram::service::Recorder::swapAndStore() {
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * ChannelPlayer
+ * 
+ * note: so far there's only one stream/audioclip per channel
  */
 aram::service::ChannelPlayer::ChannelPlayer(const string& channel_) :
 				channel(channel_) {
-	
-	//Lookup in the database to make list of streams. Suggests that this method also needs a 'postition' parameter
 
-	playbackSD[STEREO_LEFT] = make_pair(LoadAndReadBuffer(491520), 
-					ifstream((System::getHomePath() + "/.aram/" + channel_ + "-l").c_str(), ios_base::binary));
-	playbackSD[STEREO_RIGHT] = make_pair(LoadAndReadBuffer(491520),
-					ifstream((System::getHomePath() + "/.aram/" + channel_ + "-r").c_str(), ios_base::binary));
+	ifstream ifstr_l((System::getHomePath() + "/.aram/" + channel_ + "-l").c_str(), ios_base::binary);
+	forward_list<istream*> istrList_l = {&ifstr_l};
+	playbackSD[STEREO_LEFT] = make_pair(
+					unique_ptr<LoadAndReadBuffer>(new LoadAndReadBuffer(491520)), istrList_l);
+
+
+	ifstream ifstr_r((System::getHomePath() + "/.aram/" + channel_ + "-r").c_str(), ios_base::binary);
+	forward_list<istream*> istrList_r = {&ifstr_r};
+	playbackSD[STEREO_RIGHT] = make_pair(
+					unique_ptr<LoadAndReadBuffer>(new LoadAndReadBuffer(491520)), istrList_r);
 }
 
 bool aram::service::ChannelPlayer::playback(Samples left, Samples right, unsigned count) {
-	playbackSD[STEREO_LEFT].first.readFrontBuffer(left, count);
-	playbackSD[STEREO_RIGHT].first.readFrontBuffer(right, count);
+	playbackSD[STEREO_LEFT].first->readFrontBuffer(left, count);
+	playbackSD[STEREO_RIGHT].first->readFrontBuffer(right, count);
 }
 
 void aram::service::ChannelPlayer::load() {
-	playbackSD[STEREO_LEFT].first.loadBackBuffer(playbackSD[STEREO_LEFT].second);
-	playbackSD[STEREO_RIGHT].first.loadBackBuffer(playbackSD[STEREO_RIGHT].second);
+	playbackSD[STEREO_LEFT].first->loadBackBuffer(playbackSD[STEREO_LEFT].second);
+	playbackSD[STEREO_RIGHT].first->loadBackBuffer(playbackSD[STEREO_RIGHT].second);
 }
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
