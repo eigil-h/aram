@@ -144,7 +144,7 @@ void aram::service::ChannelPlayer::loadBackBuffers() {
 	playbackSD[STEREO_RIGHT].first->loadBackBuffer(playbackSD[STEREO_RIGHT].second);
 }
 
-void aram::service::ChannelPlayer::setPosition(uint64_t pos) {
+void aram::service::ChannelPlayer::setPosition(PlaybackPos pos) {
 	//from top of the istream list, calculate the way down to stream
 	
 	//but !! something is not right here. We can't have all streams for channel around here!
