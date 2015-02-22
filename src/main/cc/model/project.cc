@@ -81,8 +81,14 @@ const unsigned& aram::model::Project::frames() const {
 	return frames_;
 }
 
-unsigned aram::model::Project::length() const {
-	return 123;
+aram::service::PlaybackPos aram::model::Project::length() const {
+	return (*max_element(channels().begin(), channels().end(), 
+					[](const shared_ptr<Channel>& a, const shared_ptr<Channel>& b) {
+		if(b->length() > a->length()) {
+			return b;
+		}
+		return a;
+	}))->length();
 }
 
 const unsigned& aram::model::Project::sampleRate() const {

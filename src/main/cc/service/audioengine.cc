@@ -49,7 +49,7 @@ aram::service::AudioEngine::AudioEngine() :
 
 aram::service::AudioEngine::~AudioEngine() {
 	backBufferRunning = false;
-	this_thread::sleep_for(chrono::milliseconds(1100));
+//	this_thread::sleep_for(chrono::milliseconds(1100));
 	backBufferThread.join();
 }
 
@@ -139,9 +139,15 @@ bool aram::service::ChannelPlayer::playback(Samples left, Samples right, unsigne
 	playbackSD[STEREO_RIGHT].first->readFrontBuffer(right, count);
 }
 
-void aram::service::ChannelPlayer::load() {
+void aram::service::ChannelPlayer::loadBackBuffers() {
 	playbackSD[STEREO_LEFT].first->loadBackBuffer(playbackSD[STEREO_LEFT].second);
 	playbackSD[STEREO_RIGHT].first->loadBackBuffer(playbackSD[STEREO_RIGHT].second);
+}
+
+void aram::service::ChannelPlayer::setPosition(uint64_t pos) {
+	//from top of the istream list, calculate the way down to stream
+	
+	//but !! something is not right here. We can't have all streams for channel around here!
 }
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx

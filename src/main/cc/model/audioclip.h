@@ -24,10 +24,13 @@
 #include <map>
 #include <cstdint>
 #include <odb/core.hxx>
+#include "../service/types.h"
 
 using namespace std;
 
 namespace aram {
+	using namespace service;
+
 	namespace model {
 
 		#pragma db object pointer(std::shared_ptr)
@@ -51,7 +54,7 @@ namespace aram {
 			const string& id() const;
 			const string& name() const;
 			void name(const string& name);
-			unsigned length() const;
+			PlaybackPos length() const;
 			const unsigned& sampleRate() const;
 
 			void rename(const string& newName);
@@ -74,7 +77,7 @@ namespace aram {
 			#pragma db id
 			string id_;
 			string name_;
-			map<uint64_t, shared_ptr<Audioclip>> audioclips_;
+			map<PlaybackPos, shared_ptr<Audioclip>> audioclips_;
 
 		public:
 			Channel(const string& name, const shared_ptr<Audioclip>& ac);
@@ -82,8 +85,9 @@ namespace aram {
 
 			const string& id() const;
 			const string& name() const;
+			PlaybackPos length() const;
 
-			void addAudioclip(const shared_ptr<Audioclip>& ac, uint64_t position);
+			void addAudioclip(const shared_ptr<Audioclip>& ac, PlaybackPos position);
 			shared_ptr<Audioclip> firstAudioclip();
 		};
 	}

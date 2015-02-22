@@ -59,7 +59,7 @@ namespace aram {
 			const list<shared_ptr<Channel>>& channels() const;
 			shared_ptr<Audioclip> findAudioclip(const string& id) const;
 			const unsigned& frames() const;
-			unsigned length() const;
+			PlaybackPos length() const;
 			const unsigned& sampleRate() const;
 			void addAudioclip(shared_ptr<Audioclip> ac);
 

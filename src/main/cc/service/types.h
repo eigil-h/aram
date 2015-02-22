@@ -32,6 +32,7 @@ namespace aram {
 
 		typedef float Sample;
 		typedef Sample* Samples;
+		typedef unsigned long long PlaybackPos;
 	}
 }
 

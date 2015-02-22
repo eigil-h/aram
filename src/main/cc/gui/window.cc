@@ -61,6 +61,7 @@ aram::gui::CommandContainer::CommandContainer() {
 					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
 	playImage->show();
 	playButton.set_image(*playImage);
+	playButton.set_sensitive(Project::retrieveCurrent()->length() > 0);
 
 	Gtk::Image* recordImage = Gtk::manage(new Gtk::Image(Gtk::Stock::MEDIA_RECORD,
 					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
@@ -136,6 +137,15 @@ aram::gui::ReceivingChannelBox::~ReceivingChannelBox() {
 	focusLostConnection.disconnect();
 }
 
+Glib::ustring aram::gui::ReceivingChannelBox::channelId() const {
+	Gtk::TreeModel::iterator itr = combo.get_active();
+	if (itr) {
+		Gtk::TreeModel::Row row = *itr;
+		return row[comboModel.channelId];
+	}
+	throw runtime_error("Missing active channel");
+}
+
 aram::gui::ReceivingChannelBox::Model::Model() {
 	add(channelId);
 	add(channelName);
@@ -154,9 +164,11 @@ void aram::gui::CommandContainer::onRecordButtonClicked() {
 	AudioEngine& audioEngine = AudioEngine::getInstance();
 
 	if (recordButton.get_active()) {
-		audioEngine.armChannel("the_only_one");
+		audioEngine.armChannel(channelBox.channelId());
+		playButton.set_sensitive(true);
 	} else {
 		audioEngine.disarmChannel();
+		playButton.set_sensitive(Project::retrieveCurrent()->length() > 0);
 	}
 }
 

@@ -41,6 +41,8 @@ namespace aram {
 			ReceivingChannelBox();
 			~ReceivingChannelBox();
 
+			Glib::ustring channelId() const;
+
 		private:
 			Gtk::TreeModel::Row activeRow;
 			sigc::connection focusGainedConnection;

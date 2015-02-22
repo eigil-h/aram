@@ -16,7 +16,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <iostream>
+#include <fstream>
 
+#include "../service/system.h"
 #include "audioclip.h"
 #include "audioclip-odb.hxx"
 #include "../service/database.h"
@@ -56,8 +58,14 @@ void aram::model::Audioclip::name(const string& name) {
 	name_ = name;
 }
 
-unsigned aram::model::Audioclip::length() const {
-	return 123;
+aram::service::PlaybackPos aram::model::Audioclip::length() const {
+	//Note, by this, user without read privilege, will have length 0 returned. Which is great!
+	ifstream ifstr((System::getHomePath() + "/.aram/" + id_ + "-l").c_str());
+	if(ifstr) {
+		ifstr.seekg(0, ios::end);
+		return ifstr.tellg();
+	}
+	return 0;
 }
 
 const unsigned& aram::model::Audioclip::sampleRate() const {
@@ -144,7 +152,13 @@ const string& aram::model::Channel::name() const {
 	return name_;
 }
 
-void aram::model::Channel::addAudioclip(const shared_ptr<aram::model::Audioclip>& ac, uint64_t position) {
+aram::service::PlaybackPos aram::model::Channel::length() const {
+	//position of last audioclip + its length
+	pair<PlaybackPos, shared_ptr<Audioclip>> last = *audioclips_.rbegin();
+	return last.first + last.second->length();
+}
+
+void aram::model::Channel::addAudioclip(const shared_ptr<aram::model::Audioclip>& ac, PlaybackPos position) {
 	audioclips_[position] = ac;
 }
 

@@ -68,8 +68,10 @@ namespace aram {
 
 		public:
 			ChannelPlayer(const string& channel);
+			//return false if fail. It's called by RT thread, so we don't want overhead of throwing exception.
 			bool playback(Samples left, Samples right, unsigned count);
-			void load();
+			void loadBackBuffers();
+			void setPosition(uint64_t pos);
 			
 			string channel;
 		};
