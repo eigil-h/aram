@@ -92,6 +92,7 @@ namespace aram {
 			sigc::signal<void, unsigned> frameReadySignal;
 			sigc::signal<void> xRunSignal;
 			sigc::signal<void, unsigned> sampleRateChangeSignal;
+			sigc::signal<void, PlaybackPos> playbackPosChangeSignal;
 			sigc::signal<void> shutdownSignal;
 			sigc::signal<void, const char*> errorSignal;
 
@@ -104,6 +105,7 @@ namespace aram {
 
 			virtual ~AudioEngine();
 
+			void readysteady(PlaybackPos pos);
 			void addChannel(const string& channel);
 			void removeChannel(const string& channel);
 			void armChannel(const string& channel);
@@ -111,9 +113,12 @@ namespace aram {
 
 		protected:
 			AudioEngine();
+			void onPlaybackPositionChange(PlaybackPos pos);
 
 			unique_ptr<Recorder> recorder;
 			forward_list<pair<string, unique_ptr<ChannelPlayer>>> channels;
+			PlaybackPos pos_;
+
 
 		private:
 			static AudioEngine* newAudioEngine();
@@ -160,8 +165,7 @@ namespace aram {
 		private:
 			thread mainTurboThread;
 			bool running;
-			unsigned frameCountPlayback,
-			frameCountRecording,
+			unsigned frameCountRecording,
 			frameCountTotal;
 
 			void mainTurbo();
