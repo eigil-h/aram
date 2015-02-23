@@ -96,16 +96,16 @@ void aram::service::AudioEngine::disarmChannel() {
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Recorder
  */
-aram::service::Recorder::Recorder(const string& channel_) :
-				channel(channel_),
+aram::service::Recorder::Recorder(const string& audioclipId_) :
+				audioclipId(audioclipId_),
 				recordingBufferLeft(491520),
 				recordingBufferRight(491520),
-				recordingStreamLeft((System::getHomePath() + "/.aram/" + channel_ + "-l").c_str(),
+				recordingStreamLeft((System::getHomePath() + "/.aram/" + audioclipId_ + "-l").c_str(),
 								ios_base::binary | ios_base::trunc),
-				recordingStreamRight((System::getHomePath() + "/.aram/" + channel_ + "-r").c_str(),
+				recordingStreamRight((System::getHomePath() + "/.aram/" + audioclipId_ + "-r").c_str(),
 								ios_base::binary | ios_base::trunc) {
 
-	LOG(INFO) << "Recorder for " << channel << " created";
+	LOG(INFO) << "Recorder for " << audioclipId << " created";
 }
 
 bool aram::service::Recorder::record(Samples left, Samples right, unsigned count) {

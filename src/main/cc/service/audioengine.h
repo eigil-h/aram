@@ -51,12 +51,12 @@ namespace aram {
 			ofstream recordingStreamRight;
 
 		public:
-			Recorder(const string& channel);
+			Recorder(const string& audioclipId);
 			//return false if fail. It's called by RT thread, so we don't want overhead of throwing exception.
 			bool record(Samples left, Samples right, unsigned count);
 			void swapAndStore();
 
-			string channel;
+			string audioclipId;
 		};
 
 		/**
