@@ -56,6 +56,11 @@ aram::service::AudioEngine::~AudioEngine() {
 
 void aram::service::AudioEngine::onPlaybackPositionChange(aram::service::PlaybackPos pos) {
 	pos_ = pos;
+	if(!playback) {
+		for_each(channels.begin(), channels.end(), [=](const pair<string, unique_ptr<ChannelPlayer>>& ch){
+			ch.second->setPosition(pos);
+		});
+	}
 }
 
 void aram::service::AudioEngine::backBufferTurbo() {
