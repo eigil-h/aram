@@ -67,7 +67,8 @@
       <w>660</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>Engine: JACK@22050FPS</panel_attributes>
+    <panel_attributes>Engine: JACK@22050FPS
+halign=right</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -176,10 +177,10 @@ bg=#a0a0ff</panel_attributes>
     <coordinates>
       <x>200</x>
       <y>490</y>
-      <w>80</w>
+      <w>110</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>Cmd|Stat
+    <panel_attributes>Project
 bg=#03c7a0</panel_attributes>
     <additional_attributes/>
   </element>
@@ -281,10 +282,10 @@ bg=#fff0c0</panel_attributes>
     <coordinates>
       <x>210</x>
       <y>540</y>
-      <w>310</w>
+      <w>180</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>Toggle status bar and "command bar" ('new project', 'new audioclip', etc..)
+    <panel_attributes>Trigger pop ups
 bg=#fff0c0</panel_attributes>
     <additional_attributes/>
   </element>
@@ -510,6 +511,52 @@ bg=#aaff80</panel_attributes>
     </coordinates>
     <panel_attributes>guit1
 bg=#aaff80</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>310</x>
+      <y>490</y>
+      <w>110</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Audioclip
+bg=#03c7a0</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>800</x>
+      <y>190</y>
+      <w>40</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>ch#8</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>790</x>
+      <y>180</y>
+      <w>30</w>
+      <h>310</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>10.0;290.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>420</x>
+      <y>490</y>
+      <w>110</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>About
+bg=#03c7a0</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>
