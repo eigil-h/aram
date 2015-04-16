@@ -44,13 +44,23 @@ aram::service::AudioEngine* aram::service::AudioEngine::newAudioEngine() {
 
 aram::service::AudioEngine::AudioEngine() :
 				backBufferThread(&AudioEngine::backBufferTurbo, this),
-				backBufferRunning(true) {
+				backBufferRunning(true),
+				pos_(0) {
 }
 
 aram::service::AudioEngine::~AudioEngine() {
 	backBufferRunning = false;
 //	this_thread::sleep_for(chrono::milliseconds(1100));
 	backBufferThread.join();
+}
+
+void aram::service::AudioEngine::onPlaybackPositionChange(aram::service::PlaybackPos pos) {
+	pos_ = pos;
+	if(!playback) {
+		for_each(channels.begin(), channels.end(), [=](const pair<string, unique_ptr<ChannelPlayer>>& ch){
+			ch.second->setPosition(pos);
+		});
+	}
 }
 
 void aram::service::AudioEngine::backBufferTurbo() {
@@ -86,16 +96,16 @@ void aram::service::AudioEngine::disarmChannel() {
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Recorder
  */
-aram::service::Recorder::Recorder(const string& channel_) :
-				channel(channel_),
+aram::service::Recorder::Recorder(const string& audioclipId_) :
+				audioclipId(audioclipId_),
 				recordingBufferLeft(491520),
 				recordingBufferRight(491520),
-				recordingStreamLeft((System::getHomePath() + "/.aram/" + channel_ + "-l").c_str(),
+				recordingStreamLeft((System::getHomePath() + "/.aram/" + audioclipId_ + "-l").c_str(),
 								ios_base::binary | ios_base::trunc),
-				recordingStreamRight((System::getHomePath() + "/.aram/" + channel_ + "-r").c_str(),
+				recordingStreamRight((System::getHomePath() + "/.aram/" + audioclipId_ + "-r").c_str(),
 								ios_base::binary | ios_base::trunc) {
 
-	LOG(INFO) << "Recorder for " << channel << " created";
+	LOG(INFO) << "Recorder for " << audioclipId << " created";
 }
 
 bool aram::service::Recorder::record(Samples left, Samples right, unsigned count) {
@@ -210,6 +220,7 @@ void aram::service::JackAdaptedAudioEngine::init() {
 	physicalOutputPort.connectPhysicalPort(jackClient, DIRECTION_OUTPUT);
 
 	frameReadySignal.connect(sigc::mem_fun(this, &JackAdaptedAudioEngine::onFrameReady));
+	playbackPosChangeSignal.connect(sigc::mem_fun(this, &JackAdaptedAudioEngine::onPlaybackPositionChange));
 }
 
 aram::service::JackAdaptedAudioEngine::~JackAdaptedAudioEngine() {
@@ -242,6 +253,8 @@ void aram::service::JackAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 			channel.second->playback(leftPortOut, rightPortOut, frameCount);
 		});
 
+		playbackPosChangeSignal(pos_ + frameCount);
+
 		if (recorder.get() != nullptr) {
 			if(!recorder->record(leftIn, rightIn, frameCount)) {
 				xRunSignal(); //todo - maybe a parameter to explain it's not really an xrun...?
@@ -255,13 +268,14 @@ void aram::service::JackAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
  */
 aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() : 
 				mainTurboThread(&SilenceAdaptedAudioEngine::mainTurbo, this),
-				running(true), frameCountPlayback(0), frameCountRecording(0),
+				running(true), frameCountRecording(0),
 				frameCountTotal(0) {
 	LOG(INFO) << "Constructing the Silence Adapted Audio Engine";
 }
 
 void aram::service::SilenceAdaptedAudioEngine::init() {
 	frameReadySignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onFrameReady));
+	playbackPosChangeSignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onPlaybackPositionChange));
 }
 
 aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
@@ -270,7 +284,7 @@ aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
 	running = false;
 	this_thread::sleep_for(chrono::milliseconds(100));
 
-	LOG(INFO) << "frame count played back = " << frameCountPlayback;
+	LOG(INFO) << "frame count played back = " << pos_;
 	LOG(INFO) << "frame count recorded = " << frameCountRecording;
 	LOG(INFO) << "frame count total = " << frameCountTotal;
 
@@ -287,7 +301,7 @@ void aram::service::SilenceAdaptedAudioEngine::mainTurbo() {
 void aram::service::SilenceAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 	frameCountTotal += frameCount;
 	if (playback) {
-		frameCountPlayback += frameCount;
+		playbackPosChangeSignal(pos_ + frameCount);
 
 		if (recorder.get() != nullptr) {
 			frameCountRecording += frameCount;
