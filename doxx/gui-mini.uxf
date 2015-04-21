@@ -4,10 +4,10 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>140</x>
-      <y>160</y>
+      <x>20</x>
+      <y>40</y>
       <w>850</w>
-      <h>270</h>
+      <h>590</h>
     </coordinates>
     <panel_attributes/>
     <additional_attributes/>
@@ -15,33 +15,34 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>700</x>
-      <y>260</y>
-      <w>100</w>
-      <h>30</h>
+      <x>260</x>
+      <y>290</y>
+      <w>80</w>
+      <h>70</h>
     </coordinates>
-    <panel_attributes>Mark status
+    <panel_attributes>Mark
+status
 bg=green</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>170</x>
-      <y>200</y>
-      <w>100</w>
-      <h>60</h>
+      <x>420</x>
+      <y>60</y>
+      <w>420</w>
+      <h>30</h>
     </coordinates>
-    <panel_attributes>Counter</panel_attributes>
+    <panel_attributes>Project stats</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>690</x>
+      <x>40</x>
       <y>170</y>
-      <w>260</w>
-      <h>250</h>
+      <w>310</w>
+      <h>450</h>
     </coordinates>
     <panel_attributes>Audioclip view</panel_attributes>
     <additional_attributes/>
@@ -49,10 +50,10 @@ bg=green</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>150</x>
+      <x>370</x>
       <y>170</y>
-      <w>380</w>
-      <h>250</h>
+      <w>490</w>
+      <h>450</h>
     </coordinates>
     <panel_attributes>Project view</panel_attributes>
     <additional_attributes/>
@@ -60,38 +61,27 @@ bg=green</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>700</x>
-      <y>200</y>
-      <w>100</w>
-      <h>60</h>
-    </coordinates>
-    <panel_attributes>Counter</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>310</x>
-      <y>200</y>
-      <w>180</w>
-      <h>210</h>
+      <x>560</x>
+      <y>280</y>
+      <w>290</w>
+      <h>330</h>
     </coordinates>
     <panel_attributes>Channels view
 --
-Ch#1 -
+Ch#1 - |solo|mute|
   cnt_0 : ac1
   cnt_x : ac2
-Ch#2 -
+Ch#2 - |solo|mute|
   etc</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>560</x>
-      <y>190</y>
-      <w>100</w>
-      <h>60</h>
+      <x>50</x>
+      <y>210</y>
+      <w>130</w>
+      <h>70</h>
     </coordinates>
     <panel_attributes>Record</panel_attributes>
     <additional_attributes/>
@@ -99,37 +89,36 @@ Ch#2 -
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>560</x>
-      <y>270</y>
-      <w>100</w>
-      <h>60</h>
+      <x>400</x>
+      <y>190</y>
+      <w>130</w>
+      <h>120</h>
     </coordinates>
-    <panel_attributes>Play</panel_attributes>
+    <panel_attributes>Play
+valign=center</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>700</x>
-      <y>320</y>
+      <x>210</x>
+      <y>490</y>
       <w>100</w>
       <h>90</h>
     </coordinates>
     <panel_attributes>Assign to
+selected
 channel
---
-channel
-cnt
 </panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>560</x>
-      <y>350</y>
-      <w>100</w>
-      <h>60</h>
+      <x>210</x>
+      <y>210</y>
+      <w>130</w>
+      <h>70</h>
     </coordinates>
     <panel_attributes>Mark</panel_attributes>
     <additional_attributes/>
@@ -137,8 +126,8 @@ cnt
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>820</x>
-      <y>200</y>
+      <x>40</x>
+      <y>60</y>
       <w>100</w>
       <h>30</h>
     </coordinates>
@@ -148,19 +137,19 @@ cnt
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>820</x>
-      <y>240</y>
+      <x>280</x>
+      <y>60</y>
       <w>100</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>Delete</panel_attributes>
+    <panel_attributes>Edit</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>470</x>
-      <y>20</y>
+      <x>890</x>
+      <y>110</y>
       <w>210</w>
       <h>120</h>
     </coordinates>
@@ -172,21 +161,19 @@ bg=#aaddff</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>170</x>
-      <y>280</y>
+      <x>380</x>
+      <y>550</y>
       <w>100</w>
       <h>60</h>
     </coordinates>
-    <panel_attributes>The end
---
-Repeat?</panel_attributes>
+    <panel_attributes>Loop</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>700</x>
-      <y>20</y>
+      <x>890</x>
+      <y>250</y>
       <w>210</w>
       <h>120</h>
     </coordinates>
@@ -195,6 +182,190 @@ green=not marked,
 yellow=soon marked, 
 red=marked
 bg=#aaddff</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>450</y>
+      <w>100</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>Trim front</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>500</y>
+      <w>100</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>Trim back</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>640</x>
+      <y>110</y>
+      <w>100</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>Undo
+valign=center
+bg=#e0c0a0</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>30</x>
+      <y>50</y>
+      <w>830</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>halign=right
+bg=#30a0f0</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>160</x>
+      <y>60</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Open</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>30</x>
+      <y>110</y>
+      <w>590</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>halign=left
+bg=#f0a030</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>260</x>
+      <y>120</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>New</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>380</x>
+      <y>120</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Open</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>500</x>
+      <y>120</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Edit</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>760</x>
+      <y>120</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>About</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>400</x>
+      <y>330</y>
+      <w>130</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>Counter/Total
+valign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>290</y>
+      <w>200</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>Counter/Total
+valign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>40</x>
+      <y>120</y>
+      <w>200</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Audioclip stats</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>370</y>
+      <w>290</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>Navigate
+|&lt; &lt;&lt; &lt; &gt; &gt;&gt; &gt;| Mark</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>560</x>
+      <y>190</y>
+      <w>280</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>Navigate
+|&lt; &lt;&lt; &lt; &gt; &gt;&gt; &gt;| </panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>50</x>
+      <y>550</y>
+      <w>100</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Loop</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>
