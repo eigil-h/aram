@@ -38,7 +38,6 @@ aram::gui::Window::Window() {
 	try {
 		cssProvider->load_from_path("style.css");
 
-		set_default_size(800, 600);
 		set_title("Audio Recorder And Music");
 		set_position(Gtk::WindowPosition::WIN_POS_CENTER);
 
@@ -70,16 +69,8 @@ static Gtk::Image* getStockImage(const Gtk::StockID& stockId) {
 
 aram::gui::ProjectMenu::ProjectMenu() {
 	create.set_image(*getStockImage(Gtk::Stock::NEW));
-
-	Gtk::Image* openImage = Gtk::manage(new Gtk::Image(Gtk::Stock::OPEN,
-					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
-	openImage->show();
-	open.set_image(*openImage);
-
-	Gtk::Image* editImage = Gtk::manage(new Gtk::Image(Gtk::Stock::EDIT,
-					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
-	editImage->show();
-	edit.set_image(*editImage);
+	open.set_image(*getStockImage(Gtk::Stock::OPEN));
+	edit.set_image(*getStockImage(Gtk::Stock::EDIT));
 
 	shared_ptr<Project> project = Project::retrieveCurrent();
 	stats.set_text(project->name() + " @ " + to_string(project->sampleRate()) + "Hz");
@@ -91,21 +82,9 @@ aram::gui::ProjectMenu::ProjectMenu() {
 }
 
 aram::gui::AudioclipMenu::AudioclipMenu() {
-	Gtk::Image* createImage = Gtk::manage(new Gtk::Image(Gtk::Stock::NEW,
-					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
-	createImage->show();
-	create.set_image(*createImage);
-
-	Gtk::Image* openImage = Gtk::manage(new Gtk::Image(Gtk::Stock::OPEN,
-					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
-	openImage->show();
-	open.set_image(*openImage);
-
-	Gtk::Image* editImage = Gtk::manage(new Gtk::Image(Gtk::Stock::EDIT,
-					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
-	editImage->show();
-	edit.set_image(*editImage);
-
+	create.set_image(*getStockImage(Gtk::Stock::NEW));
+	open.set_image(*getStockImage(Gtk::Stock::OPEN));
+	edit.set_image(*getStockImage(Gtk::Stock::EDIT));
 	stats.set_text("Audioclip stats");
 
 	pack_start(stats);
@@ -115,20 +94,9 @@ aram::gui::AudioclipMenu::AudioclipMenu() {
 }
 
 aram::gui::ApplicationMenu::ApplicationMenu() {
-	Gtk::Image* undoImage = Gtk::manage(new Gtk::Image(Gtk::Stock::UNDO,
-					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
-	undoImage->show();
-	undo.set_image(*undoImage);
-
-	Gtk::Image* prefsImage = Gtk::manage(new Gtk::Image(Gtk::Stock::PREFERENCES,
-					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
-	prefsImage->show();
-	prefs.set_image(*prefsImage);
-
-	Gtk::Image* helpImage = Gtk::manage(new Gtk::Image(Gtk::Stock::HELP,
-					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
-	helpImage->show();
-	help.set_image(*helpImage);
+	undo.set_image(*getStockImage(Gtk::Stock::UNDO));
+	prefs.set_image(*getStockImage(Gtk::Stock::PREFERENCES));
+	help.set_image(*getStockImage(Gtk::Stock::HELP));
 
 	pack_start(undo);
 	pack_start(prefs);
@@ -136,12 +104,12 @@ aram::gui::ApplicationMenu::ApplicationMenu() {
 }
 
 aram::gui::Navigator::Navigator() {
-	start.set_label("|<");
+	start.set_image(*getStockImage(Gtk::Stock::MEDIA_PREVIOUS));
 	rewind.set_image(*getStockImage(Gtk::Stock::MEDIA_REWIND));
-	backpedal.set_image(*getStockImage(Gtk::Stock::MEDIA_PREVIOUS));
-	forward.set_image(*getStockImage(Gtk::Stock::MEDIA_NEXT));
+	backpedal.set_image(*getStockImage(Gtk::Stock::GO_BACK));
+	forward.set_image(*getStockImage(Gtk::Stock::GO_FORWARD));
 	fastforward.set_image(*getStockImage(Gtk::Stock::MEDIA_FORWARD));
-	end.set_image(*getStockImage(Gtk::Stock::MEDIA_STOP));
+	end.set_image(*getStockImage(Gtk::Stock::MEDIA_NEXT));
 	
 	pack_start(start);
 	pack_start(rewind);
@@ -151,10 +119,45 @@ aram::gui::Navigator::Navigator() {
 	pack_start(end);
 }
 
+aram::gui::AudioclipView::AudioclipView() {
+	record.set_image(*getStockImage(Gtk::Stock::MEDIA_RECORD));
+	mark.set_label("Mark");
+	unmark.set_label("Unmark");
+	counter.set_label("0 / 0");
+	markstatus.set_label("Next mark");
+	trimFront.set_label("Trim front");
+	trimBack.set_label("Trim back");
+	loopSolo.set_label("Loop solo");
+	assign.set_label("Assign");
+	unassign.set_label("Unassign");
+
+	attach(record, 0, 0, 2, 2);
+	attach(mark, 2, 0, 1, 2);
+	attach(unmark, 3, 0, 1, 2);
+	attach(counter, 0, 2, 2, 2);
+	attach(markstatus, 2, 2, 1, 2);
+	attach(navigator, 0, 4, 4, 2);
+	attach(trimFront, 0, 6, 1, 1);
+	attach(trimBack, 0, 7, 1, 1);
+	attach(loopSolo, 0, 8, 1, 1);
+	attach(assign, 2, 6, 2, 2);
+	attach(unassign, 2, 8, 2, 1);
+}
 
 
-
-
+aram::gui::ProjectView::ProjectView() {
+	counter.set_label("0 / 0");
+	play.set_image(*getStockImage(Gtk::Stock::MEDIA_PLAY));
+	loop.set_label("Loop");
+	addChannel.set_label("Add channel");
+	
+	attach(counter, 0, 0, 2, 2);
+	attach(navigator, 2, 0, 4, 2);
+	attach(play, 0, 2, 2, 4);
+	attach(channelView, 2, 2, 4, 10);
+	attach(loop, 0, 6, 2, 1);
+	attach(addChannel, 0, 11, 2, 1);
+}
 
 
 

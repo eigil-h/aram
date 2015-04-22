@@ -128,6 +128,7 @@ namespace aram {
 
 		class AudioclipView : public Gtk::Grid {
 		public:
+			AudioclipView();
 		private:	
 			Gtk::ToggleButton record;
 			Gtk::Button mark;
@@ -137,14 +138,26 @@ namespace aram {
 			Navigator navigator;
 			Gtk::Button trimFront;
 			Gtk::Button trimBack;
-			Gtk::Button loopSolo;
+			Gtk::ToggleButton loopSolo;
 			Gtk::Button assign;
 			Gtk::Button unassign;
 		};
 		
+		class ChannelView : public Gtk::TreeView {
+		public:
+		private:
+		};
+		
 		class ProjectView : public Gtk::Grid {
 		public:
-		private:	
+			ProjectView();
+		private:
+			Gtk::Label counter;
+			Navigator navigator;
+			Gtk::ToggleButton play;
+			Gtk::ToggleButton loop;
+			Gtk::Button addChannel;
+			ChannelView channelView;
 		};
 
 		/**
