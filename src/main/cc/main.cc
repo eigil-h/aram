@@ -33,7 +33,7 @@ using namespace aram::service;
 
 static void printGPL3() {
 	cout << "  ARAM, the audio recorder and music ninja" << endl <<
-					"  Copyright(C) 2014 Eigil Hysvær" << endl <<
+					"  Copyright(C) 2014-2015 Eigil Hysvær" << endl <<
 					endl <<
 					"  This program is free software: you can redistribute it and/or modify" << endl <<
 					"  it under the terms of the GNU General Public License as published by" << endl <<

@@ -32,6 +32,7 @@ namespace aram {
 		/** Combobox where to select active channel for receiving input for recording.
 		 */
 		class ReceivingChannelBox : public Gtk::VBox {
+
 			struct Model : public Gtk::TreeModel::ColumnRecord {
 				Model();
 				Gtk::TreeModelColumn<Glib::ustring> channelId;
@@ -79,16 +80,93 @@ namespace aram {
 			void onRecordButtonClicked();
 		};
 
+		class ApplicationMenu : public Gtk::HBox {
+		public:
+			ApplicationMenu();
+
+		private:
+			Gtk::Button undo;
+			Gtk::Button prefs;
+			Gtk::Button help;
+
+			void onUndoClicked();
+		};
+
+		class ProjectMenu : public Gtk::HBox {
+		public:
+			ProjectMenu();
+
+		private:
+			Gtk::Button create;
+			Gtk::Button open;
+			Gtk::Button edit;
+			Gtk::Label stats;
+		};
+
+		class AudioclipMenu : public Gtk::HBox {
+		public:
+			AudioclipMenu();
+
+		private:
+			Gtk::Button create;
+			Gtk::Button open;
+			Gtk::Button edit;
+			Gtk::Label stats;
+		};
+
+		class Navigator : public Gtk::HBox {
+		public:
+			Navigator();
+		private:
+			Gtk::Button start;
+			Gtk::Button rewind;
+			Gtk::Button backpedal;
+			Gtk::Button forward;
+			Gtk::Button fastforward;
+			Gtk::Button end;
+		};
+
+		class AudioclipView : public Gtk::Grid {
+		public:
+		private:	
+			Gtk::ToggleButton record;
+			Gtk::Button mark;
+			Gtk::Button unmark;
+			Gtk::Button markstatus;
+			Gtk::Label counter;
+			Navigator navigator;
+			Gtk::Button trimFront;
+			Gtk::Button trimBack;
+			Gtk::Button loopSolo;
+			Gtk::Button assign;
+			Gtk::Button unassign;
+		};
+		
+		class ProjectView : public Gtk::Grid {
+		public:
+		private:	
+		};
+
 		/**
 		 * The main window
 		 */
 		class Window : public Gtk::Window {
-			CommandContainer commandContainer;
+			Gtk::VBox frames;
+			Gtk::Frame menuFrame;
+			Gtk::VBox menuSections;
+			Gtk::HBox menuSection1;
+			Gtk::HBox menuSection2;
+			ApplicationMenu applicationMenu;
+			ProjectMenu projectMenu;
+			AudioclipMenu audioclipMenu;
+			Gtk::Frame bodyFrame;
+			Gtk::HBox bodySections;
+			AudioclipView audioclipView;
+			ProjectView projectView;
 
 		public:
 			Window();
 		};
 	}
 }
-
 #endif

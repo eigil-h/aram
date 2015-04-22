@@ -38,19 +38,138 @@ aram::gui::Window::Window() {
 	try {
 		cssProvider->load_from_path("style.css");
 
-		set_default_size(800, 200);
-		shared_ptr<Project> project = Project::retrieveCurrent();
-		set_title("Audio Recorder And Music : " + project->name() + " @ " + to_string(project->sampleRate()) + "Hz");
+		set_default_size(800, 600);
+		set_title("Audio Recorder And Music");
 		set_position(Gtk::WindowPosition::WIN_POS_CENTER);
 
-		add(commandContainer);
-
+		menuSection1.pack_start(projectMenu);
+		menuSections.pack_start(menuSection1);
+		menuSection2.pack_start(audioclipMenu);
+		menuSection2.pack_start(applicationMenu);
+		menuSections.pack_start(menuSection2);
+		menuFrame.add(menuSections);
+		frames.pack_start(menuFrame);
+		bodySections.pack_start(audioclipView);
+		bodySections.pack_start(projectView);
+		bodyFrame.add(bodySections);
+		frames.pack_start(bodyFrame);
+		add(frames);
 		show_all_children();
 
 	} catch (const Glib::Error& e) {
 		throw std::runtime_error(e.what());
 	}
 }
+
+static Gtk::Image* getStockImage(const Gtk::StockID& stockId) {
+	Gtk::Image* img = Gtk::manage(new Gtk::Image(stockId,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	img->show();
+	return img;
+}
+
+aram::gui::ProjectMenu::ProjectMenu() {
+	create.set_image(*getStockImage(Gtk::Stock::NEW));
+
+	Gtk::Image* openImage = Gtk::manage(new Gtk::Image(Gtk::Stock::OPEN,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	openImage->show();
+	open.set_image(*openImage);
+
+	Gtk::Image* editImage = Gtk::manage(new Gtk::Image(Gtk::Stock::EDIT,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	editImage->show();
+	edit.set_image(*editImage);
+
+	shared_ptr<Project> project = Project::retrieveCurrent();
+	stats.set_text(project->name() + " @ " + to_string(project->sampleRate()) + "Hz");
+
+	pack_start(create);
+	pack_start(open);
+	pack_start(edit);
+	pack_start(stats);
+}
+
+aram::gui::AudioclipMenu::AudioclipMenu() {
+	Gtk::Image* createImage = Gtk::manage(new Gtk::Image(Gtk::Stock::NEW,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	createImage->show();
+	create.set_image(*createImage);
+
+	Gtk::Image* openImage = Gtk::manage(new Gtk::Image(Gtk::Stock::OPEN,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	openImage->show();
+	open.set_image(*openImage);
+
+	Gtk::Image* editImage = Gtk::manage(new Gtk::Image(Gtk::Stock::EDIT,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	editImage->show();
+	edit.set_image(*editImage);
+
+	stats.set_text("Audioclip stats");
+
+	pack_start(stats);
+	pack_start(create);
+	pack_start(open);
+	pack_start(edit);
+}
+
+aram::gui::ApplicationMenu::ApplicationMenu() {
+	Gtk::Image* undoImage = Gtk::manage(new Gtk::Image(Gtk::Stock::UNDO,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	undoImage->show();
+	undo.set_image(*undoImage);
+
+	Gtk::Image* prefsImage = Gtk::manage(new Gtk::Image(Gtk::Stock::PREFERENCES,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	prefsImage->show();
+	prefs.set_image(*prefsImage);
+
+	Gtk::Image* helpImage = Gtk::manage(new Gtk::Image(Gtk::Stock::HELP,
+					Gtk::BuiltinIconSize::ICON_SIZE_BUTTON));
+	helpImage->show();
+	help.set_image(*helpImage);
+
+	pack_start(undo);
+	pack_start(prefs);
+	pack_start(help);
+}
+
+aram::gui::Navigator::Navigator() {
+	start.set_label("|<");
+	rewind.set_image(*getStockImage(Gtk::Stock::MEDIA_REWIND));
+	backpedal.set_image(*getStockImage(Gtk::Stock::MEDIA_PREVIOUS));
+	forward.set_image(*getStockImage(Gtk::Stock::MEDIA_NEXT));
+	fastforward.set_image(*getStockImage(Gtk::Stock::MEDIA_FORWARD));
+	end.set_image(*getStockImage(Gtk::Stock::MEDIA_STOP));
+	
+	pack_start(start);
+	pack_start(rewind);
+	pack_start(backpedal);
+	pack_start(forward);
+	pack_start(fastforward);
+	pack_start(end);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
  * Command container
