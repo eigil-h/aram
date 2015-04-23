@@ -157,6 +157,7 @@ namespace aram {
 			void onCreate();
 			void onOpen();
 			void onEdit();
+			void onStatsChanged();
 		};
 
 		class AudioclipMenu : public Gtk::HBox {

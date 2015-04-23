@@ -19,6 +19,7 @@
 #include "window.h"
 #include <iostream>
 #include "../service/audioengine.h"
+#include "../service/controller.h"
 #include "../model/project.h"
 #include "../easylogging++.h"
 
@@ -78,6 +79,12 @@ aram::gui::ProjectMenu::ProjectMenu() {
 	create.signal_clicked().connect(sigc::mem_fun(this, &ProjectMenu::onCreate));
 	open.signal_clicked().connect(sigc::mem_fun(this, &ProjectMenu::onOpen));
 	edit.signal_clicked().connect(sigc::mem_fun(this, &ProjectMenu::onEdit));
+	
+	Controller::getInstance().anotherProjectSelected.connect(
+					sigc::mem_fun(this, &ProjectMenu::onStatsChanged));
+
+	Controller::getInstance().projectEdited.connect(
+					sigc::mem_fun(this, &ProjectMenu::onStatsChanged));
 
 	pack_start(create);
 	pack_start(open);
@@ -96,7 +103,8 @@ void aram::gui::ProjectMenu::onCreate() {
 				project = Project::createNew();
 				project->rename(dialog.name());
 				Project::setCurrent(project);
-				LOG(INFO) << "New project \"" << dialog.name() << "\" created.";
+				Controller::getInstance().anotherProjectSelected();
+				LOG(INFO) << "New project \"" << dialog.name() << "\" created and selected.";
 			} else {
 				LOG(DEBUG) << "RESPONSE_OK with same name";
 			}
@@ -121,6 +129,7 @@ void aram::gui::ProjectMenu::onOpen() {
 			if(dialog.selectedId() != project->id()) {
 				project = Project::retrieveById(dialog.selectedId());
 				Project::setCurrent(project);
+				Controller::getInstance().anotherProjectSelected();
 				LOG(INFO) << "\"" << project->name() << "\" selected.";
 			} else {
 				LOG(DEBUG) << "RESPONSE_OK with same name";
@@ -146,6 +155,7 @@ void aram::gui::ProjectMenu::onEdit() {
 			if (dialog.name() != project->name()) {
 				string oldname = project->name();
 				project->rename(dialog.name());
+				Controller::getInstance().projectEdited();
 				LOG(INFO) << "\"" << oldname << "\" renamed to \"" << dialog.name() << "\"";
 			} else {
 				LOG(DEBUG) << "RESPONSE_OK with same name";
@@ -160,6 +170,12 @@ void aram::gui::ProjectMenu::onEdit() {
 			LOG(WARNING) << result;
 	}
 }
+
+void aram::gui::ProjectMenu::onStatsChanged() {
+	shared_ptr<Project> project = Project::retrieveCurrent();
+	stats.set_text(project->name() + " @ " + to_string(project->sampleRate()) + "Hz");
+}
+
 
 aram::gui::AudioclipMenu::AudioclipMenu() {
 	create.set_image(*getStockImage(Gtk::Stock::NEW));
