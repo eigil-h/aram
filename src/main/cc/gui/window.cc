@@ -93,9 +93,9 @@ void aram::gui::ProjectMenu::onCreate() {
 	switch (result) {
 		case Gtk::RESPONSE_OK: {
 			if (dialog.name() != project->name()) {
-				Project::createNew();
-				project = Project::retrieveCurrent();
+				project = Project::createNew();
 				project->rename(dialog.name());
+				Project::setCurrent(project);
 				LOG(INFO) << "New project \"" << dialog.name() << "\" created.";
 			} else {
 				LOG(DEBUG) << "RESPONSE_OK with same name";
@@ -119,7 +119,9 @@ void aram::gui::ProjectMenu::onOpen() {
 	switch (result) {
 		case Gtk::RESPONSE_OK: {
 			if(dialog.selectedId() != project->id()) {
-				LOG(INFO) << "RESPONSE_OK, but implementation is missing";
+				project = Project::retrieveById(dialog.selectedId());
+				Project::setCurrent(project);
+				LOG(INFO) << "\"" << project->name() << "\" selected.";
 			} else {
 				LOG(DEBUG) << "RESPONSE_OK with same name";
 			}

@@ -134,7 +134,7 @@ set<aram::model::Project> aram::model::Project::findAll() {
 	}
 }
 
-void aram::model::Project::createNew() {
+shared_ptr<aram::model::Project> aram::model::Project::createNew() {
 	try {
 		Database& db = Database::getInstance();
 		transaction t(db->begin());
@@ -150,6 +150,7 @@ void aram::model::Project::createNew() {
 		db->persist(p);
 
 		t.commit();
+		return p;
 	} catch (const odb::exception& e) {
 		throw runtime_error(e.what());
 	}
@@ -159,6 +160,13 @@ shared_ptr<aram::model::Project> aram::model::Project::retrieveCurrent() {
 	Application app;
 	app.load();
 	return app.project();
+}
+
+void aram::model::Project::setCurrent(shared_ptr<Project> project) {
+	Application app;
+	app.load();
+	app.selectProject(project->id());
+	
 }
 
 shared_ptr<aram::model::Project> aram::model::Project::retrieveById(const string& projectId) {

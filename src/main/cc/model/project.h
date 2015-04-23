@@ -75,7 +75,8 @@ namespace aram {
 			void rename(const string& newName);
 
 			static set<Project> findAll();
-			static void createNew();
+			static shared_ptr<Project> createNew();
+			static void setCurrent(shared_ptr<Project> project);
 			static shared_ptr<Project> retrieveCurrent();
 			static shared_ptr<Project> retrieveById(const string& id);
 		};
