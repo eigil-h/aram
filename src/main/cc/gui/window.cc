@@ -75,10 +75,88 @@ aram::gui::ProjectMenu::ProjectMenu() {
 	shared_ptr<Project> project = Project::retrieveCurrent();
 	stats.set_text(project->name() + " @ " + to_string(project->sampleRate()) + "Hz");
 
+	create.signal_clicked().connect(sigc::mem_fun(this, &ProjectMenu::onCreate));
+	open.signal_clicked().connect(sigc::mem_fun(this, &ProjectMenu::onOpen));
+	edit.signal_clicked().connect(sigc::mem_fun(this, &ProjectMenu::onEdit));
+
 	pack_start(create);
 	pack_start(open);
 	pack_start(edit);
 	pack_start(stats);
+}
+
+void aram::gui::ProjectMenu::onCreate() {
+	shared_ptr<Project> project = Project::retrieveCurrent();
+
+	EditDialog dialog("Create a new project", project->name());
+	int result = dialog.run();
+	switch (result) {
+		case Gtk::RESPONSE_OK: {
+			if (dialog.name() != project->name()) {
+				Project::createNew();
+				project = Project::retrieveCurrent();
+				project->rename(dialog.name());
+				LOG(INFO) << "New project \"" << dialog.name() << "\" created.";
+			} else {
+				LOG(DEBUG) << "RESPONSE_OK with same name";
+			}
+			break;
+		}
+		case Gtk::RESPONSE_CANCEL:
+		case Gtk::RESPONSE_DELETE_EVENT:
+			LOG(DEBUG) << "RESPONSE_CANCEL or RESPONSE_DELETE_EVENT";
+			break;
+		default:
+			LOG(WARNING) << result;
+	}
+}
+
+void aram::gui::ProjectMenu::onOpen() {
+	shared_ptr<Project> project = Project::retrieveCurrent();
+
+	OpenDialog dialog("Open a project");
+	int result = dialog.run();
+	switch (result) {
+		case Gtk::RESPONSE_OK: {
+			if(dialog.selectedId() != project->id()) {
+				LOG(INFO) << "RESPONSE_OK, but implementation is missing";
+			} else {
+				LOG(DEBUG) << "RESPONSE_OK with same name";
+			}
+			break;
+		}
+		case Gtk::RESPONSE_CANCEL:
+		case Gtk::RESPONSE_DELETE_EVENT:
+			LOG(DEBUG) << "RESPONSE_CANCEL or RESPONSE_DELETE_EVENT";
+			break;
+		default:
+			LOG(WARNING) << result;
+	}
+}
+
+void aram::gui::ProjectMenu::onEdit() {
+	shared_ptr<Project> project = Project::retrieveCurrent();
+
+	EditDialog dialog("Edit the project", project->name());
+	int result = dialog.run();
+	switch (result) {
+		case Gtk::RESPONSE_OK: {
+			if (dialog.name() != project->name()) {
+				string oldname = project->name();
+				project->rename(dialog.name());
+				LOG(INFO) << "\"" << oldname << "\" renamed to \"" << dialog.name() << "\"";
+			} else {
+				LOG(DEBUG) << "RESPONSE_OK with same name";
+			}
+			break;
+		}
+		case Gtk::RESPONSE_CANCEL:
+		case Gtk::RESPONSE_DELETE_EVENT:
+			LOG(DEBUG) << "RESPONSE_CANCEL or RESPONSE_DELETE_EVENT";
+			break;
+		default:
+			LOG(WARNING) << result;
+	}
 }
 
 aram::gui::AudioclipMenu::AudioclipMenu() {
@@ -110,7 +188,7 @@ aram::gui::Navigator::Navigator() {
 	forward.set_image(*getStockImage(Gtk::Stock::GO_FORWARD));
 	fastforward.set_image(*getStockImage(Gtk::Stock::MEDIA_FORWARD));
 	end.set_image(*getStockImage(Gtk::Stock::MEDIA_NEXT));
-	
+
 	pack_start(start);
 	pack_start(rewind);
 	pack_start(backpedal);
@@ -144,13 +222,12 @@ aram::gui::AudioclipView::AudioclipView() {
 	attach(unassign, 2, 8, 2, 1);
 }
 
-
 aram::gui::ProjectView::ProjectView() {
 	counter.set_label("0 / 0");
 	play.set_image(*getStockImage(Gtk::Stock::MEDIA_PLAY));
 	loop.set_label("Loop");
 	addChannel.set_label("Add channel");
-	
+
 	attach(counter, 0, 0, 2, 2);
 	attach(navigator, 2, 0, 4, 2);
 	attach(play, 0, 2, 2, 4);
@@ -158,6 +235,66 @@ aram::gui::ProjectView::ProjectView() {
 	attach(loop, 0, 6, 2, 1);
 	attach(addChannel, 0, 11, 2, 1);
 }
+
+aram::gui::ModelDialog::ModelDialog(const string& title) : Gtk::Dialog(title, true) {
+	add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
+	add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+}
+
+void aram::gui::ModelDialog::onActivateResponseOK() {
+	response(Gtk::RESPONSE_OK);
+}
+
+aram::gui::OpenDialog::OpenDialog(const string& title) : ModelDialog(title) {
+	list.set_model((listModelRef = Gtk::ListStore::create(listModel)));
+	set<Project> projects = Project::findAll();
+	for (Project p : projects) {
+		Gtk::TreeModel::Row row = *(listModelRef->append());
+		row[listModel.id] = p.id();
+		row[listModel.name] = p.name();
+	}
+	list.append_column("Name", listModel.name);
+	get_content_area()->pack_start(list);
+	show_all();
+}
+
+aram::gui::OpenDialog::Model::Model() {
+	add(id);
+	add(name);
+}
+
+string aram::gui::OpenDialog::selectedId() {
+	Glib::RefPtr<Gtk::TreeView::Selection> selection = list.get_selection();
+	if (selection) {
+		Gtk::TreeModel::iterator itr = selection->get_selected();
+		if(itr) {
+			Glib::ustring selectedId = (*itr)[listModel.id];
+			return selectedId;
+		}
+	}
+	return "";
+}
+
+aram::gui::EditDialog::EditDialog(const string& title, const string& name) :
+			ModelDialog(title), renameLabel("New name") {
+	renameEntry.set_text(name);
+	renameEntry.select_region(0, name.length());
+	renameEntry.signal_activate().connect(sigc::mem_fun(this, &EditDialog::onActivateResponseOK));
+
+	renameBox.pack_start(renameLabel);
+	renameBox.pack_start(renameEntry);
+	get_content_area()->pack_start(renameBox);
+	show_all();
+}
+
+string aram::gui::EditDialog::name() const {
+	return renameEntry.get_text();
+}
+
+
+
+
+
 
 
 
@@ -207,7 +344,7 @@ combo(true) {
 
 	combo.set_model((comboModelRef = Gtk::ListStore::create(comboModel)));
 
-	list<shared_ptr<Channel>> channels = Project::retrieveCurrent()->channels();
+	list<shared_ptr < Channel>> channels = Project::retrieveCurrent()->channels();
 	for (shared_ptr<Channel> ch : channels) {
 		Gtk::TreeModel::Row row = *(comboModelRef->append());
 		row[comboModel.channelId] = ch->id();
@@ -361,7 +498,7 @@ bool aram::gui::ReceivingChannelBox::onFocusLost(GdkEventFocus* event) {
 			Gtk::TreeModel::Row row = *itr;
 			activeRow = row;
 			LOG(INFO) << "  " << row[comboModel.channelName];
-		} else if(activeRow) {
+		} else if (activeRow) {
 			Gtk::TreeModel::Row row = activeRow;
 			row[comboModel.channelName] = entry->get_text();
 		} else {

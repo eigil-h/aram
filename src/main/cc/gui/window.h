@@ -80,6 +80,58 @@ namespace aram {
 			void onRecordButtonClicked();
 		};
 
+
+
+
+
+
+
+
+
+
+
+
+
+		class ModelDialog : public Gtk::Dialog {
+		public:
+			ModelDialog(const string& title);
+
+		protected:
+			void onActivateResponseOK();
+		};
+
+		/** Let user select a project or audioclip.
+		 */
+		class OpenDialog : public ModelDialog {
+
+			struct Model : public Gtk::TreeModel::ColumnRecord {
+				Model();
+				Gtk::TreeModelColumn<Glib::ustring> id;
+				Gtk::TreeModelColumn<Glib::ustring> name;
+			};
+		public:
+			OpenDialog(const string& title);
+			string selectedId();
+
+		private:
+			Gtk::TreeView list;
+			Model listModel;
+			Glib::RefPtr<Gtk::ListStore> listModelRef;
+		};
+
+		/** Let user edit a project or audioclip. Eg rename.
+		 */
+		class EditDialog : public ModelDialog {
+		public:
+			EditDialog(const string& title, const string& name);
+			string name() const;
+
+		private:
+			Gtk::HBox renameBox;
+			Gtk::Label renameLabel;
+			Gtk::Entry renameEntry;
+		};
+
 		class ApplicationMenu : public Gtk::HBox {
 		public:
 			ApplicationMenu();
@@ -101,6 +153,10 @@ namespace aram {
 			Gtk::Button open;
 			Gtk::Button edit;
 			Gtk::Label stats;
+
+			void onCreate();
+			void onOpen();
+			void onEdit();
 		};
 
 		class AudioclipMenu : public Gtk::HBox {
@@ -129,7 +185,7 @@ namespace aram {
 		class AudioclipView : public Gtk::Grid {
 		public:
 			AudioclipView();
-		private:	
+		private:
 			Gtk::ToggleButton record;
 			Gtk::Button mark;
 			Gtk::Button unmark;
@@ -142,12 +198,12 @@ namespace aram {
 			Gtk::Button assign;
 			Gtk::Button unassign;
 		};
-		
+
 		class ChannelView : public Gtk::TreeView {
 		public:
 		private:
 		};
-		
+
 		class ProjectView : public Gtk::Grid {
 		public:
 			ProjectView();
