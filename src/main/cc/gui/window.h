@@ -29,69 +29,6 @@ namespace aram {
 	 */
 	namespace gui {
 
-		/** Combobox where to select active channel for receiving input for recording.
-		 */
-		class ReceivingChannelBox : public Gtk::VBox {
-
-			struct Model : public Gtk::TreeModel::ColumnRecord {
-				Model();
-				Gtk::TreeModelColumn<Glib::ustring> channelId;
-				Gtk::TreeModelColumn<Glib::ustring> channelName;
-			};
-		public:
-			ReceivingChannelBox();
-			~ReceivingChannelBox();
-
-			Glib::ustring channelId() const;
-
-		private:
-			Gtk::TreeModel::Row activeRow;
-			sigc::connection focusGainedConnection;
-			sigc::connection focusLostConnection;
-			Gtk::ComboBox combo;
-			Model comboModel;
-			Glib::RefPtr<Gtk::ListStore> comboModelRef;
-
-			Gtk::HBox buttonBox;
-			Gtk::Button addButton;
-			Gtk::Button removeButton;
-
-			void onSelected();
-			void onActivated();
-			bool onFocusGained(GdkEventFocus* event);
-			bool onFocusLost(GdkEventFocus* event);
-			void onAddChannel();
-			void onRemoveChannel();
-		};
-
-		/** 
-		 * The most used/useful commands at your fingertips.
-		 */
-		class CommandContainer : public Gtk::HBox {
-		public:
-			CommandContainer();
-
-		private:
-			Gtk::ToggleButton playButton;
-			Gtk::ToggleButton recordButton;
-			ReceivingChannelBox channelBox;
-
-			void onPlayButtonClicked();
-			void onRecordButtonClicked();
-		};
-
-
-
-
-
-
-
-
-
-
-
-
-
 		class ModelDialog : public Gtk::Dialog {
 		public:
 			ModelDialog(const string& title);
