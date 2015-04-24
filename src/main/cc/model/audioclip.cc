@@ -72,7 +72,12 @@ const unsigned& aram::model::Audioclip::sampleRate() const {
 	return sampleRate_;
 }
 
-void aram::model::Audioclip::createNew() {
+aram::model::OrderedAudioclipSet aram::model::Audioclip::findAll() {
+	shared_ptr<Project> project = Project::retrieveCurrent();
+	return project->audioclips();
+}
+
+shared_ptr<aram::model::Audioclip> aram::model::Audioclip::createNew() {
 	shared_ptr<Project> project = Project::retrieveCurrent();
 
 	try {
@@ -87,9 +92,31 @@ void aram::model::Audioclip::createNew() {
 		db->update(project);
 
 		t.commit();
+
+		return audioclip;
 	} catch (const odb::exception& e) {
 		throw runtime_error(e.what());
 	}
+}
+void aram::model::Audioclip::setCurrent(shared_ptr<Audioclip> ac) {
+	shared_ptr<Project> project = Project::retrieveCurrent();
+	project->audioclip(ac);
+
+	try {
+		Database& db = Database::getInstance();
+		transaction t(db->begin());
+
+		db->update(*project);
+
+		t.commit();
+	} catch (const odb::exception& e) {
+		throw runtime_error(e.what());
+	}
+}
+
+shared_ptr<aram::model::Audioclip> aram::model::Audioclip::retrieveCurrent() {
+	shared_ptr<Project> project = Project::retrieveCurrent();
+	return project->audioclip();
 }
 
 shared_ptr<aram::model::Audioclip> aram::model::Audioclip::retrieveById(const string& audioclipId) {
@@ -129,7 +156,7 @@ void aram::model::Audioclip::rename(const string& newName) {
 }
 
 
-bool aram::model::Audioclip::Less::operator() (const shared_ptr<Audioclip>& a, const shared_ptr<Audioclip>& b) {
+bool aram::model::AcLess::operator() (const shared_ptr<Audioclip>& a, const shared_ptr<Audioclip>& b) {
 	return (*a) < (*b);
 }
 

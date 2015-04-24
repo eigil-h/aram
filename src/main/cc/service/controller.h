@@ -32,6 +32,8 @@ namespace aram {
 
 			sigc::signal<void> projectEdited;
 			sigc::signal<void> anotherProjectSelected;
+			sigc::signal<void> audioclipEdited;
+			sigc::signal<void> anotherAudioclipSelected;
 		private:
 		};
 	}

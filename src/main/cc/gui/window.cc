@@ -122,7 +122,7 @@ void aram::gui::ProjectMenu::onCreate() {
 void aram::gui::ProjectMenu::onOpen() {
 	shared_ptr<Project> project = Project::retrieveCurrent();
 
-	OpenDialog dialog("Open a project");
+	OpenProjectDialog dialog;
 	int result = dialog.run();
 	switch (result) {
 		case Gtk::RESPONSE_OK: {
@@ -181,12 +181,111 @@ aram::gui::AudioclipMenu::AudioclipMenu() {
 	create.set_image(*getStockImage(Gtk::Stock::NEW));
 	open.set_image(*getStockImage(Gtk::Stock::OPEN));
 	edit.set_image(*getStockImage(Gtk::Stock::EDIT));
-	stats.set_text("Audioclip stats");
+
+	shared_ptr<Audioclip> ac = Audioclip::retrieveCurrent();
+	stats.set_text(ac->name()); 
+
+	create.signal_clicked().connect(sigc::mem_fun(this, &AudioclipMenu::onCreate));
+	open.signal_clicked().connect(sigc::mem_fun(this, &AudioclipMenu::onOpen));
+	edit.signal_clicked().connect(sigc::mem_fun(this, &AudioclipMenu::onEdit));
+
+	Controller::getInstance().anotherAudioclipSelected.connect(
+					sigc::mem_fun(this, &AudioclipMenu::onStatsChanged));
+
+	Controller::getInstance().audioclipEdited.connect(
+					sigc::mem_fun(this, &AudioclipMenu::onStatsChanged));
 
 	pack_start(stats);
 	pack_start(create);
 	pack_start(open);
 	pack_start(edit);
+}
+
+void aram::gui::AudioclipMenu::onCreate() {
+	shared_ptr<Audioclip> audioclip = Audioclip::retrieveCurrent();
+
+	EditDialog dialog("Create a new audioclip", audioclip->name());
+	int result = dialog.run();
+	switch (result) {
+		case Gtk::RESPONSE_OK:
+		{
+			if (dialog.name() != audioclip->name()) {
+				audioclip = Audioclip::createNew();
+				audioclip->rename(dialog.name());
+				Audioclip::setCurrent(audioclip);
+				Controller::getInstance().anotherAudioclipSelected();
+				LOG(INFO) << "New audioclip \"" << dialog.name() << "\" created and selected.";
+			} else {
+				LOG(DEBUG) << "RESPONSE_OK with same name";
+			}
+			break;
+		}
+		case Gtk::RESPONSE_CANCEL:
+		case Gtk::RESPONSE_DELETE_EVENT:
+			LOG(DEBUG) << "RESPONSE_CANCEL or RESPONSE_DELETE_EVENT";
+			break;
+		default:
+			LOG(WARNING) << result;
+	}
+}
+
+void aram::gui::AudioclipMenu::onOpen() {
+	shared_ptr<Audioclip> audioclip = Audioclip::retrieveCurrent();
+
+	OpenAudioclipDialog dialog;
+	int result = dialog.run();
+	switch (result) {
+		case Gtk::RESPONSE_OK:
+		{
+			if (dialog.selectedId() != audioclip->id()) {
+				audioclip = Audioclip::retrieveById(dialog.selectedId());
+				Audioclip::setCurrent(audioclip);
+				Controller::getInstance().anotherAudioclipSelected();
+				LOG(INFO) << "\"" << audioclip->name() << "\" selected.";
+			} else {
+				LOG(DEBUG) << "RESPONSE_OK with same name";
+			}
+			break;
+		}
+		case Gtk::RESPONSE_CANCEL:
+		case Gtk::RESPONSE_DELETE_EVENT:
+			LOG(DEBUG) << "RESPONSE_CANCEL or RESPONSE_DELETE_EVENT";
+			break;
+		default:
+			LOG(WARNING) << result;
+	}
+}
+
+void aram::gui::AudioclipMenu::onEdit() {
+	shared_ptr<Audioclip> audioclip = Audioclip::retrieveCurrent();
+
+	EditDialog dialog("Edit the audioclip", audioclip->name());
+	int result = dialog.run();
+	switch (result) {
+		case Gtk::RESPONSE_OK:
+		{
+			if (dialog.name() != audioclip->name()) {
+				string oldname = audioclip->name();
+				audioclip->rename(dialog.name());
+				Controller::getInstance().audioclipEdited();
+				LOG(INFO) << "\"" << oldname << "\" renamed to \"" << dialog.name() << "\"";
+			} else {
+				LOG(DEBUG) << "RESPONSE_OK with same name";
+			}
+			break;
+		}
+		case Gtk::RESPONSE_CANCEL:
+		case Gtk::RESPONSE_DELETE_EVENT:
+			LOG(DEBUG) << "RESPONSE_CANCEL or RESPONSE_DELETE_EVENT";
+			break;
+		default:
+			LOG(WARNING) << result;
+	}
+}
+
+void aram::gui::AudioclipMenu::onStatsChanged() {
+	shared_ptr<Audioclip> ac = Audioclip::retrieveCurrent();
+	stats.set_text(ac->name());
 }
 
 aram::gui::ApplicationMenu::ApplicationMenu() {
@@ -265,11 +364,26 @@ void aram::gui::ModelDialog::onActivateResponseOK() {
 
 aram::gui::OpenDialog::OpenDialog(const string& title) : ModelDialog(title) {
 	list.set_model((listModelRef = Gtk::ListStore::create(listModel)));
+}
+
+aram::gui::OpenProjectDialog::OpenProjectDialog() : OpenDialog("Open a project") {
 	set<Project> projects = Project::findAll();
 	for (Project p : projects) {
 		Gtk::TreeModel::Row row = *(listModelRef->append());
 		row[listModel.id] = p.id();
 		row[listModel.name] = p.name();
+	}
+	list.append_column("Name", listModel.name);
+	get_content_area()->pack_start(list);
+	show_all();
+}
+
+aram::gui::OpenAudioclipDialog::OpenAudioclipDialog() : OpenDialog("Open an audioclip") {
+	OrderedAudioclipSet audioclips = Audioclip::findAll();
+	for (shared_ptr<Audioclip> ac : audioclips) {
+		Gtk::TreeModel::Row row = *(listModelRef->append());
+		row[listModel.id] = ac->id();
+		row[listModel.name] = ac->name();
 	}
 	list.append_column("Name", listModel.name);
 	get_content_area()->pack_start(list);

@@ -39,7 +39,9 @@ namespace aram {
 			string id_;
 			string name_;
 			#pragma db value_not_null
-			set<shared_ptr<Audioclip>, Audioclip::Less> audioclips_;
+			OrderedAudioclipSet audioclips_;
+			#pragma db not_null
+			shared_ptr<Audioclip> audioclip_;
 			#pragma db value_not_null
 			list<shared_ptr<Channel>> channels_;
 			unsigned frames_;
@@ -47,7 +49,7 @@ namespace aram {
 
 		public:
 			Project();
-			Project(const string& name, const shared_ptr<Channel>& ch);
+			Project(const string& name, const shared_ptr<Audioclip>& ac);
 			~Project();
 
 			bool operator==(const Project& other) const;
@@ -55,7 +57,9 @@ namespace aram {
 
 			const string& id() const;
 			const string& name() const;
-			const set<shared_ptr<Audioclip>, Audioclip::Less>& audioclips() const;
+			const OrderedAudioclipSet& audioclips() const;
+			const shared_ptr<Audioclip>& audioclip() const;
+			void audioclip(const shared_ptr<Audioclip> ac);
 			const list<shared_ptr<Channel>>& channels() const;
 			shared_ptr<Audioclip> findAudioclip(const string& id) const;
 			const unsigned& frames() const;

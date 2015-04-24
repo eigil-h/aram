@@ -106,10 +106,7 @@ void aram::service::Database::createApplication() {
 		shared_ptr<Audioclip> ac(new Audioclip("<new audioclip>"));
 		db_->persist(ac);
 
-		shared_ptr<Channel> ch(new Channel("<new channel>", ac));
-		db_->persist(ch);
-
-		shared_ptr<Project> p(new Project("<new project>", ch));
+		shared_ptr<Project> p(new Project("<new project>", ac));
 		db_->persist(p);
 
 		Application a("aram.application", p);

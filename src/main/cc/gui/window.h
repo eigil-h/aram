@@ -40,20 +40,30 @@ namespace aram {
 		/** Let user select a project or audioclip.
 		 */
 		class OpenDialog : public ModelDialog {
+		public:
+			OpenDialog(const string& title);
+			string selectedId();
 
+		protected:
 			struct Model : public Gtk::TreeModel::ColumnRecord {
 				Model();
 				Gtk::TreeModelColumn<Glib::ustring> id;
 				Gtk::TreeModelColumn<Glib::ustring> name;
 			};
-		public:
-			OpenDialog(const string& title);
-			string selectedId();
 
-		private:
 			Gtk::TreeView list;
 			Model listModel;
 			Glib::RefPtr<Gtk::ListStore> listModelRef;
+		};
+
+		class OpenProjectDialog : public OpenDialog {
+		public:
+			OpenProjectDialog();
+		};
+
+		class OpenAudioclipDialog : public OpenDialog {
+		public:
+			OpenAudioclipDialog();
 		};
 
 		/** Let user edit a project or audioclip. Eg rename.
@@ -106,6 +116,11 @@ namespace aram {
 			Gtk::Button open;
 			Gtk::Button edit;
 			Gtk::Label stats;
+
+			void onCreate();
+			void onOpen();
+			void onEdit();
+			void onStatsChanged();
 		};
 
 		class Navigator : public Gtk::HBox {

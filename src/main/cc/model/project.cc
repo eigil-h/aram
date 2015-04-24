@@ -34,10 +34,9 @@ using namespace aram::service;
 aram::model::Project::Project() {
 }
 
-aram::model::Project::Project(const string& n, const shared_ptr<Channel>& ch) :
-id_(aram::service::Database::generateId()), name_(n), frames_(0), sampleRate_(22049) {
-	channels_.push_front(ch);
-	audioclips_.insert(ch->firstAudioclip());
+aram::model::Project::Project(const string& n, const shared_ptr<Audioclip>& ac) :
+id_(aram::service::Database::generateId()), name_(n), frames_(0), sampleRate_(22049), audioclip_(ac) {
+	audioclips_.insert(ac);
 }
 
 aram::model::Project::~Project() {
@@ -59,9 +58,16 @@ const string& aram::model::Project::name() const {
 	return name_;
 }
 
-const set<shared_ptr<aram::model::Audioclip>, aram::model::Audioclip::Less>& 
-				aram::model::Project::audioclips() const {
+const aram::model::OrderedAudioclipSet& aram::model::Project::audioclips() const {
 	return audioclips_;
+}
+
+const shared_ptr<aram::model::Audioclip>& aram::model::Project::audioclip() const {
+	return audioclip_;
+}
+
+void aram::model::Project::audioclip(const shared_ptr<Audioclip> ac) {
+	audioclip_ = ac;
 }
 
 const list<shared_ptr<aram::model::Channel>>& aram::model::Project::channels() const {
@@ -139,14 +145,10 @@ shared_ptr<aram::model::Project> aram::model::Project::createNew() {
 		Database& db = Database::getInstance();
 		transaction t(db->begin());
 
-		//todo, test with unique_ptr
 		shared_ptr<Audioclip> ac(new Audioclip("<new audioclip>"));
 		db->persist(ac);
 
-		shared_ptr<Channel> ch(new Channel("<new channel>", ac));
-		db->persist(ch);
-
-		shared_ptr<Project> p(new Project("<new project>", ch));
+		shared_ptr<Project> p(new Project("<new project>", ac));
 		db->persist(p);
 
 		t.commit();
@@ -166,7 +168,6 @@ void aram::model::Project::setCurrent(shared_ptr<Project> project) {
 	Application app;
 	app.load();
 	app.selectProject(project->id());
-	
 }
 
 shared_ptr<aram::model::Project> aram::model::Project::retrieveById(const string& projectId) {

@@ -22,6 +22,7 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <set>
 #include <cstdint>
 #include <odb/core.hxx>
 #include "../service/types.h"
@@ -32,6 +33,13 @@ namespace aram {
 	using namespace service;
 
 	namespace model {
+		class Audioclip;
+
+		struct AcLess {
+			bool operator()(const shared_ptr<Audioclip>& a, const shared_ptr<Audioclip>& b);
+		};
+
+		typedef set<shared_ptr<Audioclip>, AcLess> OrderedAudioclipSet;
 
 		#pragma db object pointer(std::shared_ptr)
 		class Audioclip {
@@ -59,12 +67,12 @@ namespace aram {
 
 			void rename(const string& newName);
 
-			static void createNew();
+			static OrderedAudioclipSet findAll();
+			static shared_ptr<Audioclip> createNew();
+			static void setCurrent(shared_ptr<Audioclip> audioclip);
+			static shared_ptr<Audioclip> retrieveCurrent();
 			static shared_ptr<Audioclip> retrieveById(const string& id);
 
-			struct Less {
-				bool operator() (const shared_ptr<Audioclip>& a, const shared_ptr<Audioclip>& b);
-			};
 		};
 
 
