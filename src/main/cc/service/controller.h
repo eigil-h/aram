@@ -19,7 +19,6 @@
 #ifndef ARAM_CONTROLLER_H
 #define ARAM_CONTROLLER_H
 
-#include <iostream>
 #include <sigc++/sigc++.h>
 
 using namespace std;
