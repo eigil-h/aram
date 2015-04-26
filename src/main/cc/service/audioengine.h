@@ -76,6 +76,18 @@ namespace aram {
 			string channel;
 		};
 
+		class AudioEngineSignals {
+		public:
+			static AudioEngineSignals& getInstance();
+
+			sigc::signal<void, unsigned> frameReadySignal;
+			sigc::signal<void> xRunSignal;
+			sigc::signal<void, unsigned> sampleRateChangeSignal;
+			sigc::signal<void, PlaybackPos> playbackPosChangeSignal;
+			sigc::signal<void> shutdownSignal;
+			sigc::signal<void, const char*> errorSignal;
+		};
+
 		/**
 		 * Abstract audio engine with concrete signal storage.
 		 * Subclasses make real representation of audio engines like JACK.
@@ -89,19 +101,7 @@ namespace aram {
 		public:
 			static AudioEngine& getInstance();
 
-			sigc::signal<void, unsigned> frameReadySignal;
-			sigc::signal<void> xRunSignal;
-			sigc::signal<void, unsigned> sampleRateChangeSignal;
-			sigc::signal<void, PlaybackPos> playbackPosChangeSignal;
-			sigc::signal<void> shutdownSignal;
-			sigc::signal<void, const char*> errorSignal;
-
 			bool playback;
-
-			//jack callbacks are using getInstance for setting the signals,
-			//so we can't call jack_set_sample_rate_callback from the constructor.
-			//Instead we call it from this one.
-			virtual void init() = 0;
 
 			virtual ~AudioEngine();
 
@@ -141,8 +141,6 @@ namespace aram {
 			JackAdaptedAudioEngine();
 			~JackAdaptedAudioEngine();
 
-			void init();
-
 		private:
 			jack_client_t* jackClient;
 			JackStereoPort physicalInputPort;
@@ -159,8 +157,6 @@ namespace aram {
 		public:
 			SilenceAdaptedAudioEngine();
 			~SilenceAdaptedAudioEngine();
-
-			void init();
 
 		private:
 			thread mainTurboThread;

@@ -92,6 +92,13 @@ void aram::service::AudioEngine::disarmChannel() {
 	recorder.reset();
 }
 
+/*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
+ * AudioEngineSignals
+ */
+aram::service::AudioEngineSignals& aram::service::AudioEngineSignals::getInstance() {
+	static AudioEngineSignals instance;
+	return instance;
+}
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Recorder
@@ -164,37 +171,34 @@ void aram::service::ChannelPlayer::setPosition(PlaybackPos pos) {
  * Jack adapted audio engine
  */
 static int onFrameReadyJackFun(uint32_t frameCount, void* ignore) {
-	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
-	audioEngine.frameReadySignal(frameCount);
+	aram::service::AudioEngineSignals& signals = aram::service::AudioEngineSignals::getInstance();
+	signals.frameReadySignal(frameCount);
 	return JACK_CALLBACK_SUCCESS;
 }
 
 static int onXRunJackFun(void* ignore) {
-	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
-	audioEngine.xRunSignal();
+	aram::service::AudioEngineSignals& signals = aram::service::AudioEngineSignals::getInstance();
+	signals.xRunSignal();
 	return JACK_CALLBACK_SUCCESS;
 }
 
 static int onSampleRateChangeJackFun(unsigned sampleRate, void* ignore) {
-	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
-	audioEngine.sampleRateChangeSignal(sampleRate);
+	aram::service::AudioEngineSignals& signals = aram::service::AudioEngineSignals::getInstance();
+	signals.sampleRateChangeSignal(sampleRate);
 	return JACK_CALLBACK_SUCCESS;
 }
 
 static void onShutdownJackFun(void* ignore) {
-	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
-	audioEngine.shutdownSignal();
+	aram::service::AudioEngineSignals& signals = aram::service::AudioEngineSignals::getInstance();
+	signals.shutdownSignal();
 }
 
 static void onErrorJackFun(const char* msg) {
-	aram::service::AudioEngine& audioEngine = aram::service::AudioEngine::getInstance();
-	audioEngine.errorSignal(msg);
+	aram::service::AudioEngineSignals& signals = aram::service::AudioEngineSignals::getInstance();
+	signals.errorSignal(msg);
 }
 
 aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
-}
-
-void aram::service::JackAdaptedAudioEngine::init() {
 	jack_set_error_function(onErrorJackFun);
 
 	jack_status_t status;
@@ -219,9 +223,12 @@ void aram::service::JackAdaptedAudioEngine::init() {
 	physicalInputPort.connectPhysicalPort(jackClient, DIRECTION_INPUT);
 	physicalOutputPort.connectPhysicalPort(jackClient, DIRECTION_OUTPUT);
 
-	frameReadySignal.connect(sigc::mem_fun(this, &JackAdaptedAudioEngine::onFrameReady));
-	playbackPosChangeSignal.connect(sigc::mem_fun(this, &JackAdaptedAudioEngine::onPlaybackPositionChange));
+	AudioEngineSignals& signals = AudioEngineSignals::getInstance();
+
+	signals.frameReadySignal.connect(sigc::mem_fun(this, &JackAdaptedAudioEngine::onFrameReady));
+	signals.playbackPosChangeSignal.connect(sigc::mem_fun(this, &JackAdaptedAudioEngine::onPlaybackPositionChange));
 }
+
 
 aram::service::JackAdaptedAudioEngine::~JackAdaptedAudioEngine() {
 	if (jackClient != nullptr) {
@@ -253,11 +260,13 @@ void aram::service::JackAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 			channel.second->playback(leftPortOut, rightPortOut, frameCount);
 		});
 
-		playbackPosChangeSignal(pos_ + frameCount);
+		AudioEngineSignals& signals = AudioEngineSignals::getInstance();
+
+		signals.playbackPosChangeSignal(pos_ + frameCount);
 
 		if (recorder.get() != nullptr) {
 			if(!recorder->record(leftIn, rightIn, frameCount)) {
-				xRunSignal(); //todo - maybe a parameter to explain it's not really an xrun...?
+				signals.xRunSignal(); //todo - maybe a parameter to explain it's not really an xrun...?
 			}
 		}
 	}
@@ -271,11 +280,11 @@ aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() :
 				running(true), frameCountRecording(0),
 				frameCountTotal(0) {
 	LOG(INFO) << "Constructing the Silence Adapted Audio Engine";
-}
 
-void aram::service::SilenceAdaptedAudioEngine::init() {
-	frameReadySignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onFrameReady));
-	playbackPosChangeSignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onPlaybackPositionChange));
+	AudioEngineSignals& signals = AudioEngineSignals::getInstance();
+
+	signals.frameReadySignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onFrameReady));
+	signals.playbackPosChangeSignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onPlaybackPositionChange));
 }
 
 aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
@@ -293,7 +302,7 @@ aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
 
 void aram::service::SilenceAdaptedAudioEngine::mainTurbo() {
 	while (running) {
-		frameReadySignal(1);
+		AudioEngineSignals::getInstance().frameReadySignal(1);
 		this_thread::sleep_for(chrono::milliseconds(50));
 	}
 }
@@ -301,7 +310,7 @@ void aram::service::SilenceAdaptedAudioEngine::mainTurbo() {
 void aram::service::SilenceAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 	frameCountTotal += frameCount;
 	if (playback) {
-		playbackPosChangeSignal(pos_ + frameCount);
+		AudioEngineSignals::getInstance().playbackPosChangeSignal(pos_ + frameCount);
 
 		if (recorder.get() != nullptr) {
 			frameCountRecording += frameCount;

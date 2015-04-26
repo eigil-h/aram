@@ -53,8 +53,6 @@ int main(int argc, char** argv) {
 //	printGPL3(); 
 
 	try {
-		AudioEngine& audioEngine = AudioEngine::getInstance();
-		audioEngine.init();
 		WindowManagerFactory::assemble(argc, argv)->run();
 		cout << "¡hasta luego, amiga!" << endl;
 		return 0;
