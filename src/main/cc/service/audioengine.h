@@ -110,15 +110,17 @@ namespace aram {
 			void removeChannel(const string& channel);
 			void armChannel(const string& channel);
 			void disarmChannel();
+			unsigned sampleRate();
 
 		protected:
 			AudioEngine();
 			void onPlaybackPositionChange(PlaybackPos pos);
+			void onSampleRateChange(unsigned sampleRate);
 
 			unique_ptr<Recorder> recorder;
 			forward_list<pair<string, unique_ptr<ChannelPlayer>>> channels;
 			PlaybackPos pos_;
-
+			unsigned sampleRate_;
 
 		private:
 			static AudioEngine* newAudioEngine();

@@ -23,6 +23,7 @@
 #include <iostream>
 #include <algorithm>
 #include "../easylogging++.h"
+#include "src/main/cc/service/audioengine.h"
 
 
 using namespace aram::service;
@@ -35,8 +36,10 @@ aram::model::Project::Project() {
 }
 
 aram::model::Project::Project(const string& n, const shared_ptr<Audioclip>& ac) :
-id_(aram::service::Database::generateId()), name_(n), frames_(0), sampleRate_(22049), audioclip_(ac) {
+id_(aram::service::Database::generateId()), name_(n), frames_(0), audioclip_(ac) {
 	audioclips_.insert(ac);
+	AudioEngine& ae = AudioEngine::getInstance();
+	sampleRate_ = ae.sampleRate();
 }
 
 aram::model::Project::~Project() {

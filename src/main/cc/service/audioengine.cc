@@ -63,6 +63,11 @@ void aram::service::AudioEngine::onPlaybackPositionChange(aram::service::Playbac
 	}
 }
 
+void aram::service::AudioEngine::onSampleRateChange(unsigned sampleRate) {
+	LOG(DEBUG) << "Sample rate change from " << sampleRate_ << " to " << sampleRate;
+	sampleRate_ = sampleRate;
+}
+
 void aram::service::AudioEngine::backBufferTurbo() {
 	while(backBufferRunning) {
 		this_thread::sleep_for(chrono::milliseconds(1000));
@@ -91,6 +96,11 @@ void aram::service::AudioEngine::armChannel(const string& channel) {
 void aram::service::AudioEngine::disarmChannel() {
 	recorder.reset();
 }
+
+unsigned aram::service::AudioEngine::sampleRate() {
+	return sampleRate_;
+}
+
 
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * AudioEngineSignals
@@ -207,6 +217,8 @@ aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
 		throw runtime_error("Jack server is not running.");
 	}
 
+	sampleRate_ = jack_get_sample_rate(jackClient);
+
 	jack_set_process_callback(jackClient, onFrameReadyJackFun, this);
 	jack_set_xrun_callback(jackClient, onXRunJackFun, this);
 	jack_set_sample_rate_callback(jackClient, onSampleRateChangeJackFun, this);
@@ -222,11 +234,12 @@ aram::service::JackAdaptedAudioEngine::JackAdaptedAudioEngine() {
 
 	physicalInputPort.connectPhysicalPort(jackClient, DIRECTION_INPUT);
 	physicalOutputPort.connectPhysicalPort(jackClient, DIRECTION_OUTPUT);
-
+	
 	AudioEngineSignals& signals = AudioEngineSignals::getInstance();
 
 	signals.frameReadySignal.connect(sigc::mem_fun(this, &JackAdaptedAudioEngine::onFrameReady));
 	signals.playbackPosChangeSignal.connect(sigc::mem_fun(this, &JackAdaptedAudioEngine::onPlaybackPositionChange));
+	signals.sampleRateChangeSignal.connect(sigc::mem_fun(this, &JackAdaptedAudioEngine::onSampleRateChange));
 }
 
 
@@ -275,16 +288,19 @@ void aram::service::JackAdaptedAudioEngine::onFrameReady(unsigned frameCount) {
 /*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx*xXx
  * Silence adapted audio engine
  */
-aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() : 
+aram::service::SilenceAdaptedAudioEngine::SilenceAdaptedAudioEngine() :
 				mainTurboThread(&SilenceAdaptedAudioEngine::mainTurbo, this),
 				running(true), frameCountRecording(0),
 				frameCountTotal(0) {
 	LOG(INFO) << "Constructing the Silence Adapted Audio Engine";
 
+	sampleRate_ = 1000L / 50;
+
 	AudioEngineSignals& signals = AudioEngineSignals::getInstance();
 
 	signals.frameReadySignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onFrameReady));
 	signals.playbackPosChangeSignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onPlaybackPositionChange));
+	signals.sampleRateChangeSignal.connect(sigc::mem_fun(this, &SilenceAdaptedAudioEngine::onSampleRateChange));
 }
 
 aram::service::SilenceAdaptedAudioEngine::~SilenceAdaptedAudioEngine() {
