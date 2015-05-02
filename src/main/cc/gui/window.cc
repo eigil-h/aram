@@ -317,23 +317,21 @@ aram::gui::AudioclipView::AudioclipView() {
 	record.set_image(*getStockImage(Gtk::Stock::MEDIA_RECORD));
 	mark.set_label("Mark");
 	unmark.set_label("Unmark");
+	play.set_image(*getStockImage(Gtk::Stock::MEDIA_PLAY));
 	counter.set_label("0 / 0");
-	markstatus.set_label("Next mark");
 	trimFront.set_label("Trim front");
 	trimBack.set_label("Trim back");
-	loopSolo.set_label("Loop solo");
 	assign.set_label("Assign");
 	unassign.set_label("Unassign");
 
 	attach(record, 0, 0, 2, 2);
 	attach(mark, 2, 0, 1, 2);
 	attach(unmark, 3, 0, 1, 2);
-	attach(counter, 0, 2, 2, 2);
-	attach(markstatus, 2, 2, 1, 2);
+	attach(play, 0, 2, 2, 2);
+	attach(counter, 2, 2, 2, 2);
 	attach(navigator, 0, 4, 4, 2);
 	attach(trimFront, 0, 6, 1, 1);
 	attach(trimBack, 0, 7, 1, 1);
-	attach(loopSolo, 0, 8, 1, 1);
 	attach(assign, 2, 6, 2, 2);
 	attach(unassign, 2, 8, 2, 1);
 }

@@ -142,12 +142,11 @@ namespace aram {
 			Gtk::ToggleButton record;
 			Gtk::Button mark;
 			Gtk::Button unmark;
-			Gtk::Button markstatus;
+			Gtk::ToggleButton play;
 			Gtk::Label counter;
 			Navigator navigator;
 			Gtk::Button trimFront;
 			Gtk::Button trimBack;
-			Gtk::ToggleButton loopSolo;
 			Gtk::Button assign;
 			Gtk::Button unassign;
 		};

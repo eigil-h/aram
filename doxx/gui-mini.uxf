@@ -15,20 +15,6 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>250</x>
-      <y>270</y>
-      <w>80</w>
-      <h>70</h>
-    </coordinates>
-    <panel_attributes>Mark
-status/
-next mark
-bg=green</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
       <x>450</x>
       <y>60</y>
       <w>420</w>
@@ -86,7 +72,7 @@ v Ch#3 - |solo|mute|
     <coordinates>
       <x>80</x>
       <y>190</y>
-      <w>150</w>
+      <w>100</w>
       <h>70</h>
     </coordinates>
     <panel_attributes>Record</panel_attributes>
@@ -121,9 +107,9 @@ channel
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>250</x>
+      <x>200</x>
       <y>190</y>
-      <w>60</w>
+      <w>90</w>
       <h>70</h>
     </coordinates>
     <panel_attributes>Mark</panel_attributes>
@@ -155,7 +141,7 @@ channel
     <id>UMLNote</id>
     <coordinates>
       <x>930</x>
-      <y>320</y>
+      <y>290</y>
       <w>210</w>
       <h>120</h>
     </coordinates>
@@ -181,13 +167,12 @@ bg=#aaddff</panel_attributes>
       <x>930</x>
       <y>190</y>
       <w>210</w>
-      <h>120</h>
+      <h>90</h>
     </coordinates>
-    <panel_attributes>Mark status related to counter: 
+    <panel_attributes>Audioclip counter color codes:
 green=not marked, 
 yellow=soon marked, 
 red=marked
-Click on it and it will take you to next mark.
 bg=#aaddff</panel_attributes>
     <additional_attributes/>
   </element>
@@ -355,11 +340,12 @@ valign=center</panel_attributes>
     <id>UMLClass</id>
     <coordinates>
       <x>80</x>
-      <y>530</y>
+      <y>270</y>
       <w>100</w>
-      <h>30</h>
+      <h>70</h>
     </coordinates>
-    <panel_attributes>Loop solo</panel_attributes>
+    <panel_attributes>Play
+valign=center</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
@@ -379,9 +365,9 @@ bg=#aaddff</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>330</x>
+      <x>310</x>
       <y>190</y>
-      <w>60</w>
+      <w>90</w>
       <h>70</h>
     </coordinates>
     <panel_attributes>Unmark</panel_attributes>
@@ -534,24 +520,25 @@ valign=center</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>80</x>
+      <x>200</x>
       <y>270</y>
-      <w>130</w>
+      <w>200</w>
       <h>70</h>
     </coordinates>
     <panel_attributes>Counter/Total
-valign=center</panel_attributes>
+valign=center
+bg=green</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLNote</id>
     <coordinates>
       <x>930</x>
-      <y>450</y>
+      <y>420</y>
       <w>210</w>
       <h>50</h>
     </coordinates>
-    <panel_attributes>"Loop solo" to figure out where to trim.
+    <panel_attributes>Audioclip 'Play' will always loop.
 bg=#aaddff</panel_attributes>
     <additional_attributes/>
   </element>
@@ -559,7 +546,7 @@ bg=#aaddff</panel_attributes>
     <id>UMLNote</id>
     <coordinates>
       <x>930</x>
-      <y>510</y>
+      <y>480</y>
       <w>210</w>
       <h>120</h>
     </coordinates>
@@ -585,7 +572,7 @@ audioclip
     <id>UMLNote</id>
     <coordinates>
       <x>930</x>
-      <y>640</y>
+      <y>610</y>
       <w>210</w>
       <h>50</h>
     </coordinates>
@@ -626,6 +613,18 @@ valign=center</panel_attributes>
     </coordinates>
     <panel_attributes>halign=left
 bg=#f0f000</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>930</x>
+      <y>670</y>
+      <w>210</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>Audioclip EOF navigation button takes you to next mark!
+bg=#aaddff</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>
