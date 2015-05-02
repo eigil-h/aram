@@ -149,6 +149,16 @@ namespace aram {
 			Gtk::Button trimBack;
 			Gtk::Button assign;
 			Gtk::Button unassign;
+			
+			void onRecordButtonClicked();
+			void onMarkButtonPressed();
+			void onMarkButtonReleased();
+			void onUnmarkButtonClicked();
+			void onPlayButtonClicked();
+			void onTrimFrontButtonClicked();
+			void onTrimBackButtonClicked();
+			void onAssignButtonClicked();
+			void onUnassignButtonClicked();
 		};
 
 		class ChannelView : public Gtk::TreeView {

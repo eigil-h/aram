@@ -316,6 +316,7 @@ aram::gui::Navigator::Navigator() {
 aram::gui::AudioclipView::AudioclipView() {
 	record.set_image(*getStockImage(Gtk::Stock::MEDIA_RECORD));
 	mark.set_label("Mark");
+	mark.set_sensitive(false);
 	unmark.set_label("Unmark");
 	play.set_image(*getStockImage(Gtk::Stock::MEDIA_PLAY));
 	counter.set_label("0 / 0");
@@ -323,6 +324,16 @@ aram::gui::AudioclipView::AudioclipView() {
 	trimBack.set_label("Trim back");
 	assign.set_label("Assign");
 	unassign.set_label("Unassign");
+
+	record.signal_clicked().connect(sigc::mem_fun(this, &AudioclipView::onRecordButtonClicked));
+	mark.signal_pressed().connect(sigc::mem_fun(this, &AudioclipView::onMarkButtonPressed));
+	mark.signal_released().connect(sigc::mem_fun(this, &AudioclipView::onMarkButtonReleased));
+	unmark.signal_clicked().connect(sigc::mem_fun(this, &AudioclipView::onUnmarkButtonClicked));
+	play.signal_clicked().connect(sigc::mem_fun(this, &AudioclipView::onPlayButtonClicked));
+	trimFront.signal_clicked().connect(sigc::mem_fun(this, &AudioclipView::onTrimFrontButtonClicked));
+	trimBack.signal_clicked().connect(sigc::mem_fun(this, &AudioclipView::onTrimBackButtonClicked));
+	assign.signal_clicked().connect(sigc::mem_fun(this, &AudioclipView::onAssignButtonClicked));
+	unassign.signal_clicked().connect(sigc::mem_fun(this, &AudioclipView::onUnassignButtonClicked));
 
 	attach(record, 0, 0, 2, 2);
 	attach(mark, 2, 0, 1, 2);
@@ -335,6 +346,59 @@ aram::gui::AudioclipView::AudioclipView() {
 	attach(assign, 2, 6, 2, 2);
 	attach(unassign, 2, 8, 2, 1);
 }
+
+void aram::gui::AudioclipView::onRecordButtonClicked() {
+	LOG(DEBUG);
+
+}
+
+void aram::gui::AudioclipView::onMarkButtonPressed() {
+	LOG(DEBUG);
+
+}
+
+void aram::gui::AudioclipView::onMarkButtonReleased() {
+	LOG(DEBUG);
+
+}
+
+void aram::gui::AudioclipView::onUnmarkButtonClicked() {
+	LOG(DEBUG);
+
+}
+
+void aram::gui::AudioclipView::onPlayButtonClicked() {
+	if(play.get_active()) {
+		LOG(DEBUG) << "Play button activated";
+
+		mark.set_sensitive(true);
+	} else {
+		LOG(DEBUG) << "Play button inactivated";
+
+		mark.set_sensitive(false);
+	}
+}
+
+void aram::gui::AudioclipView::onTrimFrontButtonClicked() {
+	LOG(DEBUG);
+
+}
+
+void aram::gui::AudioclipView::onTrimBackButtonClicked() {
+	LOG(DEBUG);
+
+}
+
+void aram::gui::AudioclipView::onAssignButtonClicked() {
+	LOG(DEBUG);
+
+}
+
+void aram::gui::AudioclipView::onUnassignButtonClicked() {
+	LOG(DEBUG);
+
+}
+
 
 aram::gui::ProjectView::ProjectView() {
 	counter.set_label("0 / 0");
