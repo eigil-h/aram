@@ -50,7 +50,6 @@ aram::service::AudioEngine::AudioEngine() :
 
 aram::service::AudioEngine::~AudioEngine() {
 	backBufferRunning = false;
-//	this_thread::sleep_for(chrono::milliseconds(1100));
 	backBufferThread.join();
 }
 
@@ -78,7 +77,9 @@ void aram::service::AudioEngine::backBufferTurbo() {
 			}
 		}
 		
-		//for each channel - loadBackBuffer
+		for_each(channels.begin(), channels.end(), [&](pair<string, unique_ptr<ChannelPlayer>>& channel) {
+			channel.second->loadBackBuffers();
+		});
 	}
 }
 

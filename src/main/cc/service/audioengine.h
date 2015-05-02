@@ -68,7 +68,7 @@ namespace aram {
 
 		public:
 			ChannelPlayer(const string& channel);
-			//return false if fail. It's called by RT thread, so we don't want overhead of throwing exception.
+			//return false if fail. It's called by RT thread, so we don't want potential overhead of throwing exception.
 			bool playback(Samples left, Samples right, unsigned count);
 			void loadBackBuffers();
 			void setPosition(PlaybackPos pos);
@@ -89,13 +89,8 @@ namespace aram {
 		};
 
 		/**
-		 * Abstract audio engine with concrete signal storage.
+		 * Abstract singleton audio engine.
 		 * Subclasses make real representation of audio engines like JACK.
-		 * Implemented as singleton because we always want one and only one
-		 * audio engine instance. This way it becomes easy for C style audio engine
-		 * callbacks to access the signal storage contained here.
-		 *
-		 * !..Keep in mind: possible concurrency issues while changing state..!
 		 */
 		class AudioEngine {
 		public:
