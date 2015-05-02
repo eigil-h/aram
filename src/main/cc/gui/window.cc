@@ -19,7 +19,6 @@
 #include "window.h"
 #include <iostream>
 #include "../service/audioengine.h"
-#include "../service/controller.h"
 #include "../model/project.h"
 #include "../easylogging++.h"
 
@@ -80,10 +79,10 @@ aram::gui::ProjectMenu::ProjectMenu() {
 	open.signal_clicked().connect(sigc::mem_fun(this, &ProjectMenu::onOpen));
 	edit.signal_clicked().connect(sigc::mem_fun(this, &ProjectMenu::onEdit));
 	
-	Controller::getInstance().anotherProjectSelected.connect(
+	GuiSignal::getInstance().anotherProjectSelected.connect(
 					sigc::mem_fun(this, &ProjectMenu::onStatsChanged));
 
-	Controller::getInstance().projectEdited.connect(
+	GuiSignal::getInstance().projectEdited.connect(
 					sigc::mem_fun(this, &ProjectMenu::onStatsChanged));
 
 	pack_start(create);
@@ -103,7 +102,7 @@ void aram::gui::ProjectMenu::onCreate() {
 				project = Project::createNew();
 				project->rename(dialog.name());
 				Project::setCurrent(project);
-				Controller::getInstance().anotherProjectSelected();
+				GuiSignal::getInstance().anotherProjectSelected();
 				LOG(INFO) << "New project \"" << dialog.name() << "\" created and selected.";
 			} else {
 				LOG(DEBUG) << "RESPONSE_OK with same name";
@@ -129,7 +128,7 @@ void aram::gui::ProjectMenu::onOpen() {
 			if(dialog.selectedId() != project->id()) {
 				project = Project::retrieveById(dialog.selectedId());
 				Project::setCurrent(project);
-				Controller::getInstance().anotherProjectSelected();
+				GuiSignal::getInstance().anotherProjectSelected();
 				LOG(INFO) << "\"" << project->name() << "\" selected.";
 			} else {
 				LOG(DEBUG) << "RESPONSE_OK with same name";
@@ -155,7 +154,7 @@ void aram::gui::ProjectMenu::onEdit() {
 			if (dialog.name() != project->name()) {
 				string oldname = project->name();
 				project->rename(dialog.name());
-				Controller::getInstance().projectEdited();
+				GuiSignal::getInstance().projectEdited();
 				LOG(INFO) << "\"" << oldname << "\" renamed to \"" << dialog.name() << "\"";
 			} else {
 				LOG(DEBUG) << "RESPONSE_OK with same name";
@@ -189,10 +188,10 @@ aram::gui::AudioclipMenu::AudioclipMenu() {
 	open.signal_clicked().connect(sigc::mem_fun(this, &AudioclipMenu::onOpen));
 	edit.signal_clicked().connect(sigc::mem_fun(this, &AudioclipMenu::onEdit));
 
-	Controller::getInstance().anotherAudioclipSelected.connect(
+	GuiSignal::getInstance().anotherAudioclipSelected.connect(
 					sigc::mem_fun(this, &AudioclipMenu::onStatsChanged));
 
-	Controller::getInstance().audioclipEdited.connect(
+	GuiSignal::getInstance().audioclipEdited.connect(
 					sigc::mem_fun(this, &AudioclipMenu::onStatsChanged));
 
 	pack_start(stats);
@@ -213,7 +212,7 @@ void aram::gui::AudioclipMenu::onCreate() {
 				audioclip = Audioclip::createNew();
 				audioclip->rename(dialog.name());
 				Audioclip::setCurrent(audioclip);
-				Controller::getInstance().anotherAudioclipSelected();
+				GuiSignal::getInstance().anotherAudioclipSelected();
 				LOG(INFO) << "New audioclip \"" << dialog.name() << "\" created and selected.";
 			} else {
 				LOG(DEBUG) << "RESPONSE_OK with same name";
@@ -240,7 +239,7 @@ void aram::gui::AudioclipMenu::onOpen() {
 			if (dialog.selectedId() != audioclip->id()) {
 				audioclip = Audioclip::retrieveById(dialog.selectedId());
 				Audioclip::setCurrent(audioclip);
-				Controller::getInstance().anotherAudioclipSelected();
+				GuiSignal::getInstance().anotherAudioclipSelected();
 				LOG(INFO) << "\"" << audioclip->name() << "\" selected.";
 			} else {
 				LOG(DEBUG) << "RESPONSE_OK with same name";
@@ -267,7 +266,7 @@ void aram::gui::AudioclipMenu::onEdit() {
 			if (dialog.name() != audioclip->name()) {
 				string oldname = audioclip->name();
 				audioclip->rename(dialog.name());
-				Controller::getInstance().audioclipEdited();
+				GuiSignal::getInstance().audioclipEdited();
 				LOG(INFO) << "\"" << oldname << "\" renamed to \"" << dialog.name() << "\"";
 			} else {
 				LOG(DEBUG) << "RESPONSE_OK with same name";
@@ -421,4 +420,9 @@ aram::gui::EditDialog::EditDialog(const string& title, const string& name) :
 
 string aram::gui::EditDialog::name() const {
 	return renameEntry.get_text();
+}
+
+aram::gui::GuiSignal& aram::gui::GuiSignal::getInstance() {
+	static GuiSignal instance;
+	return instance;
 }

@@ -189,6 +189,17 @@ namespace aram {
 		public:
 			Window();
 		};
+
+		class GuiSignal {
+		public:
+			static GuiSignal& getInstance();
+
+			sigc::signal<void> projectEdited;
+			sigc::signal<void> anotherProjectSelected;
+			sigc::signal<void> audioclipEdited;
+			sigc::signal<void> anotherAudioclipSelected;
+		private:
+		};
 	}
 }
 #endif
